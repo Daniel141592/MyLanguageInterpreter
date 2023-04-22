@@ -20,7 +20,8 @@ void MyLangLexer::initializeKeywordsAndSpecialChars() {
             {"is", TokenType::IS},
             {"func", TokenType::FUNC_KEYWORD},
             {"none", TokenType::NONE_KEYWORD},
-            {"ref", TokenType::REF_KEYWORD}
+            {"ref", TokenType::REF_KEYWORD},
+            {"return", TokenType::RETURN}
     };
 
     specialChars = {
@@ -48,27 +49,66 @@ void MyLangLexer::initializeKeywordsAndSpecialChars() {
 
 MyLangLexer::MyLangLexer(std::istream &i, HandlerType error) : is(i), errorHandler(std::move(error)) {
     MyLangLexer::initializeKeywordsAndSpecialChars();
-    i.get(ch);
+    i.get(currentChar);
 }
 
 Token MyLangLexer::getToken() const {
     return token;
 }
 
-bool MyLangLexer::nextCharacter() {
-    if (ch == '\n') {       //TODO ogarnąć inne sekwencje końca linii
+bool MyLangLexer::newLineSeqReached() {
+    if (newLineSeq.size() == 1 && newLineSeq[0] == currentChar) {
+        is.get(currentChar);
+        if ((currentChar == '\r' || currentChar == '\n') && currentChar != newLineSeq[0]) {
+            errorHandler(position, ErrorType::InconsistentNewlineSequence);
+            is.get(currentChar);
+        }
+        return true;
+    }
+    if (newLineSeq.size() == 2 && newLineSeq[0] == currentChar) {
+        is.get(currentChar);
+        if (newLineSeq[1] == currentChar) {
+            is.get(currentChar);
+            return true;
+        }
+        return false;
+    }
+    is.get(currentChar);
+    return false;
+}
+
+void MyLangLexer::trySetNewlineSeq() {
+    if (currentChar == '\n' || currentChar == '\r') {
+        newLineSeq += currentChar;
         position.setColumn(1);
         position.addLine();
-    } else
+        is.get(currentChar);
+        if ((currentChar == '\r' || currentChar == '\n') && currentChar != newLineSeq[0]) {
+            newLineSeq += currentChar;
+            is.get(currentChar);
+        }
+        return;
+    }
+    position.addColumn();
+    is.get(currentChar);
+}
+
+bool MyLangLexer::nextCharacter() {
+    if (!newLineSeq.empty() && newLineSeqReached()) {
+        position.setColumn(1);
+        position.addLine();
+    } else if (!newLineSeq.empty()) {
         position.addColumn();
-    is.get(ch);
+    } else {
+        trySetNewlineSeq();
+    }
     if (is.eof())
         return false;
     return true;
 }
 
 bool MyLangLexer::nextToken() {
-    while (isspace(ch) && nextCharacter());
+    while (isspace(currentChar) && nextCharacter());
     if (is.eof()) {
         token = Token(TokenType::END_OF_TEXT, position);
         return true;
@@ -86,15 +126,15 @@ bool MyLangLexer::nextToken() {
 }
 
 bool MyLangLexer::tryBuildSimpleTokens() {
-    if (!simpleTokens.count(ch))
+    if (!simpleTokens.count(currentChar))
         return false;
     Position tokenPosition = position;
-    if (ch == '=' || ch == '>' || ch == '<' || ch == '/') {
-        char first = ch;
+    if (currentChar == '=' || currentChar == '>' || currentChar == '<' || currentChar == '/') {
+        char first = currentChar;
         if (!nextCharacter()) {
-            token = Token(simpleTokens[ch], tokenPosition);
+            token = Token(simpleTokens[currentChar], tokenPosition);
         } else {
-            std::string str = std::string() + first + ch;
+            std::string str = std::string() + first + currentChar;
             if (twoCharactersTokens.count(str)) {
                 token = Token(twoCharactersTokens[str], tokenPosition);
                 nextCharacter();
@@ -103,21 +143,21 @@ bool MyLangLexer::tryBuildSimpleTokens() {
                 token = Token(simpleTokens[first], tokenPosition);
         }
     } else {
-        token = Token(simpleTokens[ch], tokenPosition);
+        token = Token(simpleTokens[currentChar], tokenPosition);
         nextCharacter();
     }
     return true;
 }
 
 bool MyLangLexer::tryBuildNumber() {
-    if (!isdigit(ch))
+    if (!isdigit(currentChar))
         return false;
-    int value = ch - '0';
+    int value = currentChar - '0';
     Position tokenPosition = position;
     nextCharacter();
     if (value != 0) {
-        while (isdigit(ch)) {
-            int decimal = ch - '0';
+        while (isdigit(currentChar)) {
+            int decimal = currentChar - '0';
             if ((INTMAX_MAX - decimal) / 10 > value)
                 value = value * 10 + decimal;
             else
@@ -128,13 +168,13 @@ bool MyLangLexer::tryBuildNumber() {
             }
         }
     }
-    if (ch == '.') {
+    if (currentChar == '.') {
         nextCharacter();
         int numOfDecimals = 0;
         int fraction = 0;
-        while (isdigit(ch)) {
+        while (isdigit(currentChar)) {
             ++numOfDecimals;
-            int decimal = ch - '0';
+            int decimal = currentChar - '0';
             if ((INTMAX_MAX - decimal) / 10 > fraction)
                 fraction = fraction * 10 + decimal;
             else
@@ -155,14 +195,14 @@ bool MyLangLexer::tryBuildNumber() {
 }
 
 bool MyLangLexer::tryBuildIdentifierOrKeyword() {
-    if (!isalpha(ch) && ch != '_')
+    if (!isalpha(currentChar) && currentChar != '_')
         return false;
     Position tokenPosition = position;
     std::string str;
     int size = 0;
 
-    while (isalpha(ch) || isdigit(ch) || ch == '_') {
-        str += ch;
+    while (isalpha(currentChar) || isdigit(currentChar) || currentChar == '_') {
+        str += currentChar;
         if (!nextCharacter()) {
             errorHandler(tokenPosition, ErrorType::UnexpectedEndOfText);
             break;
@@ -181,14 +221,14 @@ bool MyLangLexer::tryBuildIdentifierOrKeyword() {
 }
 
 bool MyLangLexer::tryBuildComment() {
-    if (ch != '$')
+    if (currentChar != '$')
         return false;
     Position tokenPosition = position;
     std::string str;
     int size = 0;
     nextCharacter();
-    while (ch != '\n') {
-        str += ch;
+    while (currentChar != '\n' && currentChar != '\r') {
+        str += currentChar;
         if (size++ >= MAX_COMMENT_LENGTH) {
             errorHandler(tokenPosition, ErrorType::TooLongComment);
             break;
@@ -201,7 +241,7 @@ bool MyLangLexer::tryBuildComment() {
 }
 
 bool MyLangLexer::tryBuildString() {
-    if (ch != '"')
+    if (currentChar != '"')
         return false;
     Position tokenPosition = position;
     if (!nextCharacter()) {
@@ -210,19 +250,19 @@ bool MyLangLexer::tryBuildString() {
 
     std::string str;
     int size = 0;
-    while (ch != '"') {
-        if (ch == '\\') {
+    while (currentChar != '"') {
+        if (currentChar == '\\') {
             if (!nextCharacter()) {
                 errorHandler(tokenPosition, ErrorType::UnexpectedEndOfText);
                 break;
             }
-            if (!specialChars.count(ch)) {
+            if (!specialChars.count(currentChar)) {
                 errorHandler(position, ErrorType::UnknownEscapeCharacter);
             } else {
-                str += specialChars[ch];
+                str += specialChars[currentChar];
             }
         } else {
-            str += ch;
+            str += currentChar;
         }
         if (!nextCharacter()) {
             errorHandler(tokenPosition, ErrorType::UnexpectedEndOfText);
@@ -235,7 +275,7 @@ bool MyLangLexer::tryBuildString() {
     }
 
     token = Token(TokenType::STRING_LITERAL, str, tokenPosition);
-    if (ch == '"')
+    if (currentChar == '"')
         nextCharacter();
     return true;
 }

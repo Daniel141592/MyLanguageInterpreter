@@ -16,9 +16,12 @@ class MyLangLexer : public Lexer {
     Position position;
     std::istream& is;
     HandlerType errorHandler;
-    char ch{};
+    char currentChar{};
+    std::string newLineSeq;
 
     bool nextCharacter();
+    bool newLineSeqReached();
+    void trySetNewlineSeq();
     bool tryBuildSimpleTokens();
     bool tryBuildNumber();
     bool tryBuildIdentifierOrKeyword();

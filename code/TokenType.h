@@ -41,7 +41,8 @@ enum TokenType {
     FLOAT_KEYWORD,
     STRING_KEYWORD,
     DOT,
-    IDENTIFIER
+    IDENTIFIER,
+    RETURN
 };
 
 

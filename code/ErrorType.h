@@ -4,7 +4,7 @@
 
 enum ErrorType {
     IntRangeError, IncorrectFloatValue, UnknownToken, UnexpectedEndOfText, UnknownEscapeCharacter,
-    TooLongStringLiteral, TooLongIdentifier, TooLongComment, OtherError
+    TooLongStringLiteral, TooLongIdentifier, TooLongComment, InconsistentNewlineSequence, OtherError
 };
 
 

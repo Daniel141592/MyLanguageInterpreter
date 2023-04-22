@@ -39,11 +39,11 @@ void onLexerError(Position position, ErrorType error) {
     std::cout << "column: " << position.getColumn() << '\n';
 }
 
-void printTokens(std::istream& istream) {
+void printTokens(std::istream& istream, int maxTokenCount = 4096) {
     MyLangLexer lexer(istream, onLexerError);
     Token token;
     std::cout.precision(10);
-    while (token.getType() != TokenType::END_OF_TEXT) {
+    while (maxTokenCount--) {
         if (!lexer.nextToken())
             continue;
         token = lexer.getToken();
@@ -71,6 +71,9 @@ void printTokens(std::istream& istream) {
                 std::cout << "operator or keyword" << '\n'; //TODO spróbować wyświetlić typ dokładniej
                 break;
         }
+    }
+    if (!maxTokenCount) {
+        std::cout << "reached maxTokenCount\n";
     }
 }
 
