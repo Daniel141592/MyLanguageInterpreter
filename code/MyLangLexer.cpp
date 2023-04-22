@@ -71,7 +71,13 @@ bool MyLangLexer::newLineSeqReached() {
             is.get(currentChar);
             return true;
         }
-        return false;
+        errorHandler(position, ErrorType::InconsistentNewlineSequence);
+        return true;
+    }
+    if (currentChar == '\r' || currentChar == '\n') {
+        errorHandler(position, ErrorType::InconsistentNewlineSequence);
+        is.get(currentChar);
+        return true;
     }
     is.get(currentChar);
     return false;
