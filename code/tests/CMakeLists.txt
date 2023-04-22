@@ -1,6 +1,6 @@
 set(CMAKE_CXX_STANDARD 17)
 
-cmake_minimum_required(VERSION 3.25)
+cmake_minimum_required(VERSION 3.24)
 
 enable_testing()
 find_package(GTest REQUIRED)
