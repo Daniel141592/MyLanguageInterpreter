@@ -2,7 +2,7 @@
 #define CODE_TOKENTYPE_H
 
 
-enum TokenType {
+enum class TokenType {
     END_OF_TEXT,
     MUT,
     COMMENT,

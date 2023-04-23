@@ -2,7 +2,7 @@
 #define CODE_ERRORTYPE_H
 
 
-enum ErrorType {
+enum class ErrorType {
     IntRangeError, IncorrectFloatValue, UnknownToken, UnexpectedEndOfText, UnknownEscapeCharacter,
     TooLongStringLiteral, TooLongIdentifier, TooLongComment, InconsistentNewlineSequence, OtherError
 };
