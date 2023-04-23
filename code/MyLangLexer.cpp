@@ -209,10 +209,8 @@ bool MyLangLexer::tryBuildIdentifierOrKeyword() {
 
     while (isalpha(currentChar) || isdigit(currentChar) || currentChar == '_') {
         str += currentChar;
-        if (!nextCharacter()) {
-            errorHandler(tokenPosition, ErrorType::UnexpectedEndOfText);
+        if (!nextCharacter())
             break;
-        }
         if (size++ >= MAX_IDENTIFIER_LENGTH) {
             errorHandler(tokenPosition, ErrorType::TooLongIdentifier);
             break;

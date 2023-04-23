@@ -1,5 +1,4 @@
 #include <gtest/gtest.h>
-
 #include <sstream>
 
 #include "../MyLangLexer.h"
@@ -7,10 +6,6 @@
 int main(int argc, char **argv) {
     ::testing::InitGoogleTest(&argc, argv);
     return RUN_ALL_TESTS();
-}
-
-TEST(LexerTests, MultiplicationCorrectTest) {
-    ASSERT_EQ(21, 3 * 7);
 }
 
 TEST(LexerTests, PositionTest) {
@@ -24,5 +19,3 @@ TEST(LexerTests, KeywordMapTest) {
     MyLangLexer::initializeKeywordsAndSpecialChars();
     ASSERT_EQ(MyLangLexer::keywords["mut"], TokenType::MUT);
 }
-
-//TODO wincyj testów

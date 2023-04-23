@@ -30,6 +30,9 @@ void onLexerError(Position position, ErrorType error) {
         case TooLongComment:
             std::cout << "TooLongComment";
             break;
+        case InconsistentNewlineSequence:
+            std::cout << "InconsistentNewlineSequence";
+            break;
         case OtherError:
             std::cout << "OtherError";
             break;
@@ -83,7 +86,7 @@ int main(int argc, char** argv) {
         printTokens(fin);
         fin.close();
     } else {
-        std::string test = "<<=1.12345678 420.069 loop if nazwa_zmiennej 2137$papież XD\n\"test\\\\backslash\"   \n\"cytat \\\"lubie piwo\\\"\"$chu1";
+        std::string test = "Pierwsza\rczworka\rpodaj\r\nkrok";
         std::istringstream iss(test);
         printTokens(iss);
     }
