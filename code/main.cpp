@@ -86,7 +86,7 @@ int main(int argc, char** argv) {
         printTokens(fin);
         fin.close();
     } else {
-        std::string test = "Pierwsza\rczworka\rpodaj\r\nkrok";
+        std::string test = "jeden\ndwa\ntrzy\ncztery\n";
         std::istringstream iss(test);
         printTokens(iss);
     }

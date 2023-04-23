@@ -119,45 +119,44 @@ bool MyLangLexer::nextToken() {
         token = Token(TokenType::END_OF_TEXT, position);
         return true;
     }
-    if (tryBuildSimpleTokens()  //TODO rozważyć migrację na std::optional
-        || tryBuildNumber()
-        || tryBuildIdentifierOrKeyword()
-        || tryBuildComment()
-        || tryBuildString()) {
-            return true;
+    std::optional<Token> result = tryBuildSimpleTokens();
+    result = result ? result : tryBuildNumber();
+    result = result ? result : tryBuildIdentifierOrKeyword();
+    result = result ? result : tryBuildComment();
+    result = result ? result : tryBuildString();
+    if (result) {
+        token = *result;
+        return true;
     }
     errorHandler(position, ErrorType::UnknownToken);
     nextCharacter();
     return false;
 }
 
-bool MyLangLexer::tryBuildSimpleTokens() {
+std::optional<Token> MyLangLexer::tryBuildSimpleTokens() {
     if (!simpleTokens.count(currentChar))
-        return false;
+        return {};
     Position tokenPosition = position;
     if (currentChar == '=' || currentChar == '>' || currentChar == '<' || currentChar == '/') {
         char first = currentChar;
         if (!nextCharacter()) {
-            token = Token(simpleTokens[currentChar], tokenPosition);
-        } else {
-            std::string str = std::string() + first + currentChar;
-            if (twoCharactersTokens.count(str)) {
-                token = Token(twoCharactersTokens[str], tokenPosition);
-                nextCharacter();
-            }
-            else
-                token = Token(simpleTokens[first], tokenPosition);
+            return Token(simpleTokens[currentChar], tokenPosition);
         }
-    } else {
-        token = Token(simpleTokens[currentChar], tokenPosition);
-        nextCharacter();
+        std::string str = std::string() + first + currentChar;
+        if (twoCharactersTokens.count(str)) {
+            nextCharacter();
+            return Token(twoCharactersTokens[str], tokenPosition);
+        }
+        return Token(simpleTokens[first], tokenPosition);
     }
-    return true;
+    char value = currentChar;
+    nextCharacter();
+    return Token(simpleTokens[value], tokenPosition);
 }
 
-bool MyLangLexer::tryBuildNumber() {
+std::optional<Token> MyLangLexer::tryBuildNumber() {
     if (!isdigit(currentChar))
-        return false;
+        return {};
     int value = currentChar - '0';
     Position tokenPosition = position;
     nextCharacter();
@@ -169,8 +168,7 @@ bool MyLangLexer::tryBuildNumber() {
             else
                 errorHandler(tokenPosition, ErrorType::IntRangeError);
             if (!nextCharacter()) {
-                token = Token(TokenType::INTEGER_VALUE, value, tokenPosition);
-                return true;
+                return Token(TokenType::INTEGER_VALUE, value, tokenPosition);
             }
         }
     }
@@ -186,23 +184,21 @@ bool MyLangLexer::tryBuildNumber() {
             else
                 errorHandler(tokenPosition, ErrorType::IntRangeError);
             if (!nextCharacter()) {
-                token = Token(TokenType::FLOAT_VALUE, value + fraction / pow(10, numOfDecimals), tokenPosition);
-                return true;
+                return Token(TokenType::FLOAT_VALUE, value + fraction / pow(10, numOfDecimals), tokenPosition);
             }
         }
         if (!numOfDecimals)
             errorHandler(tokenPosition, ErrorType::IncorrectFloatValue);
 
         double floatValue = value + fraction / pow(10, numOfDecimals);
-        token = Token(TokenType::FLOAT_VALUE, floatValue, tokenPosition);
-    } else
-        token = Token(TokenType::INTEGER_VALUE, value, tokenPosition);
-    return true;
+        return Token(TokenType::FLOAT_VALUE, floatValue, tokenPosition);
+    }
+    return Token(TokenType::INTEGER_VALUE, value, tokenPosition);
 }
 
-bool MyLangLexer::tryBuildIdentifierOrKeyword() {
+std::optional<Token> MyLangLexer::tryBuildIdentifierOrKeyword() {
     if (!isalpha(currentChar) && currentChar != '_')
-        return false;
+        return {};
     Position tokenPosition = position;
     std::string str;
     int size = 0;
@@ -218,15 +214,13 @@ bool MyLangLexer::tryBuildIdentifierOrKeyword() {
     }
 
     if (keywords.count(str))
-        token = Token(keywords[str], tokenPosition);
-    else
-        token = Token(TokenType::IDENTIFIER, str, tokenPosition);
-    return true;
+        return Token(keywords[str], tokenPosition);
+    return Token(TokenType::IDENTIFIER, str, tokenPosition);
 }
 
-bool MyLangLexer::tryBuildComment() {
+std::optional<Token> MyLangLexer::tryBuildComment() {
     if (currentChar != '$')
-        return false;
+        return {};
     Position tokenPosition = position;
     std::string str;
     int size = 0;
@@ -240,13 +234,12 @@ bool MyLangLexer::tryBuildComment() {
         if (!nextCharacter())
             break;
     }
-    token = Token(TokenType::COMMENT, str, tokenPosition);
-    return true;
+    return Token(TokenType::COMMENT, str, tokenPosition);
 }
 
-bool MyLangLexer::tryBuildString() {
+std::optional<Token> MyLangLexer::tryBuildString() {
     if (currentChar != '"')
-        return false;
+        return {};
     Position tokenPosition = position;
     if (!nextCharacter()) {
         errorHandler(tokenPosition, ErrorType::UnexpectedEndOfText);
@@ -277,9 +270,7 @@ bool MyLangLexer::tryBuildString() {
             break;
         }
     }
-
-    token = Token(TokenType::STRING_LITERAL, str, tokenPosition);
     if (currentChar == '"')
         nextCharacter();
-    return true;
+    return Token(TokenType::STRING_LITERAL, str, tokenPosition);
 }

@@ -5,6 +5,7 @@
 #include <functional>
 #include <utility>
 #include <cmath>
+#include <optional>
 
 #include "Lexer.h"
 #include "ErrorType.h"
@@ -22,11 +23,12 @@ class MyLangLexer : public Lexer {
     bool nextCharacter();
     bool newLineSeqReached();
     void trySetNewlineSeq();
-    bool tryBuildSimpleTokens();
-    bool tryBuildNumber();
-    bool tryBuildIdentifierOrKeyword();
-    bool tryBuildComment();
-    bool tryBuildString();
+
+    std::optional<Token> tryBuildSimpleTokens();
+    std::optional<Token> tryBuildNumber();
+    std::optional<Token> tryBuildIdentifierOrKeyword();
+    std::optional<Token> tryBuildComment();
+    std::optional<Token> tryBuildString();
 public:
     static std::map<std::string, TokenType> keywords;
     static std::map<char, char> specialChars;
