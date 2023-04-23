@@ -42,7 +42,8 @@ void MyLangLexer::initializeKeywordsAndSpecialChars() {
 
     twoCharactersTokens = {
             {">=", TokenType::GREATER_OR_EQUAL}, {"<=", TokenType::LESS_OR_EQUAL},
-            {"==", TokenType::EQUAL}, {"//", TokenType::INT_DIVISION}
+            {"==", TokenType::EQUAL}, {"!=", TokenType::NOT_EQUAL},
+            {"//", TokenType::INT_DIVISION}
     };
 }
 
@@ -136,7 +137,7 @@ std::optional<Token> MyLangLexer::tryBuildSimpleTokens() {
     if (!simpleTokens.count(currentChar))
         return {};
     Position tokenPosition = position;
-    if (currentChar == '=' || currentChar == '>' || currentChar == '<' || currentChar == '/') {
+    if (currentChar == '=' || currentChar == '>' || currentChar == '<' || currentChar == '/' || currentChar == '!') {
         char first = currentChar;
         if (!nextCharacter()) {
             return Token(simpleTokens[currentChar], tokenPosition);

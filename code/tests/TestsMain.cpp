@@ -19,3 +19,17 @@ TEST(LexerTests, KeywordMapTest) {
     MyLangLexer::initializeKeywordsAndSpecialChars();
     ASSERT_EQ(MyLangLexer::keywords["mut"], TokenType::MUT);
 }
+
+TEST(LexerTests, EOTTest) {
+    std::istringstream iss("mut var = 7;");
+    bool errorOccurred = false;
+    MyLangLexer lexer(iss,  [&errorOccurred](Position p, ErrorType e){errorOccurred = true;});
+    lexer.nextToken();
+    lexer.nextToken();
+    lexer.nextToken();
+    lexer.nextToken();
+    lexer.nextToken();
+    lexer.nextToken();
+    ASSERT_EQ(lexer.getToken().getType(), TokenType::END_OF_TEXT);
+    ASSERT_FALSE(errorOccurred);
+}

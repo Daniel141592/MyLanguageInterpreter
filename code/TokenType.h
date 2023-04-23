@@ -23,6 +23,7 @@ enum TokenType {
     COMMA,
     ASSIGN,
     EQUAL,
+    NOT_EQUAL,
     GREATER_THAN,
     LESS_THAN,
     GREATER_OR_EQUAL,
