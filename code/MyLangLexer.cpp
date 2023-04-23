@@ -225,7 +225,7 @@ std::optional<Token> MyLangLexer::tryBuildComment() {
     nextCharacter();
     while (currentChar != '\n' && currentChar != '\r') {
         str += currentChar;
-        if (size++ >= MAX_COMMENT_LENGTH) {
+        if (++size >= MAX_COMMENT_LENGTH) {
             errorHandler(tokenPosition, ErrorType::TooLongComment);
             break;
         }
