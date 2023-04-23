@@ -33,3 +33,15 @@ TEST(LexerTests, EOTTest) {
     ASSERT_EQ(lexer.getToken().getType(), TokenType::END_OF_TEXT);
     ASSERT_FALSE(errorOccurred);
 }
+
+TEST(LexerTests, NextTokenWhenEOTAlreadyOccurred) {
+    std::istringstream iss("mut var");
+    bool errorOccurred = false;
+    MyLangLexer lexer(iss,  [&errorOccurred](Position p, ErrorType e){errorOccurred = true;});
+    lexer.nextToken();
+    lexer.nextToken();
+    lexer.nextToken();
+    lexer.nextToken();
+    ASSERT_EQ(lexer.getToken().getType(), TokenType::END_OF_TEXT);
+    ASSERT_FALSE(errorOccurred);
+}
