@@ -1,10 +1,10 @@
 #include "MyLangLexer.h"
 #include "ErrorType.h"
 
-std::map<std::string, TokenType> MyLangLexer::keywords;
-std::map<char, char> MyLangLexer::specialChars;
-std::map<char, TokenType> MyLangLexer::simpleTokens;
-std::map<std::string, TokenType> MyLangLexer::twoCharactersTokens;
+std::unordered_map<std::string, TokenType> MyLangLexer::keywords;
+std::unordered_map<char, char> MyLangLexer::specialChars;
+std::unordered_map<char, TokenType> MyLangLexer::simpleTokens;
+std::unordered_map<std::string, TokenType> MyLangLexer::twoCharactersTokens;
 
 void MyLangLexer::initializeKeywordsAndSpecialChars() {
     keywords = {

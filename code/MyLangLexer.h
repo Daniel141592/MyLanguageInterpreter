@@ -30,10 +30,10 @@ class MyLangLexer : public Lexer {
     std::optional<Token> tryBuildComment();
     std::optional<Token> tryBuildString();
 public:
-    static std::map<std::string, TokenType> keywords;
-    static std::map<char, char> specialChars;
-    static std::map<char, TokenType> simpleTokens;
-    static std::map<std::string, TokenType> twoCharactersTokens;
+    static std::unordered_map<std::string, TokenType> keywords;
+    static std::unordered_map<char, char> specialChars;
+    static std::unordered_map<char, TokenType> simpleTokens;
+    static std::unordered_map<std::string, TokenType> twoCharactersTokens;
     const static int MAX_STRING_LITERAL_LENGTH = 2048;
     const static int MAX_IDENTIFIER_LENGTH = 2048;
     const static int MAX_COMMENT_LENGTH = 2048;

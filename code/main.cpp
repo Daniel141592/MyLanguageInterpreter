@@ -1,43 +1,14 @@
 #include <iostream>
 #include <sstream>
 #include <fstream>
+
 #include "MyLangLexer.h"
+#include "print_utils.h"
 
 void onLexerError(Position position, ErrorType error) {
     std::cout << "Error: ";
-    switch (error) {
-        case IntRangeError:
-            std::cout << "IntRangeError";
-            break;
-        case IncorrectFloatValue:
-            std::cout << "IncorrectFloatValue";
-            break;
-        case UnknownToken:
-            std::cout << "UnknownToken";
-            break;
-        case UnexpectedEndOfText:
-            std::cout << "UnexpectedEndOfText";
-            break;
-        case UnknownEscapeCharacter:
-            std::cout << "UnknownEscapeCharacter";
-            break;
-        case TooLongStringLiteral:
-            std::cout << "TooLongStringLiteral";
-            break;
-        case TooLongIdentifier:
-            std::cout << "TooLongIdentifier";
-            break;
-        case TooLongComment:
-            std::cout << "TooLongComment";
-            break;
-        case InconsistentNewlineSequence:
-            std::cout << "InconsistentNewlineSequence";
-            break;
-        case OtherError:
-            std::cout << "OtherError";
-            break;
-    }
-    std::cout <<"\n\t";
+    using PrintUtils::toString;
+    std::cout << toString(error) <<"\n\t";
     std::cout << "line: " << position.getLine() << ' ';
     std::cout << "column: " << position.getColumn() << '\n';
 }
@@ -71,7 +42,8 @@ void printTokens(std::istream& istream, int maxTokenCount = 4096) {
                 std::cout << "identifier: " << std::get<std::string>(token.getValue()) << '\n';
                 break;
             default:
-                std::cout << "operator or keyword" << '\n'; //TODO spróbować wyświetlić typ dokładniej
+                using PrintUtils::toString;
+                std::cout << "operator or keyword: " << toString(token.getType()) << '\n';
                 break;
         }
     }
