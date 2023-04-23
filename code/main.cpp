@@ -1,8 +1,9 @@
 #include <iostream>
 #include <sstream>
 #include <fstream>
+#include <cstring>
 
-#include "MyLangLexer.h"
+#include "LexerWithoutComments.h"
 #include "print_utils.h"
 
 void onLexerError(Position position, ErrorType error) {
@@ -13,14 +14,13 @@ void onLexerError(Position position, ErrorType error) {
     std::cout << "column: " << position.getColumn() << '\n';
 }
 
-void printTokens(std::istream& istream, int maxTokenCount = 4096) {
-    MyLangLexer lexer(istream, onLexerError);
+void printTokens(Lexer* lexer, int maxTokenCount = 4096) {
     Token token;
     std::cout.precision(10);
     while (maxTokenCount--) {
-        if (!lexer.nextToken())
+        if (!lexer->nextToken())
             continue;
-        token = lexer.getToken();
+        token = lexer->getToken();
         if (token.getType() == TokenType::END_OF_TEXT)
             return;
         std::cout << "line: " << token.getPosition().getLine() << ' ';
@@ -53,15 +53,22 @@ void printTokens(std::istream& istream, int maxTokenCount = 4096) {
 }
 
 int main(int argc, char** argv) {
+    bool dontIgnoreComments = false;
+    if (argc > 2) {
+        dontIgnoreComments = !strcmp(argv[2], "--dont-ignore-comments");
+    }
     if (argc > 1) {
         std::ifstream fin(argv[1]);
-        printTokens(fin);
+        if (dontIgnoreComments) {
+            MyLangLexer myLangLexer(fin, onLexerError);
+            printTokens(&myLangLexer);
+        } else {
+            LexerWithoutComments lexerWithoutComments(fin, onLexerError);
+            printTokens(&lexerWithoutComments);
+        }
         fin.close();
     } else {
-        std::cout << "USAGE: " << argv[0] << " <input file>\n";
-        std::string test = "\"text contains backslash\\\\\"";
-        std::istringstream iss(test);
-        printTokens(iss);
+        std::cout << "USAGE: " << argv[0] << " <input file> [--dont-ignore-comments]\n";
     }
 
     return 0;
