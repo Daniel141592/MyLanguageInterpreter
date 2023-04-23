@@ -12,8 +12,6 @@
 #include "ErrorType.h"
 
 class MyLangLexer : public Lexer {
-    typedef std::function<void(Position, ErrorType)> HandlerType;
-
     Token token;
     Position position;
     std::istream& is;
