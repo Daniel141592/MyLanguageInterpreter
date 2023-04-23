@@ -21,7 +21,7 @@ TEST(LexerTests, KeywordMapTest) {
 }
 
 TEST(LexerTests, EOTTest) {
-    std::istringstream iss("mut var = 7;");
+    std::istringstream iss("\t\tmut var = 7;");
     bool errorOccurred = false;
     MyLangLexer lexer(iss,  [&errorOccurred](Position p, ErrorType e){errorOccurred = true;});
     lexer.nextToken();
