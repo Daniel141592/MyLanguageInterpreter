@@ -31,3 +31,7 @@ void Position::addColumn(int count) {
 void Position::addLine(int count) {
     line += count;
 }
+
+bool Position::operator==(const Position &p) const {
+    return column == p.getColumn() && line == p.getLine();
+}

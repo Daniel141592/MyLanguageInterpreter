@@ -1,5 +1,4 @@
 #include "MyLangLexer.h"
-#include "ErrorType.h"
 
 std::unordered_map<std::string, TokenType> MyLangLexer::keywords;
 std::unordered_map<char, char> MyLangLexer::specialChars;
@@ -163,7 +162,7 @@ std::optional<Token> MyLangLexer::tryBuildNumber() {
     if (value != 0) {
         while (isdigit(currentChar)) {
             int decimal = currentChar - '0';
-            if ((INTMAX_MAX - decimal) / 10 > value)
+            if ((INT_MAX - decimal) / 10 - value > 0)
                 value = value * 10 + decimal;
             else
                 errorHandler(tokenPosition, ErrorType::IntRangeError);
@@ -173,13 +172,14 @@ std::optional<Token> MyLangLexer::tryBuildNumber() {
         }
     }
     if (currentChar == '.') {
-        nextCharacter();
+        if (!nextCharacter())
+            errorHandler(tokenPosition, ErrorType::IncorrectFloatValue);
         int numOfDecimals = 0;
         int fraction = 0;
         while (isdigit(currentChar)) {
             ++numOfDecimals;
             int decimal = currentChar - '0';
-            if ((INTMAX_MAX - decimal) / 10 > fraction)
+            if ((INT_MAX - decimal) / 10 > fraction)
                 fraction = fraction * 10 + decimal;
             else
                 errorHandler(tokenPosition, ErrorType::IntRangeError);
@@ -187,9 +187,6 @@ std::optional<Token> MyLangLexer::tryBuildNumber() {
                 return Token(TokenType::FLOAT_VALUE, value + fraction / pow(10, numOfDecimals), tokenPosition);
             }
         }
-        if (!numOfDecimals)
-            errorHandler(tokenPosition, ErrorType::IncorrectFloatValue);
-
         double floatValue = value + fraction / pow(10, numOfDecimals);
         return Token(TokenType::FLOAT_VALUE, floatValue, tokenPosition);
     }

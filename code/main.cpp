@@ -58,6 +58,7 @@ int main(int argc, char** argv) {
         printTokens(fin);
         fin.close();
     } else {
+        std::cout << "USAGE: " << argv[0] << " <input file>\n";
         std::string test = "jeden\ndwa\ntrzy\ncztery\n";
         std::istringstream iss(test);
         printTokens(iss);

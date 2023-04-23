@@ -7,7 +7,7 @@ class Position {
 
 public:
     Position();
-    Position(int, int);
+    Position(int column, int line);
 
     int getColumn() const;
     void setColumn(int column);
@@ -15,6 +15,8 @@ public:
     int getLine() const;
     void setLine(int line);
     void addLine(int = 1);
+
+    bool operator==(const Position&) const;
 };
 
 

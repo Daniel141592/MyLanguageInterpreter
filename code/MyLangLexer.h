@@ -6,6 +6,7 @@
 #include <utility>
 #include <cmath>
 #include <optional>
+#include <climits>
 
 #include "Lexer.h"
 #include "ErrorType.h"
