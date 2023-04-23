@@ -59,7 +59,7 @@ int main(int argc, char** argv) {
         fin.close();
     } else {
         std::cout << "USAGE: " << argv[0] << " <input file>\n";
-        std::string test = "jeden\ndwa\ntrzy\ncztery\n";
+        std::string test = "\"text contains backslash\\\\\"";
         std::istringstream iss(test);
         printTokens(iss);
     }

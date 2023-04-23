@@ -263,7 +263,7 @@ std::optional<Token> MyLangLexer::tryBuildString() {
             errorHandler(tokenPosition, ErrorType::UnexpectedEndOfText);
             break;
         }
-        if (size++ >= MAX_STRING_LITERAL_LENGTH) {
+        if (++size >= MAX_STRING_LITERAL_LENGTH) {
             errorHandler(tokenPosition, ErrorType::TooLongStringLiteral);
             break;
         }
