@@ -7,20 +7,20 @@ std::unordered_map<std::string, TokenType> MyLangLexer::twoCharactersTokens;
 
 void MyLangLexer::initializeKeywordsAndSpecialChars() {
     keywords = {
-            {"mut", TokenType::MUT},
+            {"mut", TokenType::MUT_KEYWORD},
             {"Int", TokenType::INT_KEYWORD},
             {"Float", TokenType::FLOAT_KEYWORD},
             {"String", TokenType::STRING_KEYWORD},
-            {"loop", TokenType::LOOP},
-            {"if", TokenType::IF},
-            {"else", TokenType::ELSE},
-            {"pattern", TokenType::PATTERN},
-            {"match", TokenType::MATCH},
-            {"is", TokenType::IS},
+            {"loop", TokenType::LOOP_KEYWORD},
+            {"if", TokenType::IF_KEYWORD},
+            {"else", TokenType::ELSE_KEYWORD},
+            {"pattern", TokenType::PATTERN_KEYWORD},
+            {"match", TokenType::MATCH_KEYWORD},
+            {"is", TokenType::IS_KEYWORD},
             {"func", TokenType::FUNC_KEYWORD},
             {"none", TokenType::NONE_KEYWORD},
             {"ref", TokenType::REF_KEYWORD},
-            {"return", TokenType::RETURN}
+            {"return", TokenType::RETURN_KEYWORD}
     };
 
     specialChars = {
@@ -205,7 +205,7 @@ std::optional<Token> MyLangLexer::tryBuildIdentifierOrKeyword() {
         str += currentChar;
         if (!nextCharacter())
             break;
-        if (size++ >= MAX_IDENTIFIER_LENGTH) {
+        if (++size >= MAX_IDENTIFIER_LENGTH) {
             errorHandler(tokenPosition, ErrorType::TooLongIdentifier);
             break;
         }

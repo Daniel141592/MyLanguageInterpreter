@@ -21,25 +21,25 @@ std::string_view PrintUtils::toString(ErrorType errorType) {
 
 std::string_view PrintUtils::toString(TokenType tokenType) {
     static const std::unordered_map<TokenType, std::string_view> tokenTypeStringMap {
-            { TokenType::END_OF_TEXT, "END_OF_TEXT" },
-            { TokenType::MUT, "MUT" },
-            { TokenType::COMMENT, "COMMENT" },
-            { TokenType::IF, "IF" },
-            { TokenType::ELSE, "ELSE" },
-            { TokenType::LOOP, "LOOP" },
-            { TokenType::MATCH, "MATCH" },
-            { TokenType::PATTERN, "PATTERN" },
-            { TokenType::IS, "IS" },
-            { TokenType::FUNC_KEYWORD, "FUNC" },
-            { TokenType::NONE_KEYWORD, "NONE" },
-            { TokenType::REF_KEYWORD, "REF" },
-            { TokenType::LEFT_BRACKET, "LEFT_BRACKET" },
-            { TokenType::RIGHT_BRACKET, "RIGHT_BRACKET" },
-            { TokenType::LEFT_PARENTHESIS, "LEFT_PARENTHESIS" },
+            { TokenType::END_OF_TEXT,       "END_OF_TEXT" },
+            { TokenType::MUT_KEYWORD,       "MUT_KEYWORD" },
+            { TokenType::COMMENT,           "COMMENT" },
+            { TokenType::IF_KEYWORD,        "IF_KEYWORD" },
+            { TokenType::ELSE_KEYWORD,      "ELSE_KEYWORD" },
+            { TokenType::LOOP_KEYWORD,      "LOOP_KEYWORD" },
+            { TokenType::MATCH_KEYWORD,     "MATCH_KEYWORD" },
+            { TokenType::PATTERN_KEYWORD,   "PATTERN_KEYWORD" },
+            { TokenType::IS_KEYWORD,        "IS_KEYWORD" },
+            { TokenType::FUNC_KEYWORD,      "FUNC" },
+            { TokenType::NONE_KEYWORD,      "NONE" },
+            { TokenType::REF_KEYWORD,       "REF" },
+            { TokenType::LEFT_BRACKET,      "LEFT_BRACKET" },
+            { TokenType::RIGHT_BRACKET,     "RIGHT_BRACKET" },
+            { TokenType::LEFT_PARENTHESIS,  "LEFT_PARENTHESIS" },
             { TokenType::RIGHT_PARENTHESIS, "RIGHT_PARENTHESIS" },
-            { TokenType::SEMICOLON, "SEMICOLON" },
-            { TokenType::COMMA, "COMMA" },
-            { TokenType::ASSIGN, "ASSIGN" },
+            { TokenType::SEMICOLON,         "SEMICOLON" },
+            { TokenType::COMMA,             "COMMA" },
+            { TokenType::ASSIGN,            "ASSIGN" },
             { TokenType::EQUAL, "EQUAL" },
             { TokenType::NOT_EQUAL, "NOT_EQUAL" },
             { TokenType::GREATER_THAN, "GREATER_THAN" },
@@ -61,7 +61,7 @@ std::string_view PrintUtils::toString(TokenType tokenType) {
             { TokenType::STRING_KEYWORD, "STRING" },
             { TokenType::DOT, "DOT" },
             { TokenType::IDENTIFIER, "IDENTIFIER" },
-            { TokenType::RETURN, "RETURN" }
+            { TokenType::RETURN_KEYWORD, "RETURN_KEYWORD" }
     };
     auto it = tokenTypeStringMap.find(tokenType);
     return it == tokenTypeStringMap.end() ? "unknown token" : it->second;

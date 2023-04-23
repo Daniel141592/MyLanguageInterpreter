@@ -17,7 +17,7 @@ TEST(LexerTests, PositionTest) {
 TEST(LexerTests, KeywordMapTest) {
     std::istringstream iss("");
     MyLangLexer::initializeKeywordsAndSpecialChars();
-    ASSERT_EQ(MyLangLexer::keywords["mut"], TokenType::MUT);
+    ASSERT_EQ(MyLangLexer::keywords["mut"], TokenType::MUT_KEYWORD);
 }
 
 TEST(LexerTests, EOTTest) {
