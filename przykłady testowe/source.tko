@@ -1,0 +1,63 @@
+func templateFunction(a, b) {
+    $ ciało funkcji o nazwie "templateFunction" przyjmującej parametry
+    $ a i b (są kopiowane)
+    return a;    $ wartość zmiennej "a" jest zwracana jako wynik funkcji
+}
+
+$ przykład rekurencyjnego wywołania funkcji
+func fibonacci(num) {
+    if num <= 0 {
+        return "Wprowadź poprawną wartość num > 0";
+    }
+    if num == 1 {
+        return 0;
+    }
+    if num == 2 {
+        return 1;
+    }
+    return fibonacci(num - 1) + fibonacci(num - 2);    
+}
+
+$ pattern matching
+pattern zmienna {
+    match (x, y) {
+        $ kod wykonywany jeśli "zmienna" jest parą
+        standardOutput("pierwsza liczba z pary:"+x);     $ konkatenacja stringów
+    }
+    match String (s) {
+        $ kod wykonywany jeśli "zmienna" jest ciągiem znaków
+        standardOutput("ciąg znaków");
+    }
+    match Float (f) {
+        $ kod wykonywany jeśli "zmienna" jest typu float
+    }
+    match 5 * 7 + 3 (x) {
+        $ kod wykonywany jeśli "zmienna" jest równa 38
+    }
+    match even (x) {
+        $ kod wykonywany jeśli funkcja (w tym przypadku "even") zwróci wartość
+        $ prawdziwą, dla argumentu "zmienna"
+    }
+    match x {
+        $ kod wykonywany jeśli "zmienna" jest dowolną zmienną
+    }
+    none {
+        $ kod wykonywany jeśli żaden z poprzednich wzorców nie pasuje
+    }
+}
+
+if zmienna is Float {
+    $ zmienna jest typu Float
+}
+
+if zmienna is (x, 5) {
+    $ zmienna jest typu Pair, a jej druga wartość wynosi 5
+}
+
+standardOutput("jakiś tekst");    $ wypisanie tekstu na standardowe wyjście
+                        $ funkcja wbudowana; domyślnie dopisuje znak
+                        $ nowej linii na końcu tekstu
+
+$ komentarz
+$ komentarz
+
