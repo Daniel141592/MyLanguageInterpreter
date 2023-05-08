@@ -4,14 +4,12 @@ LexerWithoutComments::LexerWithoutComments(std::istream& is, HandlerType onError
                     : myLangLexer(std::move(MyLangLexer(is, std::move(onError)))){
 }
 
-Token LexerWithoutComments::getToken() const {
-    return myLangLexer.getToken();
-}
-
-bool LexerWithoutComments::nextToken() {
+std::optional<Token> LexerWithoutComments::nextToken() {
+    std::optional<Token> token;
     do {
-        if (!myLangLexer.nextToken())
-            return false;
-    } while (myLangLexer.getToken().getType() == TokenType::COMMENT);
-    return true;
+        token = myLangLexer.nextToken();
+        if (!token)
+            return {};
+    } while (token->getType() == TokenType::COMMENT);
+    return token;
 }

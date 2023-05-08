@@ -1,12 +1,8 @@
 #include "MyLangLexer.h"
 
-std::unordered_map<std::string, TokenType> MyLangLexer::keywords;
-std::unordered_map<char, char> MyLangLexer::specialChars;
-std::unordered_map<char, TokenType> MyLangLexer::simpleTokens;
-std::unordered_map<std::string, TokenType> MyLangLexer::twoCharactersTokens;
-
-void MyLangLexer::initializeKeywordsAndSpecialChars() {
-    keywords = {
+namespace {
+    const char EOT = 0x04;
+    const std::unordered_map<std::string, TokenType> keywords {
             {"mut", TokenType::MUT_KEYWORD},
             {"Int", TokenType::INT_KEYWORD},
             {"Float", TokenType::FLOAT_KEYWORD},
@@ -22,14 +18,12 @@ void MyLangLexer::initializeKeywordsAndSpecialChars() {
             {"ref", TokenType::REF_KEYWORD},
             {"return", TokenType::RETURN_KEYWORD}
     };
-
-    specialChars = {
+    const std::unordered_map<char, char> specialChars {
             {'b', 8}, {'f', 12}, {'n', 10},
             {'r', 13}, {'t', 9}, {'"', '"'},
-            {'\\', '\\'}
+            {'\\', '\\'}, {EOT, EOT}
     };
-
-    simpleTokens = {
+    const std::unordered_map<char, TokenType> simpleTokens {
             {'(', TokenType::LEFT_BRACKET}, {')', TokenType::RIGHT_BRACKET},
             {'{', TokenType::LEFT_PARENTHESIS}, {'}', TokenType::RIGHT_PARENTHESIS},
             {';', TokenType::SEMICOLON}, {',', TokenType::COMMA},
@@ -39,8 +33,7 @@ void MyLangLexer::initializeKeywordsAndSpecialChars() {
             {'+', TokenType::PLUS}, {'-', TokenType::MINUS},
             {'*', TokenType::ASTERISK}, {'/', TokenType::DIVISION}
     };
-
-    twoCharactersTokens = {
+    const std::unordered_map<std::string, TokenType> twoCharactersTokens {
             {">=", TokenType::GREATER_OR_EQUAL}, {"<=", TokenType::LESS_OR_EQUAL},
             {"==", TokenType::EQUAL}, {"!=", TokenType::NOT_EQUAL},
             {"//", TokenType::INT_DIVISION}
@@ -48,12 +41,7 @@ void MyLangLexer::initializeKeywordsAndSpecialChars() {
 }
 
 MyLangLexer::MyLangLexer(std::istream &i, HandlerType error) : is(i), errorHandler(std::move(error)) {
-    MyLangLexer::initializeKeywordsAndSpecialChars();
     i.get(currentChar);
-}
-
-Token MyLangLexer::getToken() const {
-    return token;
 }
 
 bool MyLangLexer::newLineSeqReached() {
@@ -108,50 +96,52 @@ bool MyLangLexer::nextCharacter() {
     } else {
         trySetNewlineSeq();
     }
-    if (is.eof())
+    if (is.eof()) {
+        currentChar = EOT;
         return false;
+    }
     return true;
 }
 
-bool MyLangLexer::nextToken() {
+std::optional<Token> MyLangLexer::nextToken() {
     while (isspace(currentChar) && nextCharacter());
-    if (is.eof()) {
-        token = Token(TokenType::END_OF_TEXT, position);
-        return true;
-    }
-    std::optional<Token> result = tryBuildSimpleTokens();
-    result = result ? result : tryBuildNumber();
-    result = result ? result : tryBuildIdentifierOrKeyword();
-    result = result ? result : tryBuildComment();
-    result = result ? result : tryBuildString();
+    std::optional<Token> result = tryBuildEOT();
+    result = result ?: tryBuildSimpleTokens();
+    result = result ?: tryBuildNumber() ?: tryBuildIdentifierOrKeyword();
+    result = result ?: tryBuildIdentifierOrKeyword() ?: tryBuildComment();
+    result = result ?: tryBuildString();
     if (result) {
-        token = *result;
-        return true;
+        return *result;
     }
     errorHandler(position, ErrorType::UnknownToken);
     nextCharacter();
-    return false;
+    return {};
+}
+
+std::optional<Token> MyLangLexer::tryBuildEOT() {
+    if (is.eof())
+        return Token(TokenType::END_OF_TEXT, position);
+    return {};
 }
 
 std::optional<Token> MyLangLexer::tryBuildSimpleTokens() {
-    if (!simpleTokens.count(currentChar))
+    auto it = simpleTokens.find(currentChar);
+    if (it == simpleTokens.end())
         return {};
     Position tokenPosition = position;
     if (currentChar == '=' || currentChar == '>' || currentChar == '<' || currentChar == '/' || currentChar == '!') {
-        char first = currentChar;
-        if (!nextCharacter()) {
-            return Token(simpleTokens[currentChar], tokenPosition);
-        }
+        const char first = currentChar;
+        nextCharacter();
         std::string str = std::string() + first + currentChar;
-        if (twoCharactersTokens.count(str)) {
+        auto twoCharactersTokensIt = twoCharactersTokens.find(str);
+        if (twoCharactersTokensIt != twoCharactersTokens.end()) {
             nextCharacter();
-            return Token(twoCharactersTokens[str], tokenPosition);
+            return Token(twoCharactersTokensIt->second, tokenPosition);
         }
-        return Token(simpleTokens[first], tokenPosition);
+        return Token(it->second, tokenPosition);
     }
-    char value = currentChar;
     nextCharacter();
-    return Token(simpleTokens[value], tokenPosition);
+    return Token(it->second, tokenPosition);
 }
 
 std::optional<Token> MyLangLexer::tryBuildNumber() {
@@ -163,35 +153,30 @@ std::optional<Token> MyLangLexer::tryBuildNumber() {
     if (value != 0) {
         while (isdigit(currentChar)) {
             int decimal = currentChar - '0';
-            if ((INT_MAX - decimal) / 10 - value > 0)
+            if ((std::numeric_limits<int>::max() - decimal) / 10 - value > 0)
                 value = value * 10 + decimal;
             else
                 errorHandler(tokenPosition, ErrorType::IntRangeError);
-            if (!nextCharacter()) {
-                return Token(TokenType::INTEGER_VALUE, value, tokenPosition);
-            }
+            nextCharacter();
         }
     }
-    if (currentChar == '.') {
-        if (!nextCharacter())
-            errorHandler(tokenPosition, ErrorType::IncorrectFloatValue);
-        int numOfDecimals = 0;
-        int fraction = 0;
-        while (isdigit(currentChar)) {
-            ++numOfDecimals;
-            int decimal = currentChar - '0';
-            if ((INT_MAX - decimal) / 10 > fraction)
-                fraction = fraction * 10 + decimal;
-            else
-                errorHandler(tokenPosition, ErrorType::IntRangeError);
-            if (!nextCharacter()) {
-                return Token(TokenType::FLOAT_VALUE, value + fraction / pow(10, numOfDecimals), tokenPosition);
-            }
-        }
-        double floatValue = value + fraction / pow(10, numOfDecimals);
-        return Token(TokenType::FLOAT_VALUE, floatValue, tokenPosition);
+    if (currentChar != '.')
+        return Token(TokenType::INTEGER_VALUE, value, tokenPosition);
+    if (!nextCharacter())
+        errorHandler(tokenPosition, ErrorType::IncorrectFloatValue);
+    int numOfDecimals = 0;
+    int fraction = 0;
+    while (isdigit(currentChar)) {
+        ++numOfDecimals;
+        int decimal = currentChar - '0';
+        if ((std::numeric_limits<int>::max() - decimal) / 10 > fraction)
+            fraction = fraction * 10 + decimal;
+        else
+            errorHandler(tokenPosition, ErrorType::IntRangeError);
+        nextCharacter();
     }
-    return Token(TokenType::INTEGER_VALUE, value, tokenPosition);
+    double floatValue = value + fraction / pow(10, numOfDecimals);
+    return Token(TokenType::FLOAT_VALUE, floatValue, tokenPosition);
 }
 
 std::optional<Token> MyLangLexer::tryBuildIdentifierOrKeyword() {
@@ -203,16 +188,15 @@ std::optional<Token> MyLangLexer::tryBuildIdentifierOrKeyword() {
 
     while (isalpha(currentChar) || isdigit(currentChar) || currentChar == '_') {
         str += currentChar;
-        if (!nextCharacter())
-            break;
+        nextCharacter();
         if (++size >= MAX_IDENTIFIER_LENGTH) {
             errorHandler(tokenPosition, ErrorType::TooLongIdentifier);
             break;
         }
     }
-
-    if (keywords.count(str))
-        return Token(keywords[str], tokenPosition);
+    auto it = keywords.find(str);
+    if (it != keywords.end())
+        return Token(it->second, tokenPosition);
     return Token(TokenType::IDENTIFIER, str, tokenPosition);
 }
 
@@ -223,14 +207,13 @@ std::optional<Token> MyLangLexer::tryBuildComment() {
     std::string str;
     int size = 0;
     nextCharacter();
-    while (currentChar != '\n' && currentChar != '\r') {
+    while (currentChar != '\n' && currentChar != '\r' && currentChar != EOT) {
         str += currentChar;
         if (++size >= MAX_COMMENT_LENGTH) {
             errorHandler(tokenPosition, ErrorType::TooLongComment);
             break;
         }
-        if (!nextCharacter())
-            break;
+        nextCharacter();
     }
     return Token(TokenType::COMMENT, str, tokenPosition);
 }
@@ -239,30 +222,21 @@ std::optional<Token> MyLangLexer::tryBuildString() {
     if (currentChar != '"')
         return {};
     Position tokenPosition = position;
-    if (!nextCharacter()) {
-        errorHandler(tokenPosition, ErrorType::UnexpectedEndOfText);
-    }
-
+    nextCharacter();
     std::string str;
     int size = 0;
-    while (currentChar != '"') {
+    while (currentChar != '"' && currentChar != EOT) {
         if (currentChar == '\\') {
-            if (!nextCharacter()) {
-                errorHandler(tokenPosition, ErrorType::UnexpectedEndOfText);
-                break;
-            }
-            if (!specialChars.count(currentChar)) {
+            nextCharacter();
+            auto it = specialChars.find(currentChar);
+            if (it == specialChars.end())
                 errorHandler(position, ErrorType::UnknownEscapeCharacter);
-            } else {
-                str += specialChars[currentChar];
-            }
+            else if (currentChar != EOT)
+                str += it->second;
         } else {
             str += currentChar;
         }
-        if (!nextCharacter()) {
-            errorHandler(tokenPosition, ErrorType::UnexpectedEndOfText);
-            break;
-        }
+        nextCharacter();
         if (++size >= MAX_STRING_LITERAL_LENGTH) {
             errorHandler(tokenPosition, ErrorType::TooLongStringLiteral);
             break;
@@ -270,5 +244,7 @@ std::optional<Token> MyLangLexer::tryBuildString() {
     }
     if (currentChar == '"')
         nextCharacter();
+    else
+        errorHandler(tokenPosition, ErrorType::UnexpectedEndOfText);
     return Token(TokenType::STRING_LITERAL, str, tokenPosition);
 }

@@ -15,8 +15,7 @@ public:
     typedef std::function<void(Position, ErrorType)> HandlerType;
     virtual ~Lexer() = default;
 
-    virtual bool nextToken() = 0;
-    virtual Token getToken() const = 0;
+    virtual std::optional<Token> nextToken() = 0;
 };
 
 

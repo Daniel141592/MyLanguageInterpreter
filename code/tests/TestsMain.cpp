@@ -14,12 +14,6 @@ TEST(LexerTests, PositionTest) {
     ASSERT_EQ(position.getColumn(), 1);
 }
 
-TEST(LexerTests, KeywordMapTest) {
-    std::istringstream iss("");
-    MyLangLexer::initializeKeywordsAndSpecialChars();
-    ASSERT_EQ(MyLangLexer::keywords["mut"], TokenType::MUT_KEYWORD);
-}
-
 TEST(LexerTests, EOTTest) {
     std::istringstream iss("\t\tmut var = 7;");
     bool errorOccurred = false;
@@ -29,8 +23,8 @@ TEST(LexerTests, EOTTest) {
     lexer.nextToken();
     lexer.nextToken();
     lexer.nextToken();
-    lexer.nextToken();
-    ASSERT_EQ(lexer.getToken().getType(), TokenType::END_OF_TEXT);
+    Token token = *lexer.nextToken();
+    ASSERT_EQ(token.getType(), TokenType::END_OF_TEXT);
     ASSERT_FALSE(errorOccurred);
 }
 
@@ -41,7 +35,7 @@ TEST(LexerTests, NextTokenWhenEOTAlreadyOccurred) {
     lexer.nextToken();
     lexer.nextToken();
     lexer.nextToken();
-    lexer.nextToken();
-    ASSERT_EQ(lexer.getToken().getType(), TokenType::END_OF_TEXT);
+    Token token = *lexer.nextToken();
+    ASSERT_EQ(token.getType(), TokenType::END_OF_TEXT);
     ASSERT_FALSE(errorOccurred);
 }

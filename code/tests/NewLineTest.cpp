@@ -8,11 +8,11 @@ TEST(NewLineTests, BasicNewLineCharacter) {
     MyLangLexer lexer(iss, onError);
     lexer.nextToken();
     lexer.nextToken();
-    lexer.nextToken();  // 3rd token which should be identifier 'second'
-    ASSERT_EQ(lexer.getToken().getPosition().getColumn(), 1);
-    ASSERT_EQ(lexer.getToken().getPosition().getLine(), 2);
-    ASSERT_EQ(lexer.getToken().getType(), TokenType::IDENTIFIER);
-    ASSERT_EQ(std::get<std::string>(lexer.getToken().getValue()), "second");
+    Token token = *lexer.nextToken();  // 3rd token which should be identifier 'second'
+    ASSERT_EQ(token.getPosition().getColumn(), 1);
+    ASSERT_EQ(token.getPosition().getLine(), 2);
+    ASSERT_EQ(token.getType(), TokenType::IDENTIFIER);
+    ASSERT_EQ(std::get<std::string>(token.getValue()), "second");
 }
 
 TEST(NewLineTests, LFCRCharacter) {
@@ -21,11 +21,11 @@ TEST(NewLineTests, LFCRCharacter) {
     MyLangLexer lexer(iss, onError);
     lexer.nextToken();
     lexer.nextToken();
-    lexer.nextToken();  // 3rd token which should be identifier 'second'
-    ASSERT_EQ(lexer.getToken().getPosition().getColumn(), 1);
-    ASSERT_EQ(lexer.getToken().getPosition().getLine(), 2);
-    ASSERT_EQ(lexer.getToken().getType(), TokenType::IDENTIFIER);
-    ASSERT_EQ(std::get<std::string>(lexer.getToken().getValue()), "second");
+    Token token = *lexer.nextToken();  // 3rd token which should be identifier 'second'
+    ASSERT_EQ(token.getPosition().getColumn(), 1);
+    ASSERT_EQ(token.getPosition().getLine(), 2);
+    ASSERT_EQ(token.getType(), TokenType::IDENTIFIER);
+    ASSERT_EQ(std::get<std::string>(token.getValue()), "second");
 }
 
 TEST(NewLineTests, CRLFCharacter) {
@@ -34,11 +34,11 @@ TEST(NewLineTests, CRLFCharacter) {
     MyLangLexer lexer(iss, onError);
     lexer.nextToken();
     lexer.nextToken();
-    lexer.nextToken();  // 3rd token which should be identifier 'second'
-    ASSERT_EQ(lexer.getToken().getPosition().getColumn(), 1);
-    ASSERT_EQ(lexer.getToken().getPosition().getLine(), 2);
-    ASSERT_EQ(lexer.getToken().getType(), TokenType::IDENTIFIER);
-    ASSERT_EQ(std::get<std::string>(lexer.getToken().getValue()), "second");
+    Token token = *lexer.nextToken();  // 3rd token which should be identifier 'second'
+    ASSERT_EQ(token.getPosition().getColumn(), 1);
+    ASSERT_EQ(token.getPosition().getLine(), 2);
+    ASSERT_EQ(token.getType(), TokenType::IDENTIFIER);
+    ASSERT_EQ(std::get<std::string>(token.getValue()), "second");
 }
 
 TEST(NewLineTests, OnlyCRCharacter) {
@@ -47,11 +47,11 @@ TEST(NewLineTests, OnlyCRCharacter) {
     MyLangLexer lexer(iss, onError);
     lexer.nextToken();
     lexer.nextToken();
-    lexer.nextToken();  // 3rd token which should be identifier 'second'
-    ASSERT_EQ(lexer.getToken().getPosition().getColumn(), 1);
-    ASSERT_EQ(lexer.getToken().getPosition().getLine(), 2);
-    ASSERT_EQ(lexer.getToken().getType(), TokenType::IDENTIFIER);
-    ASSERT_EQ(std::get<std::string>(lexer.getToken().getValue()), "second");
+    Token token = *lexer.nextToken();  // 3rd token which should be identifier 'second'
+    ASSERT_EQ(token.getPosition().getColumn(), 1);
+    ASSERT_EQ(token.getPosition().getLine(), 2);
+    ASSERT_EQ(token.getType(), TokenType::IDENTIFIER);
+    ASSERT_EQ(std::get<std::string>(token.getValue()), "second");
 }
 
 TEST(NewLineTests, InconsistentNewlineSequence) {
@@ -64,11 +64,11 @@ TEST(NewLineTests, InconsistentNewlineSequence) {
     lexer.nextToken();
     lexer.nextToken();
     lexer.nextToken();
-    lexer.nextToken();  //4th token which should be identifier 'third_line'
-    ASSERT_EQ(lexer.getToken().getPosition().getColumn(), 1);
-    ASSERT_EQ(lexer.getToken().getPosition().getLine(), 3);
-    ASSERT_EQ(lexer.getToken().getType(), TokenType::IDENTIFIER);
-    ASSERT_EQ(std::get<std::string>(lexer.getToken().getValue()), "third_line");
+    Token token = *lexer.nextToken();  //4th token which should be identifier 'third_line'
+    ASSERT_EQ(token.getPosition().getColumn(), 1);
+    ASSERT_EQ(token.getPosition().getLine(), 3);
+    ASSERT_EQ(token.getType(), TokenType::IDENTIFIER);
+    ASSERT_EQ(std::get<std::string>(token.getValue()), "third_line");
     ASSERT_TRUE(inconsistentNl);
 }
 

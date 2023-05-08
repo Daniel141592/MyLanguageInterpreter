@@ -15,12 +15,12 @@ void onLexerError(Position position, ErrorType error) {
 }
 
 void printTokens(Lexer* lexer, int maxTokenCount = 4096) {
-    Token token;
     std::cout.precision(10);
     while (maxTokenCount--) {
-        if (!lexer->nextToken())
+        auto tokenOptional = lexer->nextToken();
+        if (!tokenOptional)
             continue;
-        token = lexer->getToken();
+        Token token = *tokenOptional;
         if (token.getType() == TokenType::END_OF_TEXT)
             return;
         std::cout << "line: " << token.getPosition().getLine() << ' ';

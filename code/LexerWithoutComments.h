@@ -9,8 +9,7 @@ class LexerWithoutComments : public Lexer {
 public:
     LexerWithoutComments(std::istream&, HandlerType);
 
-    bool nextToken() override;
-    Token getToken() const override;
+    std::optional<Token> nextToken() override;
 };
 
 

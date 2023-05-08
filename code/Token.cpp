@@ -1,16 +1,23 @@
 #include "Token.h"
 
-Token::Token(TokenType t, Token::ValueType val, Position pos) : type(t), value(std::move(val)), position(pos) {
+Token::Token(TokenType t, std::string str, Position pos) : type(t), value(str), position(pos) {
+    assert(t == TokenType::COMMENT || t == TokenType::STRING_LITERAL || t == TokenType::IDENTIFIER);
+}
 
+Token::Token(TokenType t, int num, Position pos) : type(t), value(num), position(pos) {
+    assert(t == TokenType::INTEGER_VALUE);
+}
+
+Token::Token(TokenType t, double num, Position pos) : type(t), value(num), position(pos) {
+    assert(t == TokenType::FLOAT_VALUE);
 }
 
 Token::Token(TokenType t, Position pos) :type(t), position(pos) {
-
+    assert(t != TokenType::COMMENT && t != TokenType::STRING_LITERAL && t != TokenType::IDENTIFIER
+           && t != TokenType::INTEGER_VALUE && t != TokenType::FLOAT_VALUE);
 }
 
-Token::Token() {
-
-}
+Token::Token() = default;
 
 TokenType Token::getType() const {
     return type;

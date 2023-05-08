@@ -4,6 +4,7 @@
 #include <string>
 #include <variant>
 #include <utility>
+#include <cassert>
 
 #include "TokenType.h"
 #include "Position.h"
@@ -17,7 +18,9 @@ class Token {
 
 public:
     Token();
-    Token(TokenType, ValueType, Position);
+    Token(TokenType, std::string, Position);
+    Token(TokenType, int, Position);
+    Token(TokenType, double, Position);
     Token(TokenType, Position);
 
     TokenType getType() const;

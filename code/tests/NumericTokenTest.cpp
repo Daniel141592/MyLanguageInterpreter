@@ -7,10 +7,10 @@ TEST(NumericTokenTest, BuildSimpleInt) {
     std::istringstream iss("1234");
     bool errorOccurred = false;
     MyLangLexer lexer(iss, [&errorOccurred](Position p, ErrorType e){ errorOccurred = true;});
-    lexer.nextToken();
-    int value = std::get<int>(lexer.getToken().getValue());
+    Token token = *lexer.nextToken();
+    int value = std::get<int>(token.getValue());
     ASSERT_EQ(value, 1234);
-    ASSERT_TRUE(lexer.getToken().getPosition() == Position(1, 1));
+    ASSERT_TRUE(token.getPosition() == Position(1, 1));
     ASSERT_FALSE(errorOccurred);
 }
 
@@ -18,16 +18,16 @@ TEST(NumericTokenTest, BuildZero) {
     std::istringstream iss("0");
     bool errorOccurred = false;
     MyLangLexer lexer(iss, [&errorOccurred](Position p, ErrorType e){ errorOccurred = true;});
-    lexer.nextToken();
-    int value = std::get<int>(lexer.getToken().getValue());
+    Token token = *lexer.nextToken();
+    int value = std::get<int>(token.getValue());
     ASSERT_EQ(value, 0);
-    ASSERT_TRUE(lexer.getToken().getPosition() == Position(1, 1));
+    ASSERT_TRUE(token.getPosition() == Position(1, 1));
     ASSERT_FALSE(errorOccurred);
 }
 
 TEST(NumericTokenTest, BuildIntOverMaxRange) {
     std::stringstream stream;
-    stream << INT_MAX << "0";    // stream contains value 10 times greater than INT_MAX
+    stream << std::numeric_limits<int>::max() << "0";    // stream contains value 10 times greater than std::numeric_limits<int>::max()
     bool errorOccurred = false;
     bool intOverflow = false;
     MyLangLexer lexer(stream, [&errorOccurred, &intOverflow](Position p, ErrorType e){
@@ -43,13 +43,13 @@ TEST(NumericTokenTest, BuildMultipleInteters) {
     std::istringstream iss("1234 89234 123423");
     bool errorOccurred = false;
     MyLangLexer lexer(iss, [&errorOccurred](Position p, ErrorType e){ errorOccurred = true;});
-    lexer.nextToken();
+    Token token = *lexer.nextToken();
     int values[3];
     Position positions[3];
     for (int i = 0; i < 3; ++i) {
-        values[i] = std::get<int>(lexer.getToken().getValue());
-        positions[i] = lexer.getToken().getPosition();
-        lexer.nextToken();
+        values[i] = std::get<int>(token.getValue());
+        positions[i] = token.getPosition();
+        token = *lexer.nextToken();
     }
     ASSERT_EQ(values[0], 1234);
     ASSERT_TRUE(positions[0] == Position(1, 1));
@@ -64,13 +64,13 @@ TEST(NumericTokenTest, BuildIntAfterOperator) {
     std::istringstream iss("-1234");
     bool errorOccurred = false;
     MyLangLexer lexer(iss, [&errorOccurred](Position p, ErrorType e){ errorOccurred = true;});
-    lexer.nextToken();
-    ASSERT_EQ(lexer.getToken().getType(), TokenType::MINUS);
-    ASSERT_TRUE(lexer.getToken().getPosition() == Position(1, 1));
-    lexer.nextToken();
-    int value = std::get<int>(lexer.getToken().getValue());
+    Token token = *lexer.nextToken();
+    ASSERT_EQ(token.getType(), TokenType::MINUS);
+    ASSERT_TRUE(token.getPosition() == Position(1, 1));
+    token = *lexer.nextToken();
+    int value = std::get<int>(token.getValue());
     ASSERT_EQ(value, 1234);
-    ASSERT_TRUE(lexer.getToken().getPosition() == Position(2, 1));
+    ASSERT_TRUE(token.getPosition() == Position(2, 1));
     ASSERT_FALSE(errorOccurred);
 }
 
@@ -78,10 +78,10 @@ TEST(NumericTokenTest, BuildSimpleFloat) {
     std::istringstream iss("1234.5678");
     bool errorOccurred = false;
     MyLangLexer lexer(iss, [&errorOccurred](Position p, ErrorType e){ errorOccurred = true;});
-    lexer.nextToken();
-    double value = std::get<double>(lexer.getToken().getValue());
+    Token token = *lexer.nextToken();
+    double value = std::get<double>(token.getValue());
     ASSERT_EQ(value, 1234.5678);
-    ASSERT_TRUE(lexer.getToken().getPosition() == Position(1, 1));
+    ASSERT_TRUE(token.getPosition() == Position(1, 1));
     ASSERT_FALSE(errorOccurred);
 }
 
@@ -89,13 +89,13 @@ TEST(NumericTokenTest, BuildMultipleFloats) {
     std::istringstream iss("12.34 892.34 123.423");
     bool errorOccurred = false;
     MyLangLexer lexer(iss, [&errorOccurred](Position p, ErrorType e){ errorOccurred = true;});
-    lexer.nextToken();
+    Token token = *lexer.nextToken();
     double values[3];
     Position positions[3];
     for (int i = 0; i < 3; ++i) {
-        values[i] = std::get<double>(lexer.getToken().getValue());
-        positions[i] = lexer.getToken().getPosition();
-        lexer.nextToken();
+        values[i] = std::get<double>(token.getValue());
+        positions[i] = token.getPosition();
+        token = *lexer.nextToken();
     }
     ASSERT_EQ(values[0], 12.34);
     ASSERT_TRUE(positions[0] == Position(1, 1));
@@ -108,7 +108,7 @@ TEST(NumericTokenTest, BuildMultipleFloats) {
 
 TEST(NumericTokenTest, BuildFloatWithIntegerPartOverRange) {
     std::stringstream stream;
-    stream << INT_MAX << "0.1234";    // stream contains value 10 times greater than INT_MAX
+    stream << std::numeric_limits<int>::max() << "0.1234";    // stream contains value 10 times greater than std::numeric_limits<int>::max()
     bool errorOccurred = false;
     bool intOverflow = false;
     MyLangLexer lexer(stream, [&errorOccurred, &intOverflow](Position p, ErrorType e){
@@ -122,7 +122,7 @@ TEST(NumericTokenTest, BuildFloatWithIntegerPartOverRange) {
 
 TEST(NumericTokenTest, BuildFloatWithDecimalPartOverRange) {
     std::stringstream stream;
-    stream << "1234." << INT_MAX;    // stream contains value 10 times greater than INT_MAX
+    stream << "1234." << std::numeric_limits<int>::max();    // stream contains value 10 times greater than std::numeric_limits<int>::max()
     bool errorOccurred = false;
     bool intOverflow = false;
     MyLangLexer lexer(stream, [&errorOccurred, &intOverflow](Position p, ErrorType e){
@@ -142,9 +142,9 @@ TEST(NumericTokenTest, BuildFloatWithUnexpectEOTAfterComma) {
         unexpectedEOT = e == ErrorType::IncorrectFloatValue;
         errorOccurred = e != ErrorType::IncorrectFloatValue;
     });
-    lexer.nextToken();
+    Token token = *lexer.nextToken();
     ASSERT_TRUE(unexpectedEOT);
     ASSERT_FALSE(errorOccurred);
-    double value = std::get<double>(lexer.getToken().getValue());
+    double value = std::get<double>(token.getValue());
     ASSERT_EQ(value, 1234.0);
 }
