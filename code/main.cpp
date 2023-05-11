@@ -83,9 +83,9 @@ int main(int argc, char** argv) {
     Block block(std::move(blockInstructions));
     std::vector<InstructionPtr> instructions;
 
-//    instructions.emplace_back(std::make_unique<Block>(std::move(block)));
     FunctionDeclaration functionDeclaration("nazwa_funkcji", std::move(block));
     instructions.emplace_back(std::make_unique<FunctionDeclaration>(std::move(functionDeclaration)));
+//    Assign assign(Identifier("assign_test"))
 
     Program program(std::move(instructions));
     PrintVisitor printVisitor;

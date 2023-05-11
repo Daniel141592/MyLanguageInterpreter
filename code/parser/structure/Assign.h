@@ -2,8 +2,21 @@
 #define CODE_ASSIGN_H
 
 
-class Assign {
+#include "Declaration.h"
+#include "Identifier.h"
+#include "Expression.h"
 
+class Assign : public Declaration {
+    Identifier identifier;
+    std::unique_ptr<Expression> expression;
+public:
+    Assign(const Identifier& i, std::unique_ptr<Expression> e);
+    ~Assign() override = default;
+
+    const Identifier &getIdentifier() const;
+    const std::unique_ptr<Expression> &getExpression() const;
+
+    void accept(const Visitor* visitor) const override;
 };
 
 

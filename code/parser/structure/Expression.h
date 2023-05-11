@@ -1,24 +1,21 @@
 #ifndef CODE_EXPRESSION_H
 #define CODE_EXPRESSION_H
 
-
 #include <memory>
 #include "../Visitable.h"
+#include "../../Position.h"
 
-class Expression : Visitable {
+class Expression : public Visitable {
+protected:
+    Position position;
+    explicit Expression(Position p);
 public:
-    typedef std::unique_ptr<Expression> ExpressionPtr;
-private:
-    ExpressionPtr left;
-    ExpressionPtr right;
-public:
-    Expression(ExpressionPtr l, ExpressionPtr r);
+    using ExpressionPtr = std::unique_ptr<Expression>;
     ~Expression() override = default;
-    void accept(const Visitor* visitor) const override;
 
-    const ExpressionPtr& getLeft() const;
-    const ExpressionPtr& getRight() const;
+    const Position &getPosition() const;
+
+    void accept(const Visitor* visitor) const override = 0;
 };
-
 
 #endif //CODE_EXPRESSION_H

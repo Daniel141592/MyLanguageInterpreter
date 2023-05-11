@@ -14,7 +14,7 @@ void PrintVisitor::visit(const Block* block) const {
     }
 }
 
-void PrintVisitor::visit(const Expression* expression) const {
+void PrintVisitor::visit(const OrExpression* expression) const {
     // TODO jakiś print
     expression->getLeft()->accept(this);
     expression->getRight()->accept(this);
@@ -45,6 +45,11 @@ void PrintVisitor::visit(const Identifier* identifier) const {
 void PrintVisitor::visit(const Argument* argument) const {
     std::cout << "argument: " ;
     argument->getIdentifier().accept(this);
+}
+
+void PrintVisitor::visit(const Assign* assign) const {
+    std::cout << "assign: " << assign->getIdentifier().getName() << '\n';
+    assign->getExpression()->accept(this);
 }
 
 
