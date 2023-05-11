@@ -78,13 +78,13 @@ int main(int argc, char** argv) {
 
     using InstructionPtr = Instruction::InstructionPtr;
     std::vector<InstructionPtr> blockInstructions;
-    VariableDeclaration variableDeclaration(Identifier("dupa"));
+    VariableDeclaration variableDeclaration(Identifier("test"));
     blockInstructions.emplace_back(std::make_unique<VariableDeclaration>(std::move(variableDeclaration)));
     Block block(std::move(blockInstructions));
     std::vector<InstructionPtr> instructions;
 
 //    instructions.emplace_back(std::make_unique<Block>(std::move(block)));
-    FunctionDeclaration functionDeclaration("chuj", std::move(block));
+    FunctionDeclaration functionDeclaration("nazwa_funkcji", std::move(block));
     instructions.emplace_back(std::make_unique<FunctionDeclaration>(std::move(functionDeclaration)));
 
     Program program(std::move(instructions));
