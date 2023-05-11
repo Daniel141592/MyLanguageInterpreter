@@ -1,7 +1,7 @@
 #include <gtest/gtest.h>
 #include <sstream>
 
-#include "../MyLangLexer.h"
+#include "../lexer/MyLangLexer.h"
 
 int main(int argc, char **argv) {
     ::testing::InitGoogleTest(&argc, argv);

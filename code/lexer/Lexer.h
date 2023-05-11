@@ -6,8 +6,8 @@
 #include <string>
 
 
-#include "TokenType.h"
-#include "Token.h"
+#include "../TokenType.h"
+#include "../Token.h"
 #include "ErrorType.h"
 
 class Lexer {

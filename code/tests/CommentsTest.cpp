@@ -1,6 +1,6 @@
 #include <gtest/gtest.h>
 
-#include "../MyLangLexer.h"
+#include "../lexer/MyLangLexer.h"
 
 TEST(CommentsTest, BuildSimpleComment) {
     std::istringstream iss("$comment");

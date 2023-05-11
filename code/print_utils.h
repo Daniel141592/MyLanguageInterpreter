@@ -4,7 +4,7 @@
 #include <string_view>
 #include <unordered_map>
 
-#include "ErrorType.h"
+#include "lexer/ErrorType.h"
 #include "TokenType.h"
 
 namespace PrintUtils {

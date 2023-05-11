@@ -2,9 +2,14 @@
 #include <sstream>
 #include <fstream>
 #include <cstring>
+#include <memory>
 
-#include "LexerWithoutComments.h"
+#include "lexer/LexerWithoutComments.h"
 #include "print_utils.h"
+#include "parser/structure/Instruction.h"
+#include "parser/structure/Block.h"
+#include "parser/structure/Program.h"
+#include "parser/PrintVisitor.h"
 
 void onLexerError(Position position, ErrorType error) {
     std::cout << "Error: ";
@@ -59,17 +64,32 @@ int main(int argc, char** argv) {
     }
     if (argc > 1) {
         std::ifstream fin(argv[1]);
-        if (dontIgnoreComments) {
-            MyLangLexer myLangLexer(fin, onLexerError);
-            printTokens(&myLangLexer);
-        } else {
-            LexerWithoutComments lexerWithoutComments(fin, onLexerError);
-            printTokens(&lexerWithoutComments);
-        }
+//        if (dontIgnoreComments) {
+//            MyLangLexer myLangLexer(fin, onLexerError);
+//            printTokens(&myLangLexer);
+//        } else {
+//            LexerWithoutComments lexerWithoutComments(fin, onLexerError);
+//            printTokens(&lexerWithoutComments);
+//        }
         fin.close();
     } else {
         std::cout << "USAGE: " << argv[0] << " <input file> [--dont-ignore-comments]\n";
     }
+
+    using InstructionPtr = Instruction::InstructionPtr;
+    std::vector<InstructionPtr> blockInstructions;
+    VariableDeclaration variableDeclaration(Identifier("dupa"));
+    blockInstructions.emplace_back(std::make_unique<VariableDeclaration>(std::move(variableDeclaration)));
+    Block block(std::move(blockInstructions));
+    std::vector<InstructionPtr> instructions;
+
+//    instructions.emplace_back(std::make_unique<Block>(std::move(block)));
+    FunctionDeclaration functionDeclaration("chuj", std::move(block));
+    instructions.emplace_back(std::make_unique<FunctionDeclaration>(std::move(functionDeclaration)));
+
+    Program program(std::move(instructions));
+    PrintVisitor printVisitor;
+    printVisitor.visit(&program);
 
     return 0;
 }
