@@ -78,12 +78,13 @@ int main(int argc, char** argv) {
 
     using InstructionPtr = Instruction::InstructionPtr;
     std::vector<InstructionPtr> blockInstructions;
-    VariableDeclaration variableDeclaration(Identifier("test"));
+    Position position(1, 1);
+    VariableDeclaration variableDeclaration(Identifier(position, "test"));
     blockInstructions.emplace_back(std::make_unique<VariableDeclaration>(std::move(variableDeclaration)));
     Block block(std::move(blockInstructions));
     std::vector<InstructionPtr> instructions;
 
-    FunctionDeclaration functionDeclaration("nazwa_funkcji", std::move(block));
+    FunctionDeclaration functionDeclaration(position, "nazwa_funkcji", std::move(block));
     instructions.emplace_back(std::make_unique<FunctionDeclaration>(std::move(functionDeclaration)));
 //    Assign assign(Identifier("assign_test"))
 

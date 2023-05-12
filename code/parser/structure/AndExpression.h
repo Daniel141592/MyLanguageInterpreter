@@ -5,7 +5,7 @@
 #include <memory>
 #include "Expression.h"
 
-class AndExpression : Expression {
+class AndExpression : public Expression {
 public:
     using ExpressionPtr = Expression::ExpressionPtr;
 private:

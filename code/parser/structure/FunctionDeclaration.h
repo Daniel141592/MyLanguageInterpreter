@@ -16,8 +16,8 @@ class FunctionDeclaration : public Declaration {
     std::optional<std::vector<Argument>> arguments;
     Block functionBody;
 public:
-    FunctionDeclaration(std::string n, Block block);
-    FunctionDeclaration(std::string n, Block block, std::vector<Argument> args);
+    FunctionDeclaration(Position p, std::string n, Block block);
+    FunctionDeclaration(Position p, std::string n, Block block, std::vector<Argument> args);
 
     const Identifier &getIdentifier() const;
 

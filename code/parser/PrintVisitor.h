@@ -16,6 +16,12 @@
 #include "structure/LoopStatement.h"
 #include "structure/PatternStatement.h"
 #include "structure/ReturnStatement.h"
+#include "structure/FunctionCall.h"
+#include "structure/RelativeExpression.h"
+#include "structure/AdditiveExpression.h"
+#include "structure/MultiplicationExpression.h"
+#include "structure/Constant.h"
+#include "structure/Field.h"
 
 class PrintVisitor : public Visitor {
 public:
@@ -35,6 +41,12 @@ public:
     void visit(const LoopStatement* loopStatement) const override;
     void visit(const PatternStatement* patternStatement) const override;
     void visit(const ReturnStatement* returnStatement) const override;
+    void visit(const FunctionCall* functionCall) const override;
+    void visit(const RelativeExpression* relativeExpression) const override;
+    void visit(const AdditiveExpression* additiveExpression) const override;
+    void visit(const MultiplicationExpression* multiplicationExpression) const override;
+    void visit(const Constant* constant) const override;
+    void visit(const Field* field) const override;
 };
 
 

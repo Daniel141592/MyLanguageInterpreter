@@ -14,6 +14,12 @@ class IfStatement;
 class LoopStatement;
 class PatternStatement;
 class ReturnStatement;
+class FunctionCall;
+class RelativeExpression;
+class AdditiveExpression;
+class MultiplicationExpression;
+class Constant;
+class Field;
 
 class Visitor {
 public:
@@ -31,6 +37,12 @@ public:
     virtual void visit(const LoopStatement* loopStatement) const = 0;
     virtual void visit(const PatternStatement* patternStatement) const = 0;
     virtual void visit(const ReturnStatement* returnStatement) const = 0;
+    virtual void visit(const FunctionCall* functionCall) const = 0;
+    virtual void visit(const RelativeExpression* relativeExpression) const = 0;
+    virtual void visit(const AdditiveExpression* additiveExpression) const = 0;
+    virtual void visit(const MultiplicationExpression* multiplicationExpression) const = 0;
+    virtual void visit(const Constant* constant) const = 0;
+    virtual void visit(const Field* field) const = 0;
 };
 
 #endif //CODE_VISITOR_H

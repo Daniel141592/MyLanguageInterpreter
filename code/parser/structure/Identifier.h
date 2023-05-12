@@ -3,12 +3,13 @@
 
 
 #include <string>
-#include "../Visitable.h"
 
-class Identifier : Visitable {
+#include "Factor.h"
+
+class Identifier : public Factor {
     std::string name;
 public:
-    Identifier(std::string n);
+    Identifier(Position p, std::string n);
     ~Identifier() override = default;
 
     std::string getName() const;

@@ -15,12 +15,13 @@ void PrintVisitor::visit(const Block* block) const {
 }
 
 void PrintVisitor::visit(const OrExpression* expression) const {
-    // TODO jakiś print
+    std::cout << "or expression\n";
     expression->getLeft()->accept(this);
     expression->getRight()->accept(this);
 }
 
 void PrintVisitor::visit(const AndExpression* andExpression) const {
+    std::cout << "and expression\n";
     andExpression->getLeft()->accept(this);
     andExpression->getRight()->accept(this);
 }
@@ -82,6 +83,49 @@ void PrintVisitor::visit(const PatternStatement *patternStatement) const {
 void PrintVisitor::visit(const ReturnStatement *returnStatement) const {
     std::cout << "return\n";
     returnStatement->getExpression()->accept(this);
+}
+
+void PrintVisitor::visit(const FunctionCall *functionCall) const {
+    std::cout << "function call: ";
+    functionCall->getName().accept(this);
+    std::cout << "args:\n";
+    for (auto &arg : functionCall->getArgs()) {
+        arg->accept(this);
+    }
+}
+
+void PrintVisitor::visit(const RelativeExpression *relativeExpression) const {
+    std::cout << "relative expression, type: <#TODO>\n";
+    relativeExpression->getRelativeType();
+    relativeExpression->getLeft()->accept(this);
+    relativeExpression->getRight()->accept(this);
+    relativeExpression->getPosition();
+}
+
+void PrintVisitor::visit(const AdditiveExpression *additiveExpression) const {
+    std::cout << (additiveExpression->getAdditiveType() == AdditiveType::ADD ? "add" : "subtract") << " expression\n";
+    additiveExpression->getLeft()->accept(this);
+    additiveExpression->getRight()->accept(this);
+}
+
+void PrintVisitor::visit(const MultiplicationExpression *multiplicationExpression) const {
+    std::cout << "multiplication expression, type <#TODO>\n";
+    multiplicationExpression->getLeft()->accept(this);
+    multiplicationExpression->getRight()->accept(this);
+}
+
+void PrintVisitor::visit(const Constant *constant) const {
+    if (constant->getConstantType() == ConstantType::INTEGER)
+        std::cout << "integer constant: " << std::get<int>(constant->getValue()) << '\n';
+    else if (constant->getConstantType() == ConstantType::FLOAT)
+        std::cout << "float constant: " << std::get<double>(constant->getValue()) << '\n';
+    else
+        std::cout << "string constant: " << std::get<std::string>(constant->getValue()) << '\n';
+}
+
+void PrintVisitor::visit(const Field *field) const {
+    std::cout << "field: " << (field->getFieldType() == FieldType::FIRST ? ".first" : ".second") << '\n';
+    field->getExpression()->accept(this);
 }
 
 

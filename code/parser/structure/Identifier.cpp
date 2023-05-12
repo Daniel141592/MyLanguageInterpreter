@@ -2,7 +2,7 @@
 
 #include <utility>
 
-Identifier::Identifier(std::string n) : name(std::move(n)) {
+Identifier::Identifier(Position p, std::string n) : Factor(p), name(std::move(n)) {
 
 }
 

@@ -9,7 +9,7 @@ class Argument : Visitable {
     Identifier identifier;
     bool ref;
 public:
-    explicit Argument(std::string name, bool r = false);
+    Argument(Position p, std::string name, bool r = false);
     ~Argument() override = default;
 
     void accept(const Visitor* visitor) const override;
