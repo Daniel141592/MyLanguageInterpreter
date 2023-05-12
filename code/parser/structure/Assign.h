@@ -2,11 +2,11 @@
 #define CODE_ASSIGN_H
 
 
-#include "Declaration.h"
+#include "SingleInstruction.h"
 #include "Identifier.h"
 #include "Expression.h"
 
-class Assign : public Declaration {
+class Assign : public SingleInstruction {
     Identifier identifier;
     std::unique_ptr<Expression> expression;
 public:

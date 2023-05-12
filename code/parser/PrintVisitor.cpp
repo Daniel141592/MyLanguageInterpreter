@@ -20,6 +20,11 @@ void PrintVisitor::visit(const OrExpression* expression) const {
     expression->getRight()->accept(this);
 }
 
+void PrintVisitor::visit(const AndExpression* andExpression) const {
+    andExpression->getLeft()->accept(this);
+    andExpression->getRight()->accept(this);
+}
+
 void PrintVisitor::visit(const VariableDeclaration* variableDeclaration) const {
     variableDeclaration->isMut();
     if (variableDeclaration->getExpression())
@@ -50,6 +55,33 @@ void PrintVisitor::visit(const Argument* argument) const {
 void PrintVisitor::visit(const Assign* assign) const {
     std::cout << "assign: " << assign->getIdentifier().getName() << '\n';
     assign->getExpression()->accept(this);
+}
+
+void PrintVisitor::visit(const IfStatement *ifStatement) const {
+    std::cout << "if\n";
+    ifStatement->getCondition()->accept(this);
+    ifStatement->getBlock().accept(this);
+    if (ifStatement->getElseBlock())
+        ifStatement->getElseBlock()->accept(this);
+}
+
+void PrintVisitor::visit(const LoopStatement *loopStatement) const {
+    std::cout << "loop\n";
+    loopStatement->getCondition()->accept(this);
+    loopStatement->getBlock().accept(this);
+}
+
+void PrintVisitor::visit(const PatternStatement *patternStatement) const {
+    std::cout << "pattern\n";
+    patternStatement->getExpression()->accept(this);
+    for (auto &m : patternStatement->getMatches()) {
+        m.accept(this);
+    }
+}
+
+void PrintVisitor::visit(const ReturnStatement *returnStatement) const {
+    std::cout << "return\n";
+    returnStatement->getExpression()->accept(this);
 }
 
 

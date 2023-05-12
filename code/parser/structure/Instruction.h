@@ -9,7 +9,7 @@
 class Instruction : public Visitable {
 public:
     typedef std::unique_ptr<Instruction> InstructionPtr;
-    ~Instruction() = default;
+    ~Instruction() override = default;
 
     void accept(const Visitor* visitor) const override = 0;
 };
