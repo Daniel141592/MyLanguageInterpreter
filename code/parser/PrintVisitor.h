@@ -22,6 +22,12 @@
 #include "structure/MultiplicationExpression.h"
 #include "structure/Constant.h"
 #include "structure/Field.h"
+#include "structure/CastExpression.h"
+#include "structure/NegatedExpression.h"
+#include "structure/MatchExpression.h"
+#include "structure/MatchPair.h"
+#include "structure/MatchType.h"
+#include "structure/MatchNone.h"
 
 class PrintVisitor : public Visitor {
 public:
@@ -47,6 +53,12 @@ public:
     void visit(const MultiplicationExpression* multiplicationExpression) const override;
     void visit(const Constant* constant) const override;
     void visit(const Field* field) const override;
+    void visit(const CastExpression* castExpression) const override;
+    void visit(const NegatedExpression* negatedExpression) const override;
+    void visit(const MatchExpression* matchExpression) const override;
+    void visit(const MatchPair* matchPair) const override;
+    void visit(const MatchType* matchType) const override;
+    void visit(const MatchNone* matchNone) const override;
 };
 
 

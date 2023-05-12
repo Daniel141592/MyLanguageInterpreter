@@ -20,6 +20,12 @@ class AdditiveExpression;
 class MultiplicationExpression;
 class Constant;
 class Field;
+class CastExpression;
+class NegatedExpression;
+class MatchExpression;
+class MatchPair;
+class MatchType;
+class MatchNone;
 
 class Visitor {
 public:
@@ -43,6 +49,12 @@ public:
     virtual void visit(const MultiplicationExpression* multiplicationExpression) const = 0;
     virtual void visit(const Constant* constant) const = 0;
     virtual void visit(const Field* field) const = 0;
+    virtual void visit(const CastExpression* castExpression) const = 0;
+    virtual void visit(const NegatedExpression* negatedExpression) const = 0;
+    virtual void visit(const MatchExpression* matchExpression) const = 0;
+    virtual void visit(const MatchPair* matchPair) const = 0;
+    virtual void visit(const MatchType* matchType) const = 0;
+    virtual void visit(const MatchNone* matchNone) const = 0;
 };
 
 #endif //CODE_VISITOR_H

@@ -128,4 +128,56 @@ void PrintVisitor::visit(const Field *field) const {
     field->getExpression()->accept(this);
 }
 
+void PrintVisitor::visit(const CastExpression *castExpression) const {
+    std::cout << "cast expression, type: ";
+    if (castExpression->getType() == ConstantType::INTEGER)
+        std::cout << "integer\n";
+    else if (castExpression->getType() == ConstantType::FLOAT)
+        std::cout << "float\n";
+    else
+        std::cout << "string\n";
+    castExpression->getExpression()->accept(this);
+}
+
+void PrintVisitor::visit(const NegatedExpression *negatedExpression) const {
+    std::cout << "negated expression: ";
+    negatedExpression->getExpression()->accept(this);
+}
+
+void PrintVisitor::visit(const MatchExpression *matchExpression) const {
+    std::cout << "match expression: \n";
+    matchExpression->getExpression()->accept(this);
+    std::cout << "id: ";
+    matchExpression->getIdentifier().accept(this);
+    matchExpression->getBlock().accept(this);
+}
+
+void PrintVisitor::visit(const MatchPair *matchPair) const {
+    std::cout << "match pair: \n";
+    std::cout << "first: ";
+    matchPair->getFirst()->accept(this);
+    std::cout << "second: ";
+    matchPair->getSecond()->accept(this);
+    matchPair->getBlock().accept(this);
+}
+
+void PrintVisitor::visit(const MatchType *matchType) const {
+    std::cout << "match ";
+    if (!matchType->getConstantType())
+        std::cout << " everything\n";
+    else if (matchType->getConstantType() == ConstantType::INTEGER)
+        std::cout << "integer\n";
+    else if (matchType->getConstantType() == ConstantType::FLOAT)
+        std::cout << "float\n";
+    else
+        std::cout << "string\n";
+    matchType->getIdentifier().accept(this);
+    matchType->getBlock().accept(this);
+}
+
+void PrintVisitor::visit(const MatchNone *matchNone) const {
+    std::cout << "match none\n";
+    matchNone->getBlock().accept(this);
+}
+
 

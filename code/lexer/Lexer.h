@@ -4,11 +4,11 @@
 
 #include <map>
 #include <string>
-
+#include <optional>
 
 #include "../TokenType.h"
 #include "../Token.h"
-#include "ErrorType.h"
+#include "../ErrorType.h"
 
 class Lexer {
 public:

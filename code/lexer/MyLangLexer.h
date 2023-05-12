@@ -9,7 +9,7 @@
 #include <climits>
 
 #include "Lexer.h"
-#include "ErrorType.h"
+#include "../ErrorType.h"
 
 class MyLangLexer : public Lexer {
     Position position;
