@@ -41,7 +41,7 @@ void PrintVisitor::visit(const FunctionDeclaration* functionDeclaration) const {
             arg.accept(this);
     }
     std::cout << "\tbody:\n";
-    functionDeclaration->getFunctionBody().accept(this);
+    functionDeclaration->getFunctionBody()->accept(this);
 }
 
 void PrintVisitor::visit(const Identifier* identifier) const {

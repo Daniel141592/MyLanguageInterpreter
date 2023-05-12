@@ -8,7 +8,9 @@
 
 
 class Block : public Instruction {
+public:
     using InstructionPtr = Instruction::InstructionPtr;
+    using BlockPtr = std::unique_ptr<Block>;
 private:
     std::vector<InstructionPtr> instructions;
 public:

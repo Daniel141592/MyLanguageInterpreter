@@ -5,6 +5,8 @@
 
 class Declaration : public SingleInstruction {
 public:
+    using DeclarationPtr = std::unique_ptr<Declaration>;
+
     ~Declaration() override = default;
     void accept(const Visitor *visitor) const override = 0;
 };

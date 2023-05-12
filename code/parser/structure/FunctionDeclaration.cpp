@@ -1,11 +1,11 @@
 #include "FunctionDeclaration.h"
 
-FunctionDeclaration::FunctionDeclaration(Position p, std::string n, Block block)
+FunctionDeclaration::FunctionDeclaration(Position p, std::string n, BlockPtr block)
                     : identifier(p, std::move(n)), functionBody(std::move(block)) {
 
 }
 
-FunctionDeclaration::FunctionDeclaration(Position p, std::string n, Block block, std::vector<Argument> args)
+FunctionDeclaration::FunctionDeclaration(Position p, std::string n, BlockPtr block, std::vector<Argument> args)
                     : identifier(p, std::move(n)), functionBody(std::move(block)), arguments(std::move(args)) {
 
 }
@@ -22,6 +22,6 @@ const std::optional<std::vector<Argument>> &FunctionDeclaration::getArguments() 
     return arguments;
 }
 
-const Block &FunctionDeclaration::getFunctionBody() const {
+const FunctionDeclaration::BlockPtr &FunctionDeclaration::getFunctionBody() const {
     return functionBody;
 }

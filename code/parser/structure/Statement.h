@@ -5,6 +5,7 @@
 
 class Statement : public Instruction {
 public:
+    using StatementPtr = std::unique_ptr<Statement>;
     ~Statement() override = default;
 
     void accept(const Visitor* visitor) const override = 0;

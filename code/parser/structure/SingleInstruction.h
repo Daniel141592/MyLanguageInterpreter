@@ -6,6 +6,7 @@
 
 class SingleInstruction : public Instruction {
 public:
+    using SingleInstructionPtr = std::unique_ptr<SingleInstruction>;
     ~SingleInstruction() override = default;
 
     void accept(const Visitor* visitor) const override = 0;

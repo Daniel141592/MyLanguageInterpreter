@@ -12,18 +12,17 @@
 #include "Identifier.h"
 
 class FunctionDeclaration : public Declaration {
+    using BlockPtr = Block::BlockPtr;
     Identifier identifier;
     std::optional<std::vector<Argument>> arguments;
-    Block functionBody;
+    BlockPtr functionBody;
 public:
-    FunctionDeclaration(Position p, std::string n, Block block);
-    FunctionDeclaration(Position p, std::string n, Block block, std::vector<Argument> args);
+    FunctionDeclaration(Position p, std::string n, BlockPtr block);
+    FunctionDeclaration(Position p, std::string n, BlockPtr block, std::vector<Argument> args);
 
     const Identifier &getIdentifier() const;
-
     const std::optional<std::vector<Argument>> &getArguments() const;
-
-    const Block &getFunctionBody() const;
+    const BlockPtr &getFunctionBody() const;
 
     void accept(const Visitor* visitor) const override;
 };

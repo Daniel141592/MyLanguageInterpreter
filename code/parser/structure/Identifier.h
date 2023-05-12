@@ -7,6 +7,9 @@
 #include "Factor.h"
 
 class Identifier : public Factor {
+public:
+    using IdentifierPtr = std::unique_ptr<Identifier>;
+private:
     std::string name;
 public:
     Identifier(Position p, std::string n);
