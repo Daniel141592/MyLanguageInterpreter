@@ -13,7 +13,7 @@ private:
     ExpressionPtr expression;
     Identifier identifier;
 public:
-    MatchExpression(ExpressionPtr e, Identifier id, Block b);
+    MatchExpression(ExpressionPtr e, Identifier id, Block::BlockPtr b);
     const ExpressionPtr &getExpression() const;
     const Identifier &getIdentifier() const;
 

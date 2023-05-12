@@ -30,7 +30,7 @@ void PrintVisitor::visit(const VariableDeclaration* variableDeclaration) const {
     variableDeclaration->isMut();
     if (variableDeclaration->getExpression())
         variableDeclaration->getExpression()->get()->accept(this);
-    variableDeclaration->getIdentifier().accept(this);
+    variableDeclaration->getIdentifier()->accept(this);
 }
 
 void PrintVisitor::visit(const FunctionDeclaration* functionDeclaration) const {
@@ -54,29 +54,29 @@ void PrintVisitor::visit(const Argument* argument) const {
 }
 
 void PrintVisitor::visit(const Assign* assign) const {
-    std::cout << "assign: " << assign->getIdentifier().getName() << '\n';
+    std::cout << "assign: " << assign->getIdentifier()->getName() << '\n';
     assign->getExpression()->accept(this);
 }
 
 void PrintVisitor::visit(const IfStatement *ifStatement) const {
     std::cout << "if\n";
     ifStatement->getCondition()->accept(this);
-    ifStatement->getBlock().accept(this);
+    ifStatement->getBlock()->accept(this);
     if (ifStatement->getElseBlock())
-        ifStatement->getElseBlock()->accept(this);
+        ifStatement->getElseBlock().value()->accept(this);
 }
 
 void PrintVisitor::visit(const LoopStatement *loopStatement) const {
     std::cout << "loop\n";
     loopStatement->getCondition()->accept(this);
-    loopStatement->getBlock().accept(this);
+    loopStatement->getBlock()->accept(this);
 }
 
 void PrintVisitor::visit(const PatternStatement *patternStatement) const {
     std::cout << "pattern\n";
     patternStatement->getExpression()->accept(this);
     for (auto &m : patternStatement->getMatches()) {
-        m.accept(this);
+        m->accept(this);
     }
 }
 
@@ -149,7 +149,7 @@ void PrintVisitor::visit(const MatchExpression *matchExpression) const {
     matchExpression->getExpression()->accept(this);
     std::cout << "id: ";
     matchExpression->getIdentifier().accept(this);
-    matchExpression->getBlock().accept(this);
+    matchExpression->getBlock()->accept(this);
 }
 
 void PrintVisitor::visit(const MatchPair *matchPair) const {
@@ -158,7 +158,7 @@ void PrintVisitor::visit(const MatchPair *matchPair) const {
     matchPair->getFirst()->accept(this);
     std::cout << "second: ";
     matchPair->getSecond()->accept(this);
-    matchPair->getBlock().accept(this);
+    matchPair->getBlock()->accept(this);
 }
 
 void PrintVisitor::visit(const MatchType *matchType) const {
@@ -171,13 +171,13 @@ void PrintVisitor::visit(const MatchType *matchType) const {
         std::cout << "float\n";
     else
         std::cout << "string\n";
-    matchType->getIdentifier().accept(this);
-    matchType->getBlock().accept(this);
+    matchType->getIdentifier()->accept(this);
+    matchType->getBlock()->accept(this);
 }
 
 void PrintVisitor::visit(const MatchNone *matchNone) const {
     std::cout << "match none\n";
-    matchNone->getBlock().accept(this);
+    matchNone->getBlock()->accept(this);
 }
 
 

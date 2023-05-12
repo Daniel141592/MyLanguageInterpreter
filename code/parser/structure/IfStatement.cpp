@@ -4,19 +4,19 @@ const IfStatement::ExpressionPtr &IfStatement::getCondition() const {
     return condition;
 }
 
-const Block &IfStatement::getBlock() const {
+const Block::BlockPtr &IfStatement::getBlock() const {
     return block;
 }
 
-const std::optional<Block> &IfStatement::getElseBlock() const {
+const std::optional<Block::BlockPtr> &IfStatement::getElseBlock() const {
     return elseBlock;
 }
 
-IfStatement::IfStatement(IfStatement::ExpressionPtr e, Block b): condition(std::move(e)), block(std::move(b)) {
+IfStatement::IfStatement(IfStatement::ExpressionPtr e, BlockPtr b): condition(std::move(e)), block(std::move(b)) {
 
 }
 
-IfStatement::IfStatement(IfStatement::ExpressionPtr e, Block b, Block elsB) : condition(std::move(e)),
+IfStatement::IfStatement(IfStatement::ExpressionPtr e, BlockPtr b, BlockPtr elsB) : condition(std::move(e)),
                                         block(std::move(b)), elseBlock(std::move(elsB)) {
 
 }

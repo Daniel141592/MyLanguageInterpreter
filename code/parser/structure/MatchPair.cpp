@@ -1,6 +1,6 @@
 #include "MatchPair.h"
 
-MatchPair::MatchPair(Block b, MatchPair::ExpressionPtr f, MatchPair::ExpressionPtr s)
+MatchPair::MatchPair(Block::BlockPtr b, MatchPair::ExpressionPtr f, MatchPair::ExpressionPtr s)
                         : MatchStatement(std::move(b)), first(std::move(f)), second(std::move(s)) {
 
 }

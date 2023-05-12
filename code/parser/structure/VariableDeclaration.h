@@ -8,15 +8,16 @@
 #include "Expression.h"
 
 class VariableDeclaration : public Declaration {
+    using IdentifierPtr = Identifier::IdentifierPtr;
     bool mut;
-    Identifier identifier;
+    IdentifierPtr identifier;
     std::optional<std::unique_ptr<Expression>> expression;
 public:
-    VariableDeclaration(const Identifier& i, bool m = false);
-    VariableDeclaration(const Identifier& i, std::unique_ptr<Expression> e, bool m = false);
+    VariableDeclaration(IdentifierPtr i, bool m = false);
+    VariableDeclaration(IdentifierPtr i, std::unique_ptr<Expression> e, bool m = false);
 
     bool isMut() const;
-    const Identifier &getIdentifier() const;
+    const IdentifierPtr& getIdentifier() const;
     const std::optional<std::unique_ptr<Expression>> &getExpression() const;
 
 

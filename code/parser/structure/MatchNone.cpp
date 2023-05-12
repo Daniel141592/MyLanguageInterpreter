@@ -1,6 +1,6 @@
 #include "MatchNone.h"
 
-MatchNone::MatchNone(Block b) : MatchStatement(std::move(b)) {
+MatchNone::MatchNone(Block::BlockPtr b) : MatchStatement(std::move(b)) {
 
 }
 

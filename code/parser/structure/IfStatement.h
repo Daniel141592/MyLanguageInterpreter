@@ -12,17 +12,18 @@
 class IfStatement : public Statement {
 public:
     using ExpressionPtr = Expression::ExpressionPtr;
+    using BlockPtr = Block::BlockPtr;
 private:
     ExpressionPtr condition;
-    Block block;
-    std::optional<Block> elseBlock;
+    BlockPtr block;
+    std::optional<BlockPtr> elseBlock;
 public:
-    IfStatement(ExpressionPtr e, Block  b);
-    IfStatement(ExpressionPtr e, Block b, Block elsB);
+    IfStatement(ExpressionPtr e, BlockPtr b);
+    IfStatement(ExpressionPtr e, BlockPtr b, BlockPtr elsB);
 
     const ExpressionPtr &getCondition() const;
-    const Block &getBlock() const;
-    const std::optional<Block> &getElseBlock() const;
+    const BlockPtr &getBlock() const;
+    const std::optional<BlockPtr> &getElseBlock() const;
 
     void accept(const Visitor* visitor) const override;
 };

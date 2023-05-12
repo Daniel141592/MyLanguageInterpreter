@@ -8,12 +8,13 @@
 #include "Identifier.h"
 
 class MatchType : public MatchStatement {
-    Identifier identifier;
+    using IdentifierPtr = Identifier::IdentifierPtr;
+    IdentifierPtr identifier;
     std::optional<ConstantType> constantType;
 public:
-    MatchType(Block b, Identifier id);
-    MatchType(Block b, Identifier id, ConstantType type);
-    const Identifier &getIdentifier() const;
+    MatchType(Block::BlockPtr b, IdentifierPtr id);
+    MatchType(Block::BlockPtr b, IdentifierPtr id, ConstantType type);
+    const IdentifierPtr &getIdentifier() const;
     const std::optional<ConstantType> &getConstantType() const;
 
     void accept(const Visitor *visitor) const override;

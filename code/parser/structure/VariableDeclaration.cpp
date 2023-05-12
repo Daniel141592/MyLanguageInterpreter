@@ -1,11 +1,11 @@
 #include "VariableDeclaration.h"
 
-VariableDeclaration::VariableDeclaration(const Identifier& i, bool m) : identifier(std::move(i)), mut(m) {
+VariableDeclaration::VariableDeclaration(IdentifierPtr i, bool m) : identifier(std::move(i)), mut(m) {
 
 }
 
-VariableDeclaration::VariableDeclaration(const Identifier& i, std::unique_ptr<Expression> e, bool m)
-                                : identifier(i), mut(m), expression(std::move(e)) {
+VariableDeclaration::VariableDeclaration(IdentifierPtr i, std::unique_ptr<Expression> e, bool m)
+                                : identifier(std::move(i)), mut(m), expression(std::move(e)) {
 
 }
 
@@ -17,7 +17,7 @@ bool VariableDeclaration::isMut() const {
     return mut;
 }
 
-const Identifier &VariableDeclaration::getIdentifier() const {
+const VariableDeclaration::IdentifierPtr& VariableDeclaration::getIdentifier() const {
     return identifier;
 }
 

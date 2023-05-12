@@ -79,7 +79,7 @@ int main(int argc, char** argv) {
     using InstructionPtr = Instruction::InstructionPtr;
     std::vector<InstructionPtr> blockInstructions;
     Position position(1, 1);
-    VariableDeclaration variableDeclaration(Identifier(position, "test"));
+    VariableDeclaration variableDeclaration(std::make_unique<Identifier>(Identifier(position, "test")));
     blockInstructions.emplace_back(std::make_unique<VariableDeclaration>(std::move(variableDeclaration)));
     std::vector<InstructionPtr> instructions;
 

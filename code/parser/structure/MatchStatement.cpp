@@ -1,10 +1,10 @@
 #include "MatchStatement.h"
 
-MatchStatement::MatchStatement(Block b) : block(std::move(b)) {
+MatchStatement::MatchStatement(BlockPtr b) : block(std::move(b)) {
 
 }
 
 
-const Block &MatchStatement::getBlock() const {
+const Block::BlockPtr &MatchStatement::getBlock() const {
     return block;
 }

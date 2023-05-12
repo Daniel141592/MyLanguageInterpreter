@@ -14,7 +14,7 @@ private:
     Identifier name;
     std::vector<ExpressionPtr> args;
 public:
-    FunctionCall(Position p, Identifier id, std::vector<ExpressionPtr> e);
+    FunctionCall(Identifier id, std::vector<ExpressionPtr> e);
     const Identifier &getName() const;
     const std::vector<ExpressionPtr> &getArgs() const;
 

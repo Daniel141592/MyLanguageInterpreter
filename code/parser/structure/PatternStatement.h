@@ -12,13 +12,14 @@
 class PatternStatement : public Statement {
 public:
     using ExpressionPtr = Expression::ExpressionPtr;
+    using MatchStatementPtr = MatchStatement::MatchStatementPtr;
 private:
     ExpressionPtr expression;
-    std::vector<MatchStatement> matches;
+    std::vector<MatchStatementPtr> matches;
 public:
-    PatternStatement(ExpressionPtr e, std::vector<MatchStatement> m);
+    PatternStatement(ExpressionPtr e, std::vector<MatchStatementPtr> m);
     const ExpressionPtr &getExpression() const;
-    const std::vector<MatchStatement> &getMatches() const;
+    const std::vector<MatchStatementPtr> &getMatches() const;
 
     void accept(const Visitor *visitor) const override;
 };

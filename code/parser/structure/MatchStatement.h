@@ -6,10 +6,14 @@
 #include "Block.h"
 
 class MatchStatement : public Statement {
-    Block block;
 public:
-    MatchStatement(Block b);
-    const Block &getBlock() const;
+    using MatchStatementPtr = std::unique_ptr<MatchStatement>;
+    using BlockPtr = Block::BlockPtr;
+private:
+    BlockPtr block;
+public:
+    MatchStatement(BlockPtr b);
+    const BlockPtr &getBlock() const;
 
     void accept(const Visitor *visitor) const override = 0;
 };

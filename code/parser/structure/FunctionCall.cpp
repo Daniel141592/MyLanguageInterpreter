@@ -1,7 +1,7 @@
 #include "FunctionCall.h"
 
-FunctionCall::FunctionCall(Position p, Identifier id, std::vector<ExpressionPtr> e)
-                                    : Factor(p), name(std::move(id)), args(std::move(e)) {
+FunctionCall::FunctionCall(Identifier id, std::vector<ExpressionPtr> e)
+                                    : Factor(id.getPosition()), name(std::move(id)), args(std::move(e)) {
 
 }
 

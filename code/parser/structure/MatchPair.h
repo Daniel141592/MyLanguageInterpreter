@@ -11,7 +11,7 @@ private:
     ExpressionPtr first;
     ExpressionPtr second;
 public:
-    MatchPair(Block b, ExpressionPtr f, ExpressionPtr s);
+    MatchPair(Block::BlockPtr b, ExpressionPtr f, ExpressionPtr s);
     const ExpressionPtr &getFirst() const;
     const ExpressionPtr &getSecond() const;
 

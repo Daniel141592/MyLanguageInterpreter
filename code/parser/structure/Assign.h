@@ -7,13 +7,15 @@
 #include "Expression.h"
 
 class Assign : public SingleInstruction {
-    Identifier identifier;
+    using IdentifierPtr = Identifier::IdentifierPtr;
+private:
+    IdentifierPtr identifier;
     std::unique_ptr<Expression> expression;
 public:
-    Assign(const Identifier& i, std::unique_ptr<Expression> e);
+    Assign(IdentifierPtr i, std::unique_ptr<Expression> e);
     ~Assign() override = default;
 
-    const Identifier &getIdentifier() const;
+    const IdentifierPtr &getIdentifier() const;
     const std::unique_ptr<Expression> &getExpression() const;
 
     void accept(const Visitor* visitor) const override;

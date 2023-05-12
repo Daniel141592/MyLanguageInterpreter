@@ -1,10 +1,10 @@
 #include "Assign.h"
 
-Assign::Assign(const Identifier &i, std::unique_ptr<Expression> e) : identifier(i), expression(std::move(e)) {
+Assign::Assign(IdentifierPtr i, std::unique_ptr<Expression> e) : identifier(std::move(i)), expression(std::move(e)) {
 
 }
 
-const Identifier &Assign::getIdentifier() const {
+const Assign::IdentifierPtr &Assign::getIdentifier() const {
     return identifier;
 }
 

@@ -1,15 +1,15 @@
 #include "MatchType.h"
 
-MatchType::MatchType(Block b, Identifier id) : MatchStatement(std::move(b)), identifier(std::move(id)) {
+MatchType::MatchType(Block::BlockPtr b, IdentifierPtr id) : MatchStatement(std::move(b)), identifier(std::move(id)) {
 
 }
 
-MatchType::MatchType(Block b, Identifier id, ConstantType type)
+MatchType::MatchType(Block::BlockPtr b, IdentifierPtr id, ConstantType type)
                     : MatchStatement(std::move(b)), identifier(std::move(id)), constantType(type) {
 
 }
 
-const Identifier &MatchType::getIdentifier() const {
+const MatchType::IdentifierPtr &MatchType::getIdentifier() const {
     return identifier;
 }
 

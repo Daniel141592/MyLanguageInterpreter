@@ -11,13 +11,14 @@
 class LoopStatement : public Statement {
 public:
     using ExpressionPtr = Expression::ExpressionPtr;
+    using BlockPtr = Block::BlockPtr;
 private:
     ExpressionPtr condition;
-    Block block;
+    BlockPtr block;
 public:
-    LoopStatement(ExpressionPtr c, Block b);
+    LoopStatement(ExpressionPtr c, BlockPtr b);
     const ExpressionPtr &getCondition() const;
-    const Block &getBlock() const;
+    const BlockPtr &getBlock() const;
 
     void accept(const Visitor *visitor) const override;
 };
