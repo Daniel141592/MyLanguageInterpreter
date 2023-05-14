@@ -16,7 +16,9 @@ namespace {
             {"func", TokenType::FUNC_KEYWORD},
             {"none", TokenType::NONE_KEYWORD},
             {"ref", TokenType::REF_KEYWORD},
-            {"return", TokenType::RETURN_KEYWORD}
+            {"return", TokenType::RETURN_KEYWORD},
+            {"first", TokenType::FIRST_KEYWORD},
+            {"second", TokenType::SECOND_KEYWORD}
     };
     const std::unordered_map<char, char> specialChars {
             {'b', 8}, {'f', 12}, {'n', 10},
@@ -36,7 +38,8 @@ namespace {
     const std::unordered_map<std::string, TokenType> twoCharactersTokens {
             {">=", TokenType::GREATER_OR_EQUAL}, {"<=", TokenType::LESS_OR_EQUAL},
             {"==", TokenType::EQUAL}, {"!=", TokenType::NOT_EQUAL},
-            {"//", TokenType::INT_DIVISION}
+            {"//", TokenType::INT_DIVISION}, {"||", TokenType::OR},
+            {"&&", TokenType::AND}
     };
 }
 
@@ -129,7 +132,8 @@ std::optional<Token> MyLangLexer::tryBuildSimpleTokens() {
     if (it == simpleTokens.end())
         return {};
     Position tokenPosition = position;
-    if (currentChar == '=' || currentChar == '>' || currentChar == '<' || currentChar == '/' || currentChar == '!') {
+    if (currentChar == '=' || currentChar == '>' || currentChar == '<' || currentChar == '/' || currentChar == '!'
+        || currentChar == '|' || currentChar == '&') {
         const char first = currentChar;
         nextCharacter();
         std::string str = std::string() + first + currentChar;
@@ -138,7 +142,9 @@ std::optional<Token> MyLangLexer::tryBuildSimpleTokens() {
             nextCharacter();
             return Token(twoCharactersTokensIt->second, tokenPosition);
         }
-        return Token(it->second, tokenPosition);
+        if (first != '|' && first != '&')
+            return Token(it->second, tokenPosition);
+        return {};
     }
     nextCharacter();
     return Token(it->second, tokenPosition);

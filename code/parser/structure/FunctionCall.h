@@ -9,6 +9,7 @@
 
 class FunctionCall : public SingleInstruction, public Factor {
 public:
+    using FunctionCallPtr = std::unique_ptr<FunctionCall>;
     using ExpressionPtr = Expression::ExpressionPtr;
 private:
     Identifier name;

@@ -1,6 +1,6 @@
 #include "MatchExpression.h"
 
-MatchExpression::MatchExpression(MatchExpression::ExpressionPtr e, Identifier id, Block::BlockPtr b)
+MatchExpression::MatchExpression(MatchExpression::ExpressionPtr e, IdentifierPtr id, Block::BlockPtr b)
                                 : expression(std::move(e)), identifier(std::move(id)), MatchStatement(std::move(b)) {
 
 }
@@ -9,7 +9,7 @@ const MatchExpression::ExpressionPtr &MatchExpression::getExpression() const {
     return expression;
 }
 
-const Identifier &MatchExpression::getIdentifier() const {
+const Identifier::IdentifierPtr &MatchExpression::getIdentifier() const {
     return identifier;
 }
 

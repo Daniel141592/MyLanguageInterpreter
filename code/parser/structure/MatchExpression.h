@@ -10,12 +10,13 @@ class MatchExpression : public MatchStatement {
 public:
     using ExpressionPtr = Expression::ExpressionPtr;
 private:
+    using IdentifierPtr = Identifier::IdentifierPtr;
+    IdentifierPtr identifier;
     ExpressionPtr expression;
-    Identifier identifier;
 public:
-    MatchExpression(ExpressionPtr e, Identifier id, Block::BlockPtr b);
+    MatchExpression(ExpressionPtr e, IdentifierPtr id, Block::BlockPtr b);
     const ExpressionPtr &getExpression() const;
-    const Identifier &getIdentifier() const;
+    const IdentifierPtr &getIdentifier() const;
 
     void accept(const Visitor *visitor) const override;
 };

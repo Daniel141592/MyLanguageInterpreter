@@ -1,10 +1,14 @@
 #include "ReturnStatement.h"
 
+ReturnStatement::ReturnStatement() : expression({}) {
+
+}
+
 ReturnStatement::ReturnStatement(ReturnStatement::ExpressionPtr e) : expression(std::move(e)) {
 
 }
 
-const ReturnStatement::ExpressionPtr &ReturnStatement::getExpression() const {
+const std::optional<ReturnStatement::ExpressionPtr> &ReturnStatement::getExpression() const {
     return expression;
 }
 

@@ -3,12 +3,14 @@
 PrintVisitor::PrintVisitor() = default;
 
 void PrintVisitor::visit(const Program* program) const {
+    std::cout << "program:\n";
     for (auto &ins : program->getInstructions()) {
         ins->accept(this);
     }
 }
 
 void PrintVisitor::visit(const Block* block) const {
+    std::cout << "block\n";
     for (auto &ins : block->getInstructions()) {
         ins->accept(this);
     }
@@ -16,21 +18,26 @@ void PrintVisitor::visit(const Block* block) const {
 
 void PrintVisitor::visit(const OrExpression* expression) const {
     std::cout << "or expression\n";
-    expression->getLeft()->accept(this);
-    expression->getRight()->accept(this);
+    if (expression->getLeft())
+        expression->getLeft()->accept(this);
+    if (expression->getRight())
+        expression->getRight()->accept(this);
 }
 
 void PrintVisitor::visit(const AndExpression* andExpression) const {
     std::cout << "and expression\n";
-    andExpression->getLeft()->accept(this);
-    andExpression->getRight()->accept(this);
+    if (andExpression->getLeft())
+        andExpression->getLeft()->accept(this);
+    if (andExpression->getRight())
+        andExpression->getRight()->accept(this);
 }
 
 void PrintVisitor::visit(const VariableDeclaration* variableDeclaration) const {
-    variableDeclaration->isMut();
+    std::cout << "variable declaraiton ";
+    std::cout << (variableDeclaration->isMut() ? "mut" : "") << ": \n";
+    variableDeclaration->getIdentifier()->accept(this);
     if (variableDeclaration->getExpression())
         variableDeclaration->getExpression()->get()->accept(this);
-    variableDeclaration->getIdentifier()->accept(this);
 }
 
 void PrintVisitor::visit(const FunctionDeclaration* functionDeclaration) const {
@@ -82,7 +89,8 @@ void PrintVisitor::visit(const PatternStatement *patternStatement) const {
 
 void PrintVisitor::visit(const ReturnStatement *returnStatement) const {
     std::cout << "return\n";
-    returnStatement->getExpression()->accept(this);
+    if (returnStatement->getExpression())
+        returnStatement->getExpression().value()->accept(this);
 }
 
 void PrintVisitor::visit(const FunctionCall *functionCall) const {
@@ -97,21 +105,27 @@ void PrintVisitor::visit(const FunctionCall *functionCall) const {
 void PrintVisitor::visit(const RelativeExpression *relativeExpression) const {
     std::cout << "relative expression, type: <#TODO>\n";
     relativeExpression->getRelativeType();
-    relativeExpression->getLeft()->accept(this);
-    relativeExpression->getRight()->accept(this);
+    if (relativeExpression->getLeft())
+        relativeExpression->getLeft()->accept(this);
+    if (relativeExpression->getRight())
+        relativeExpression->getRight()->accept(this);
     relativeExpression->getPosition();
 }
 
 void PrintVisitor::visit(const AdditiveExpression *additiveExpression) const {
     std::cout << (additiveExpression->getAdditiveType() == AdditiveType::ADD ? "add" : "subtract") << " expression\n";
-    additiveExpression->getLeft()->accept(this);
-    additiveExpression->getRight()->accept(this);
+    if (additiveExpression->getLeft())
+        additiveExpression->getLeft()->accept(this);
+    if (additiveExpression->getRight())
+        additiveExpression->getRight()->accept(this);
 }
 
 void PrintVisitor::visit(const MultiplicationExpression *multiplicationExpression) const {
     std::cout << "multiplication expression, type <#TODO>\n";
-    multiplicationExpression->getLeft()->accept(this);
-    multiplicationExpression->getRight()->accept(this);
+    if (multiplicationExpression->getLeft())
+        multiplicationExpression->getLeft()->accept(this);
+    if (multiplicationExpression->getRight())
+        multiplicationExpression->getRight()->accept(this);
 }
 
 void PrintVisitor::visit(const Constant *constant) const {
@@ -148,7 +162,7 @@ void PrintVisitor::visit(const MatchExpression *matchExpression) const {
     std::cout << "match expression: \n";
     matchExpression->getExpression()->accept(this);
     std::cout << "id: ";
-    matchExpression->getIdentifier().accept(this);
+    matchExpression->getIdentifier()->accept(this);
     matchExpression->getBlock()->accept(this);
 }
 
@@ -178,6 +192,13 @@ void PrintVisitor::visit(const MatchType *matchType) const {
 void PrintVisitor::visit(const MatchNone *matchNone) const {
     std::cout << "match none\n";
     matchNone->getBlock()->accept(this);
+}
+
+void PrintVisitor::visit(const Pair *pair) const {
+    std::cout << "pair: ";
+    pair->getFirst()->accept(this);
+    std::cout << ", ";
+    pair->getSecond()->accept(this);
 }
 
 

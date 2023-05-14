@@ -28,6 +28,7 @@
 #include "structure/MatchPair.h"
 #include "structure/MatchType.h"
 #include "structure/MatchNone.h"
+#include "structure/Pair.h"
 
 class PrintVisitor : public Visitor {
 public:
@@ -59,6 +60,7 @@ public:
     void visit(const MatchPair* matchPair) const override;
     void visit(const MatchType* matchType) const override;
     void visit(const MatchNone* matchNone) const override;
+    void visit(const Pair* pair) const override;
 };
 
 
