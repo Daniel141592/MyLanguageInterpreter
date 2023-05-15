@@ -63,7 +63,6 @@ private:
             std::unordered_map<std::string, FunctionDeclaration>& functions);
     std::optional<std::vector<Argument>> parseArgumentsList();
     std::optional<Argument> parseArgument();
-
     std::optional<FunctionCallPtr> parseFunctionCall(const std::string& identifier);
     std::optional<StatementPtr> parseIfStatement();
     std::optional<BlockPtr> parseElseStatement();
@@ -76,7 +75,6 @@ private:
     std::optional<MatchStatementPtr> parseMatchPairOrExpression();
     std::optional<MatchStatementPtr> parseMatchPair(ExpressionPtr first);
     std::optional<MatchStatementPtr> parseMatchExpression(ExpressionPtr expression);
-
     std::optional<ExpressionPtr> parseExpression();
     std::optional<ExpressionPtr> parseExpressionOrPair();
     std::optional<ExpressionPtr> parseAndExpression();

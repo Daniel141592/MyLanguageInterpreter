@@ -17,7 +17,7 @@ bool MyLangParser::consumeIf(TokenType tokenType) {
 }
 
 void MyLangParser::criticalError(ErrorType type) {
-    errorHandler(currentToken->getPosition(), type);  // TODO błąd krytyczny
+    errorHandler(currentToken->getPosition(), type);
     throw std::exception();
 }
 

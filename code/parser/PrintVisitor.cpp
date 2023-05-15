@@ -187,7 +187,16 @@ void PrintVisitor::visit(const FunctionCall *functionCall) {
 }
 
 void PrintVisitor::visit(const RelativeExpression *relativeExpression) {
-    print("relative expression, type: <#TODO>");    //TODO typ wyrażenia
+    std::unordered_map<RelativeType, std::string> map = {
+            {RelativeType::EQUAL, "EQUAL"},
+            {RelativeType::NOT_EQUAL, "NOT_EQUAL"},
+            {RelativeType::GREATER, "GREATER"},
+            {RelativeType::LESS, "LESS"},
+            {RelativeType::GREATER_EQUAL, "GREATER_EQUAL"},
+            {RelativeType::LESS_EQUAL, "LESS_EQUAL"},
+            {RelativeType::IS, "IS"}
+    };
+    print(std::string("relative expression, type: "+map[relativeExpression->getRelativeType()]).c_str());
     manageIndent([&]() {
         relativeExpression->getRelativeType();
         if (relativeExpression->getLeft()) {
@@ -228,7 +237,13 @@ void PrintVisitor::visit(const AdditiveExpression *additiveExpression) {
 }
 
 void PrintVisitor::visit(const MultiplicationExpression *multiplicationExpression) {
-    print("multiplication expression, type <#TODO>");
+    std::unordered_map<MultiplicativeType, std::string> map = {
+            {MultiplicativeType::MULTIPLY, "multiply"},
+            {MultiplicativeType::DIVIDE, "divide"},
+            {MultiplicativeType::INT_DIVIDE, "int divide"},
+            {MultiplicativeType::MODULO, "modulo"},
+    };
+    print(std::string(map[multiplicationExpression->getMultiplicativeType()]+" expression").c_str());
     manageIndent([&]() {
         if (multiplicationExpression->getLeft()) {
             print("left");
