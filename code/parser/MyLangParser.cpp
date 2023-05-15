@@ -627,12 +627,19 @@ std::optional<MyLangParser::ExpressionPtr> MyLangParser::parseIdentifierOrFuncti
  * field = id_or_function_call, ”.”, ”first” | ”second”
  */
 std::optional<MyLangParser::ExpressionPtr> MyLangParser::parseField(ExpressionPtr& expression) {
+    Position position = currentToken->getPosition();
     if (!consumeIf(TokenType::DOT))
         return {};
-    if (consumeIf(TokenType::FIRST_KEYWORD))
-        return std::make_unique<Field>(currentToken->getPosition(), std::move(expression), FieldType::FIRST);
-    if (consumeIf(TokenType::SECOND_KEYWORD))
-        return std::make_unique<Field>(currentToken->getPosition(), std::move(expression), FieldType::SECOND);
+    if (currentToken->getType() == TokenType::IDENTIFIER
+                                && std::get<std::string>(currentToken->getValue()) == "first") {
+        nextToken();
+        return std::make_unique<Field>(position, std::move(expression), FieldType::FIRST);
+    }
+    if (currentToken->getType() == TokenType::IDENTIFIER
+                                && std::get<std::string>(currentToken->getValue()) == "second") {
+        nextToken();
+        return std::make_unique<Field>(position, std::move(expression), FieldType::SECOND);
+    }
     criticalError(ErrorType::FIRST_OR_SECOND_EXPECTED);
     return {};
 }

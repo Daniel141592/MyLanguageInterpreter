@@ -16,9 +16,7 @@ namespace {
             {"func", TokenType::FUNC_KEYWORD},
             {"none", TokenType::NONE_KEYWORD},
             {"ref", TokenType::REF_KEYWORD},
-            {"return", TokenType::RETURN_KEYWORD},
-            {"first", TokenType::FIRST_KEYWORD},
-            {"second", TokenType::SECOND_KEYWORD}
+            {"return", TokenType::RETURN_KEYWORD}
     };
     const std::unordered_map<char, char> specialChars {
             {'b', 8}, {'f', 12}, {'n', 10},
