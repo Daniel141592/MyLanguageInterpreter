@@ -24,7 +24,7 @@ public:
     const std::optional<std::vector<Argument>> &getArguments() const;
     const BlockPtr &getFunctionBody() const;
 
-    void accept(const Visitor* visitor) const override;
+    void accept(Visitor* visitor) const override;
 };
 
 

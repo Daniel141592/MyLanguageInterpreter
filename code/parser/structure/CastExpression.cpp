@@ -13,6 +13,6 @@ ConstantType CastExpression::getType() const {
     return type;
 }
 
-void CastExpression::accept(const Visitor *visitor) const {
+void CastExpression::accept(Visitor* visitor) const {
     visitor->visit(this);
 }

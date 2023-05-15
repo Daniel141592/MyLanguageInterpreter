@@ -9,6 +9,6 @@ const NegatedExpression::ExpressionPtr &NegatedExpression::getExpression() const
     return expression;
 }
 
-void NegatedExpression::accept(const Visitor *visitor) const {
+void NegatedExpression::accept(Visitor* visitor) const {
     visitor->visit(this);
 }

@@ -18,7 +18,7 @@ public:
     const IdentifierPtr &getIdentifier() const;
     const std::unique_ptr<Expression> &getExpression() const;
 
-    void accept(const Visitor* visitor) const override;
+    void accept(Visitor* visitor) const override;
 };
 
 

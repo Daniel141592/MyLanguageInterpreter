@@ -19,7 +19,7 @@ public:
     const Identifier &getName() const;
     const std::vector<ExpressionPtr> &getArgs() const;
 
-    void accept(const Visitor *visitor) const override;
+    void accept(Visitor* visitor) const override;
 };
 
 

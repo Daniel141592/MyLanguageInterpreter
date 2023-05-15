@@ -4,7 +4,7 @@ Argument::Argument(Position p, std::string name, bool r) : identifier(p, std::mo
 
 }
 
-void Argument::accept(const Visitor *visitor) const {
+void Argument::accept(Visitor* visitor) const {
     visitor->visit(this);
 }
 

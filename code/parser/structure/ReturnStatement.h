@@ -15,7 +15,7 @@ public:
     ReturnStatement(ExpressionPtr e);
     const std::optional<ExpressionPtr> &getExpression() const;
 
-    void accept(const Visitor *visitor) const override;
+    void accept(Visitor* visitor) const override;
 };
 
 

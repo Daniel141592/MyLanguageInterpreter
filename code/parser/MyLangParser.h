@@ -33,6 +33,7 @@
 #include "structure/Field.h"
 #include "structure/ConstantType.h"
 #include "structure/Pair.h"
+#include "structure/Typename.h"
 
 class MyLangParser : public Parser {
     using InstructionPtr = Instruction::InstructionPtr;
@@ -82,9 +83,11 @@ private:
     std::optional<ExpressionPtr> parseAndExpression();
     std::optional<ExpressionPtr> parseRelativeExpression();
     std::optional<ExpressionPtr> parseNumericExpression();
+    std::optional<ExpressionPtr> parseNumericPair();
     std::optional<ExpressionPtr> parseTerm();
     std::optional<ExpressionPtr> parseFactor();
     std::optional<ExpressionPtr> parseConstant();
+    std::optional<ExpressionPtr> parseTypename();
     std::optional<ExpressionPtr> parseIdentifierOrFunctionCall();
     std::optional<ExpressionPtr> parseField(ExpressionPtr& expression);
     std::optional<ExpressionPtr> parseCastOrNestedExpression();
@@ -92,7 +95,7 @@ private:
     std::optional<RelativeType> checkRelativeType();
     std::optional<AdditiveType> checkAdditiveType();
     std::optional<MultiplicativeType> checkMultiplicationType();
-    std::optional<ConstantType> checkCastType();
+    std::optional<ConstantType> checkTypeName();
     std::optional<ConstantType> checkConstantType();
 
     void nextToken();

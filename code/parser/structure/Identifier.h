@@ -17,7 +17,7 @@ public:
 
     std::string getName() const;
 
-    void accept(const Visitor* visitor) const override;
+    void accept(Visitor* visitor) const override;
 };
 
 

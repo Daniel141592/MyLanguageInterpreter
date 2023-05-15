@@ -10,7 +10,7 @@ FunctionDeclaration::FunctionDeclaration(Position p, std::string n, BlockPtr blo
 
 }
 
-void FunctionDeclaration::accept(const Visitor *visitor) const {
+void FunctionDeclaration::accept(Visitor* visitor) const {
     visitor->visit(this);
 }
 

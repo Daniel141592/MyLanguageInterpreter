@@ -7,7 +7,7 @@ class Visitable {
 public:
     virtual ~Visitable() = default;
 
-    virtual void accept(const Visitor* visitor) const = 0;
+    virtual void accept(Visitor* visitor) const = 0;
 };
 
 #endif //CODE_VISITABLE_H

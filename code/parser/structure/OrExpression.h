@@ -14,7 +14,7 @@ private:
 public:
     OrExpression(Position p, ExpressionPtr l, ExpressionPtr r);
     ~OrExpression() override = default;
-    void accept(const Visitor* visitor) const override;
+    void accept(Visitor* visitor) const override;
 
     const ExpressionPtr& getLeft() const;
     const ExpressionPtr& getRight() const;

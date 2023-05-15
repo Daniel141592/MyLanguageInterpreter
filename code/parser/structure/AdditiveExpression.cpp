@@ -19,6 +19,6 @@ AdditiveType AdditiveExpression::getAdditiveType() const {
     return additiveType;
 }
 
-void AdditiveExpression::accept(const Visitor *visitor) const {
+void AdditiveExpression::accept(Visitor* visitor) const {
     visitor->visit(this);
 }

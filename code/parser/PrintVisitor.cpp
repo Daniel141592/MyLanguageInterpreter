@@ -1,204 +1,393 @@
 #include "PrintVisitor.h"
 
-PrintVisitor::PrintVisitor() = default;
+PrintVisitor::PrintVisitor() : indent(0) {}
 
-void PrintVisitor::visit(const Program* program) const {
-    std::cout << "program:\n";
-    for (auto &ins : program->getInstructions()) {
-        ins->accept(this);
-    }
+void PrintVisitor::visit(const Program* program) {
+    print("program");
+    manageIndent([&]() {
+        for (auto &ins: program->getInstructions()) {
+            ins->accept(this);
+        }
+    });
 }
 
-void PrintVisitor::visit(const Block* block) const {
-    std::cout << "block\n";
-    for (auto &ins : block->getInstructions()) {
-        ins->accept(this);
-    }
+void PrintVisitor::visit(const Block* block) {
+    print("block");
+    manageIndent([&]() {
+        for (auto &ins: block->getInstructions()) {
+            ins->accept(this);
+        }
+    });
 }
 
-void PrintVisitor::visit(const OrExpression* expression) const {
-    std::cout << "or expression\n";
-    if (expression->getLeft())
-        expression->getLeft()->accept(this);
-    if (expression->getRight())
-        expression->getRight()->accept(this);
+void PrintVisitor::visit(const OrExpression* expression) {
+    print("or expression");
+    manageIndent([&]() {
+        if (expression->getLeft()) {
+            print("left: ");
+            manageIndent([&]() {
+                expression->getLeft()->accept(this);
+            });
+        }
+        if (expression->getRight()) {
+            print("right: ");
+            manageIndent([&]() {
+                expression->getRight()->accept(this);
+            });
+        }
+    });
 }
 
-void PrintVisitor::visit(const AndExpression* andExpression) const {
-    std::cout << "and expression\n";
-    if (andExpression->getLeft())
-        andExpression->getLeft()->accept(this);
-    if (andExpression->getRight())
-        andExpression->getRight()->accept(this);
+void PrintVisitor::visit(const AndExpression* andExpression) {
+    print("and expression");
+    manageIndent([&]() {
+        if (andExpression->getLeft()) {
+            print("left");
+            manageIndent([&]() {
+                andExpression->getLeft()->accept(this);
+            });
+        }
+        if (andExpression->getRight()) {
+            print("right");
+            manageIndent([&]() { andExpression->getRight()->accept(this); });
+        }
+    });
 }
 
-void PrintVisitor::visit(const VariableDeclaration* variableDeclaration) const {
-    std::cout << "variable declaraiton ";
-    std::cout << (variableDeclaration->isMut() ? "mut" : "") << ": \n";
-    variableDeclaration->getIdentifier()->accept(this);
-    if (variableDeclaration->getExpression())
-        variableDeclaration->getExpression()->get()->accept(this);
+void PrintVisitor::visit(const VariableDeclaration* variableDeclaration) {
+    print("variable declaration");
+    manageIndent([&]() {
+        if (variableDeclaration->isMut())
+            print("mutable: true\n");
+        print("name");
+        manageIndent([&]() { variableDeclaration->getIdentifier()->accept(this); });
+        if (variableDeclaration->getExpression()) {
+            print("expression");
+            manageIndent([&]() { variableDeclaration->getExpression()->get()->accept(this); });
+        }
+    });
 }
 
-void PrintVisitor::visit(const FunctionDeclaration* functionDeclaration) const {
-    std::cout << "function: " << functionDeclaration->getIdentifier().getName() << '\n';
-    if (functionDeclaration->getArguments()) {
-        std::cout << "\targuments:\n";
-        for (auto &arg : *functionDeclaration->getArguments())
-            arg.accept(this);
-    }
-    std::cout << "\tbody:\n";
-    functionDeclaration->getFunctionBody()->accept(this);
+void PrintVisitor::visit(const FunctionDeclaration* functionDeclaration) {
+    print("function");
+    manageIndent([&]() {
+        print("name");
+        manageIndent([&]() {
+            functionDeclaration->getIdentifier().accept(this);
+        });
+        if (functionDeclaration->getArguments()) {
+            print("arguments");
+            manageIndent([&]() {;
+            for (auto &arg : *functionDeclaration->getArguments())
+                arg.accept(this);
+            });
+        }
+        functionDeclaration->getFunctionBody()->accept(this);
+    });
 }
 
-void PrintVisitor::visit(const Identifier* identifier) const {
-    std::cout << identifier->getName() << '\n';
+void PrintVisitor::visit(const Identifier* identifier) {
+    print("identifier");
+    manageIndent([&]() {
+        std::string name = identifier->getName()+'\n';
+        print(name.c_str());
+    });
 }
 
-void PrintVisitor::visit(const Argument* argument) const {
-    std::cout << "argument: " ;
-    argument->getIdentifier().accept(this);
+void PrintVisitor::visit(const Argument* argument) {
+    print("argument");
+    manageIndent([&](){argument->getIdentifier().accept(this);});
 }
 
-void PrintVisitor::visit(const Assign* assign) const {
-    std::cout << "assign: " << assign->getIdentifier()->getName() << '\n';
-    assign->getExpression()->accept(this);
+void PrintVisitor::visit(const Assign* assign) {
+    print("assign");
+    manageIndent([&]() {
+        print("name");
+        manageIndent([&]() {
+            assign->getIdentifier()->accept(this);
+        });
+        print("expression");
+        manageIndent([&]() {
+            assign->getExpression()->accept(this);
+        });
+    });
 }
 
-void PrintVisitor::visit(const IfStatement *ifStatement) const {
-    std::cout << "if\n";
-    ifStatement->getCondition()->accept(this);
-    ifStatement->getBlock()->accept(this);
-    if (ifStatement->getElseBlock())
-        ifStatement->getElseBlock().value()->accept(this);
+void PrintVisitor::visit(const IfStatement *ifStatement) {
+    print("if");
+    manageIndent([&]() {
+        print("condition");
+        manageIndent([&]() {
+            ifStatement->getCondition()->accept(this);
+        });
+        ifStatement->getBlock()->accept(this);
+        if (ifStatement->getElseBlock()) {
+            print("else");
+            manageIndent([&]() {
+                ifStatement->getElseBlock().value()->accept(this);
+            });
+        }
+    });
 }
 
-void PrintVisitor::visit(const LoopStatement *loopStatement) const {
-    std::cout << "loop\n";
-    loopStatement->getCondition()->accept(this);
-    loopStatement->getBlock()->accept(this);
+void PrintVisitor::visit(const LoopStatement *loopStatement) {
+    print("loop");
+    manageIndent([&]() {
+        print("condition");
+        manageIndent([&](){
+            loopStatement->getCondition()->accept(this);
+        });
+        loopStatement->getBlock()->accept(this);
+    });
 }
 
-void PrintVisitor::visit(const PatternStatement *patternStatement) const {
-    std::cout << "pattern\n";
-    patternStatement->getExpression()->accept(this);
-    for (auto &m : patternStatement->getMatches()) {
-        m->accept(this);
-    }
+void PrintVisitor::visit(const PatternStatement *patternStatement) {
+    print("pattern");
+    manageIndent([&]() {
+        print("expression");
+        manageIndent([&]() {
+            patternStatement->getExpression()->accept(this);
+        });
+        print("matches");
+        manageIndent([&](){
+            for (auto &m: patternStatement->getMatches()) {
+                m->accept(this);
+            }
+        });
+
+    });
 }
 
-void PrintVisitor::visit(const ReturnStatement *returnStatement) const {
-    std::cout << "return\n";
-    if (returnStatement->getExpression())
-        returnStatement->getExpression().value()->accept(this);
+void PrintVisitor::visit(const ReturnStatement *returnStatement) {
+    print("return");
+    manageIndent([&]() {
+        if (returnStatement->getExpression()) {
+            print("expression");
+            manageIndent([&]() {
+                returnStatement->getExpression().value()->accept(this);
+            });
+        }
+    });
 }
 
-void PrintVisitor::visit(const FunctionCall *functionCall) const {
-    std::cout << "function call: ";
-    functionCall->getName().accept(this);
-    std::cout << "args:\n";
-    for (auto &arg : functionCall->getArgs()) {
-        arg->accept(this);
-    }
+void PrintVisitor::visit(const FunctionCall *functionCall) {
+    print("function call");
+    manageIndent([&]() {
+        print("name");
+        manageIndent([&]() {
+            functionCall->getName().accept(this);
+        });
+        print("args");
+        for (auto &arg: functionCall->getArgs()) {
+            manageIndent([&]() {
+                arg->accept(this);
+            });
+        }
+    });
 }
 
-void PrintVisitor::visit(const RelativeExpression *relativeExpression) const {
-    std::cout << "relative expression, type: <#TODO>\n";
-    relativeExpression->getRelativeType();
-    if (relativeExpression->getLeft())
-        relativeExpression->getLeft()->accept(this);
-    if (relativeExpression->getRight())
-        relativeExpression->getRight()->accept(this);
-    relativeExpression->getPosition();
+void PrintVisitor::visit(const RelativeExpression *relativeExpression) {
+    print("relative expression, type: <#TODO>");    //TODO typ wyrażenia
+    manageIndent([&]() {
+        relativeExpression->getRelativeType();
+        if (relativeExpression->getLeft()) {
+            print("left");
+            manageIndent([&]() {
+                relativeExpression->getLeft()->accept(this);
+            });
+        }
+        if (relativeExpression->getRight()) {
+            print("right");
+            manageIndent([&]() {
+                relativeExpression->getRight()->accept(this);
+            });
+        }
+        relativeExpression->getPosition();
+    });
 }
 
-void PrintVisitor::visit(const AdditiveExpression *additiveExpression) const {
-    std::cout << (additiveExpression->getAdditiveType() == AdditiveType::ADD ? "add" : "subtract") << " expression\n";
-    if (additiveExpression->getLeft())
-        additiveExpression->getLeft()->accept(this);
-    if (additiveExpression->getRight())
-        additiveExpression->getRight()->accept(this);
+void PrintVisitor::visit(const AdditiveExpression *additiveExpression) {
+    if (additiveExpression->getAdditiveType() == AdditiveType::ADD)
+        print("add expression");
+    else
+        print("subtract expression");
+    manageIndent([&]() {
+        if (additiveExpression->getLeft()) {
+            print("left");
+            manageIndent([&]() {
+                additiveExpression->getLeft()->accept(this);
+            });
+        }
+        if (additiveExpression->getRight()) {
+            print("right");
+            manageIndent([&]() {
+                additiveExpression->getRight()->accept(this);
+            });
+        }
+    });
 }
 
-void PrintVisitor::visit(const MultiplicationExpression *multiplicationExpression) const {
-    std::cout << "multiplication expression, type <#TODO>\n";
-    if (multiplicationExpression->getLeft())
-        multiplicationExpression->getLeft()->accept(this);
-    if (multiplicationExpression->getRight())
-        multiplicationExpression->getRight()->accept(this);
+void PrintVisitor::visit(const MultiplicationExpression *multiplicationExpression) {
+    print("multiplication expression, type <#TODO>");
+    manageIndent([&]() {
+        if (multiplicationExpression->getLeft()) {
+            print("left");
+            manageIndent([&]() {
+                multiplicationExpression->getLeft()->accept(this);
+            });
+        }
+        if (multiplicationExpression->getRight()) {
+            print("right");
+            manageIndent([&]() {
+                multiplicationExpression->getRight()->accept(this);
+            });
+        }
+    });
 }
 
-void PrintVisitor::visit(const Constant *constant) const {
+void PrintVisitor::visit(const Constant *constant) {
+    std::ostringstream oss;
     if (constant->getConstantType() == ConstantType::INTEGER)
-        std::cout << "integer constant: " << std::get<int>(constant->getValue()) << '\n';
+        oss << "integer constant: " << std::get<int>(constant->getValue());
     else if (constant->getConstantType() == ConstantType::FLOAT)
-        std::cout << "float constant: " << std::get<double>(constant->getValue()) << '\n';
+        oss << "float constant: " << std::get<double>(constant->getValue());
     else
-        std::cout << "string constant: " << std::get<std::string>(constant->getValue()) << '\n';
+        oss << "string constant: " << std::get<std::string>(constant->getValue());
+    oss << '\n';
+    print(oss.str().c_str());
 }
 
-void PrintVisitor::visit(const Field *field) const {
-    std::cout << "field: " << (field->getFieldType() == FieldType::FIRST ? ".first" : ".second") << '\n';
-    field->getExpression()->accept(this);
+void PrintVisitor::visit(const Field *field) {
+    print("field");
+    manageIndent([&]() {
+        if (field->getFieldType() == FieldType::FIRST)
+            print(".first\n");
+        else
+            print(".second\n");
+        print("expression");
+        manageIndent([&]() {
+            field->getExpression()->accept(this);
+        });
+    });
 }
 
-void PrintVisitor::visit(const CastExpression *castExpression) const {
-    std::cout << "cast expression, type: ";
-    if (castExpression->getType() == ConstantType::INTEGER)
-        std::cout << "integer\n";
-    else if (castExpression->getType() == ConstantType::FLOAT)
-        std::cout << "float\n";
-    else
-        std::cout << "string\n";
-    castExpression->getExpression()->accept(this);
+void PrintVisitor::visit(const CastExpression *castExpression) {
+    print("cast expression");
+    manageIndent([&]() {
+        print("type");
+        if (castExpression->getType() == ConstantType::INTEGER)
+            print("integer\n");
+        else if (castExpression->getType() == ConstantType::FLOAT)
+            print("float\n");
+        else
+            print("string\n");
+        print("expression");
+        manageIndent([&]() {
+            castExpression->getExpression()->accept(this);
+        });
+    });
 }
 
-void PrintVisitor::visit(const NegatedExpression *negatedExpression) const {
-    std::cout << "negated expression: ";
-    negatedExpression->getExpression()->accept(this);
+void PrintVisitor::visit(const NegatedExpression *negatedExpression) {
+    print("negated expression");
+    manageIndent([&]() {
+        print("expression");
+        manageIndent([&]() {
+            negatedExpression->getExpression()->accept(this);
+        });
+    });
 }
 
-void PrintVisitor::visit(const MatchExpression *matchExpression) const {
-    std::cout << "match expression: \n";
-    matchExpression->getExpression()->accept(this);
-    std::cout << "id: ";
-    matchExpression->getIdentifier()->accept(this);
-    matchExpression->getBlock()->accept(this);
+void PrintVisitor::visit(const MatchExpression *matchExpression) {
+    print("match expression");
+    manageIndent([&]() {
+        print("expression");
+        manageIndent([&]() {
+            matchExpression->getExpression()->accept(this);
+        });
+        print("identifier");
+        manageIndent([&]() {
+            matchExpression->getIdentifier()->accept(this);
+        });
+        matchExpression->getBlock()->accept(this);
+    });
 }
 
-void PrintVisitor::visit(const MatchPair *matchPair) const {
-    std::cout << "match pair: \n";
-    std::cout << "first: ";
-    matchPair->getFirst()->accept(this);
-    std::cout << "second: ";
-    matchPair->getSecond()->accept(this);
-    matchPair->getBlock()->accept(this);
+void PrintVisitor::visit(const MatchPair *matchPair) {
+    print("match pair");
+    manageIndent([&]() {
+        print("first");
+        manageIndent([&]() {
+            matchPair->getFirst()->accept(this);
+        });
+        print("second");
+        manageIndent([&]() {
+            matchPair->getSecond()->accept(this);
+        });
+        matchPair->getBlock()->accept(this);
+    });
 }
 
-void PrintVisitor::visit(const MatchType *matchType) const {
-    std::cout << "match ";
-    if (!matchType->getConstantType())
-        std::cout << " everything\n";
-    else if (matchType->getConstantType() == ConstantType::INTEGER)
-        std::cout << "integer\n";
+void PrintVisitor::visit(const MatchType *matchType) {
+    std::ostringstream oss;
+    oss << "match ";
+    if (matchType->getConstantType() == ConstantType::INTEGER)
+        oss << "integer";
     else if (matchType->getConstantType() == ConstantType::FLOAT)
-        std::cout << "float\n";
+        oss << "float";
     else
-        std::cout << "string\n";
-    matchType->getIdentifier()->accept(this);
-    matchType->getBlock()->accept(this);
+        oss << "string";
+    print(oss.str().c_str());
+    manageIndent([&]() {
+        matchType->getIdentifier()->accept(this);
+        matchType->getBlock()->accept(this);
+    });
 }
 
-void PrintVisitor::visit(const MatchNone *matchNone) const {
-    std::cout << "match none\n";
-    matchNone->getBlock()->accept(this);
+void PrintVisitor::visit(const MatchNone *matchNone) {
+    print("match none");
+    manageIndent([&]() {
+        matchNone->getBlock()->accept(this);
+    });
 }
 
-void PrintVisitor::visit(const Pair *pair) const {
-    std::cout << "pair: ";
-    pair->getFirst()->accept(this);
-    std::cout << ", ";
-    pair->getSecond()->accept(this);
+void PrintVisitor::visit(const Pair *pair) {
+    print("pair");
+    manageIndent([&]() {
+        print("first");
+        manageIndent([&]() {
+            pair->getFirst()->accept(this);
+        });
+        print("second");
+        manageIndent([&]() {
+            pair->getSecond()->accept(this);
+        });
+    });
 }
 
+void PrintVisitor::visit(const Typename *type) {
+    std::ostringstream oss;
+    oss << "Typename ";
+    if (type->getType() == ConstantType::INTEGER)
+        oss << "Integer";
+    else if (type->getType() == ConstantType::FLOAT)
+        oss << "Float";
+    else
+        oss << "String";
+    oss << '\n';
+    print(oss.str().c_str());
+}
 
+void PrintVisitor::print(const char *str) const {
+    for (int i = 0; i < indent; i++)
+        std::cout << "  ";
+    std::cout << str;
+}
+
+void PrintVisitor::manageIndent(const std::function<void()>& lambda) {
+    std::cout << " {\n";
+    indent++;
+    lambda();
+    indent--;
+    print("}\n");
+}

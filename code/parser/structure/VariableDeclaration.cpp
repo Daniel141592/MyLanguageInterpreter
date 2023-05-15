@@ -9,7 +9,7 @@ VariableDeclaration::VariableDeclaration(IdentifierPtr i, std::unique_ptr<Expres
 
 }
 
-void VariableDeclaration::accept(const Visitor* visitor) const {
+void VariableDeclaration::accept(Visitor* visitor) const {
     visitor->visit(this);
 }
 

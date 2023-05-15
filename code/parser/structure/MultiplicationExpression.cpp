@@ -18,7 +18,7 @@ MultiplicativeType MultiplicationExpression::getMultiplicativeType() const {
     return multiplicativeType;
 }
 
-void MultiplicationExpression::accept(const Visitor *visitor) const {
+void MultiplicationExpression::accept(Visitor* visitor) const {
     visitor->visit(this);
 }
 

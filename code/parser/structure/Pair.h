@@ -13,7 +13,7 @@ public:
     const ExpressionPtr &getFirst() const;
     const ExpressionPtr &getSecond() const;
 
-    void accept(const Visitor *visitor) const override;
+    void accept(Visitor* visitor) const override;
 };
 
 

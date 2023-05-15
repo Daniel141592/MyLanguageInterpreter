@@ -12,6 +12,6 @@ const Pair::ExpressionPtr &Pair::getSecond() const {
     return second;
 }
 
-void Pair::accept(const Visitor *visitor) const {
+void Pair::accept(Visitor* visitor) const {
     visitor->visit(this);
 }

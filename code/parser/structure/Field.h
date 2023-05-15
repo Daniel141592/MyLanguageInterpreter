@@ -15,7 +15,7 @@ public:
     const ExpressionPtr &getExpression() const;
     FieldType getFieldType() const;
 
-    void accept(const Visitor *visitor) const override;
+    void accept(Visitor *visitor) const override;
 };
 
 

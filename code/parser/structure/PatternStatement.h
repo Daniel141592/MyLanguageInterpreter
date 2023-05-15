@@ -21,7 +21,7 @@ public:
     const ExpressionPtr &getExpression() const;
     const std::vector<MatchStatementPtr> &getMatches() const;
 
-    void accept(const Visitor *visitor) const override;
+    void accept(Visitor* visitor) const override;
 };
 
 

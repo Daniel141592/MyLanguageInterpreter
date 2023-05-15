@@ -21,6 +21,6 @@ IfStatement::IfStatement(IfStatement::ExpressionPtr e, BlockPtr b, BlockPtr elsB
 
 }
 
-void IfStatement::accept(const Visitor* visitor) const {
+void IfStatement::accept(Visitor* visitor) const {
     visitor->visit(this);
 }

@@ -2,6 +2,8 @@
 #define CODE_PRINTVISITOR_H
 
 #include <iostream>
+#include <functional>
+#include <sstream>
 
 #include "Visitor.h"
 #include "structure/Program.h"
@@ -29,38 +31,44 @@
 #include "structure/MatchType.h"
 #include "structure/MatchNone.h"
 #include "structure/Pair.h"
+#include "structure/Typename.h"
 
 class PrintVisitor : public Visitor {
+    int indent;
 public:
     PrintVisitor();
     ~PrintVisitor() override = default;
 
-    void visit(const Program* program) const override;
-    void visit(const Block* block) const override;
-    void visit(const OrExpression* orExpression) const override;
-    void visit(const AndExpression* andExpression) const override;
-    void visit(const VariableDeclaration* variableDeclaration) const override;
-    void visit(const FunctionDeclaration* functionDeclaration) const override;
-    void visit(const Identifier* identifier) const override;
-    void visit(const Argument* argument) const override;
-    void visit(const Assign* assign) const override;
-    void visit(const IfStatement* ifStatement) const override;
-    void visit(const LoopStatement* loopStatement) const override;
-    void visit(const PatternStatement* patternStatement) const override;
-    void visit(const ReturnStatement* returnStatement) const override;
-    void visit(const FunctionCall* functionCall) const override;
-    void visit(const RelativeExpression* relativeExpression) const override;
-    void visit(const AdditiveExpression* additiveExpression) const override;
-    void visit(const MultiplicationExpression* multiplicationExpression) const override;
-    void visit(const Constant* constant) const override;
-    void visit(const Field* field) const override;
-    void visit(const CastExpression* castExpression) const override;
-    void visit(const NegatedExpression* negatedExpression) const override;
-    void visit(const MatchExpression* matchExpression) const override;
-    void visit(const MatchPair* matchPair) const override;
-    void visit(const MatchType* matchType) const override;
-    void visit(const MatchNone* matchNone) const override;
-    void visit(const Pair* pair) const override;
+    void visit(const Program* program) override;
+    void visit(const Block* block) override;
+    void visit(const OrExpression* orExpression) override;
+    void visit(const AndExpression* andExpression) override;
+    void visit(const VariableDeclaration* variableDeclaration) override;
+    void visit(const FunctionDeclaration* functionDeclaration) override;
+    void visit(const Identifier* identifier) override;
+    void visit(const Argument* argument) override;
+    void visit(const Assign* assign) override;
+    void visit(const IfStatement* ifStatement) override;
+    void visit(const LoopStatement* loopStatement) override;
+    void visit(const PatternStatement* patternStatement) override;
+    void visit(const ReturnStatement* returnStatement) override;
+    void visit(const FunctionCall* functionCall) override;
+    void visit(const RelativeExpression* relativeExpression) override;
+    void visit(const AdditiveExpression* additiveExpression) override;
+    void visit(const MultiplicationExpression* multiplicationExpression) override;
+    void visit(const Constant* constant) override;
+    void visit(const Field* field) override;
+    void visit(const CastExpression* castExpression) override;
+    void visit(const NegatedExpression* negatedExpression) override;
+    void visit(const MatchExpression* matchExpression) override;
+    void visit(const MatchPair* matchPair) override;
+    void visit(const MatchType* matchType) override;
+    void visit(const MatchNone* matchNone) override;
+    void visit(const Pair* pair) override;
+    void visit(const Typename* type) override;
+
+    void print(const char* str) const;
+    void manageIndent(const std::function<void()>& lambda);
 };
 
 

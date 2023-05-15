@@ -20,6 +20,6 @@ Constant::Constant(Position p, std::string v) : Factor(p), value(v) {
     constantType = ConstantType::STRING;
 }
 
-void Constant::accept(const Visitor *visitor) const {
+void Constant::accept(Visitor* visitor) const {
     visitor->visit(this);
 }

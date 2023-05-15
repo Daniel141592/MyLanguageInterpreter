@@ -68,9 +68,13 @@ int main(int argc, char** argv) {
         } else {
             LexerWithoutComments lexerWithoutComments(fin, onLexerError);
             MyLangParser parser(std::make_unique<LexerWithoutComments>(lexerWithoutComments), onLexerError);
-            Program program = parser.parse();
-            PrintVisitor printVisitor;
-            printVisitor.visit(&program);
+            try {
+                Program program = parser.parse();
+                PrintVisitor printVisitor;
+                printVisitor.visit(&program);
+            } catch (...) {
+                std::cout << "Parsing failed!\n";
+            }
         }
         fin.close();
     } else {

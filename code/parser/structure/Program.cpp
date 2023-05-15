@@ -6,7 +6,7 @@ Program::Program(std::vector<InstructionPtr> ins) : instructions(std::move(ins))
 
 }
 
-void Program::accept(const Visitor* visitor) const {
+void Program::accept(Visitor* visitor) const {
     visitor->visit(std::move(this));
 }
 

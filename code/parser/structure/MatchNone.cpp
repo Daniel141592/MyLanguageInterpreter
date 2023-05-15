@@ -4,6 +4,6 @@ MatchNone::MatchNone(Block::BlockPtr b) : MatchStatement(std::move(b)) {
 
 }
 
-void MatchNone::accept(const Visitor *visitor) const {
+void MatchNone::accept(Visitor* visitor) const {
     visitor->visit(this);
 }

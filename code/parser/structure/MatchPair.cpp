@@ -13,6 +13,6 @@ const MatchPair::ExpressionPtr &MatchPair::getSecond() const {
     return second;
 }
 
-void MatchPair::accept(const Visitor *visitor) const {
+void MatchPair::accept(Visitor* visitor) const {
     visitor->visit(this);
 }

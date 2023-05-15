@@ -12,6 +12,6 @@ const Block::BlockPtr &LoopStatement::getBlock() const {
     return block;
 }
 
-void LoopStatement::accept(const Visitor *visitor) const {
+void LoopStatement::accept(Visitor* visitor) const {
     visitor->visit(this);
 }

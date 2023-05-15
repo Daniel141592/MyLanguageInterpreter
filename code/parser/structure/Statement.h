@@ -8,7 +8,7 @@ public:
     using StatementPtr = std::unique_ptr<Statement>;
     ~Statement() override = default;
 
-    void accept(const Visitor* visitor) const override = 0;
+    void accept(Visitor* visitor) const override = 0;
 };
 
 #endif //CODE_STATEMENT_H

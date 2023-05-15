@@ -11,6 +11,18 @@ std::string_view PrintUtils::toString(ErrorType errorType) {
             {ErrorType::TooLongIdentifier,           "TooLongIdentifier"},
             {ErrorType::TooLongComment,              "TooLongComment"},
             {ErrorType::InconsistentNewlineSequence, "InconsistentNewlineSequence"},
+            {ErrorType::MISSING_PARENTHESIS,         "MISSING_PARENTHESIS"},
+            {ErrorType::MISSING_SEMICOLON,           "MISSING_SEMICOLON"},
+            {ErrorType::MUT_OUTSIDE_DECLARATION,     "MUT_OUTSIDE_DECLARATION"},
+            {ErrorType::EXPRESSION_EXPECTED,         "EXPRESSION_EXPECTED"},
+            {ErrorType::IDENTIFIER_EXPECTED,         "IDENTIFIER_EXPECTED"},
+            {ErrorType::FUNCTION_REDEFINITION,       "FUNCTION_REDEFINITION"},
+            {ErrorType::ARGUMENTS_LIST_EXPECTED,     "ARGUMENTS_LIST_EXPECTED"},
+            {ErrorType::BLOCK_EXPECTED,              "BLOCK_EXPECTED"},
+            {ErrorType::BRACKET_EXPECTED,            "BRACKET_EXPECTED"},
+            {ErrorType::ASSIGN_OR_FUNCTION_CALL_EXPECTED, "ASSIGN_OR_FUNCTION_CALL_EXPECTED"},
+            {ErrorType::INVALID_MATCH_SYNTAX,        "INVALID_MATCH_SYNTAX"},
+            {ErrorType::FIRST_OR_SECOND_EXPECTED,    "FIRST_OR_SECOND_EXPECTED"},
             {ErrorType::OtherError,                  "OtherError"}
     };
     auto it = errorTypesNames.find(errorType);

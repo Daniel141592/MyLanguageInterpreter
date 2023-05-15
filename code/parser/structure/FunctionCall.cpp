@@ -13,6 +13,6 @@ const std::vector<FunctionCall::ExpressionPtr> &FunctionCall::getArgs() const {
     return args;
 }
 
-void FunctionCall::accept(const Visitor *visitor) const {
+void FunctionCall::accept(Visitor *visitor) const {
     visitor->visit(this);
 }

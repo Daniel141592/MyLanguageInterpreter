@@ -19,6 +19,7 @@ bool MyLangParser::consumeIf(TokenType tokenType) {
 
 void MyLangParser::criticalError(ErrorType type) {
     errorHandler(currentToken->getPosition(), type);  // TODO błąd krytyczny
+    throw std::exception();
 }
 
 /*
@@ -74,8 +75,6 @@ std::optional<MyLangParser::SingleInstructionPtr> MyLangParser::parseSingleInstr
     if (!instruction)
         instruction = parseVariableDeclarationOrAssignOrFunctionCall();
     if (instruction) {
-//        if (!consumeIf(TokenType::SEMICOLON))
-//            errorHandler(currentToken->getPosition(), ErrorType::MISSING_SEMICOLON);
         return instruction;
     }
     return {};
@@ -482,7 +481,8 @@ std::optional<MyLangParser::ExpressionPtr> MyLangParser::parseRelativeExpression
     std::optional<RelativeType> relativeType;
     while ((relativeType = checkRelativeType())) {
         nextToken();
-        std::optional<ExpressionPtr> right = parseNumericExpression();
+        std::optional<ExpressionPtr> right = relativeType == RelativeType::IS
+                                      ? parseNumericPair() : parseNumericExpression();
         if (!right)
             criticalError(ErrorType::EXPRESSION_EXPECTED);
         left = std::make_unique<RelativeExpression>(currentToken->getPosition(), std::move(left.value()),
@@ -511,6 +511,21 @@ std::optional<MyLangParser::ExpressionPtr> MyLangParser::parseNumericExpression(
 }
 
 /*
+ * numeric_pair	= numeric_expression, ",", numeric_expression
+ */
+std::optional<MyLangParser::ExpressionPtr> MyLangParser::parseNumericPair() {
+    std::optional<ExpressionPtr> first = parseNumericExpression();
+    if (!first)
+        return {};
+    if (!consumeIf(TokenType::COMMA))
+        return first;
+    std::optional<ExpressionPtr> second = parseExpression();
+    if (!second)
+        criticalError(ErrorType::EXPRESSION_EXPECTED);
+    return std::make_unique<Pair>(std::move(first.value()), std::move(second.value()));
+}
+
+/*
  * term	= factor, {("*” | "/” | "//” | "%”), factor};
  */
 std::optional<MyLangParser::ExpressionPtr> MyLangParser::parseTerm() {
@@ -530,13 +545,15 @@ std::optional<MyLangParser::ExpressionPtr> MyLangParser::parseTerm() {
 }
 
 /*
- * factor = ["!" |"-"], constant | identifier | function_call | field | cast_or_nested
+ * factor = ["!" |"-"], constant | typename | id_or_function_call | field | cast_or_nested
  */
 std::optional<MyLangParser::ExpressionPtr> MyLangParser::parseFactor() {
     bool negated = false;
     if (consumeIf(TokenType::NEGATION) || consumeIf(TokenType::MINUS))
         negated = true;
     std::optional<ExpressionPtr> expression = parseConstant();
+    if (!expression)
+        expression = parseTypename();
     if (!expression)
         expression = parseIdentifierOrFunctionCall();
     if (!expression)
@@ -572,6 +589,19 @@ std::optional<MyLangParser::ExpressionPtr> MyLangParser::parseConstant() {
         return std::make_unique<Constant>(currentToken->getPosition(), value);
     }
     return {};
+}
+
+/*
+ * typename	= ”String” | ”Float” | ”Int”
+ */
+std::optional<MyLangParser::ExpressionPtr> MyLangParser::parseTypename() {
+    Position position = currentToken->getPosition();
+    std::optional<ConstantType> type = checkTypeName();
+    if (type)
+        nextToken();
+    else
+        return {};
+    return std::make_unique<Typename>(position, type.value());
 }
 
 /*
@@ -626,7 +656,7 @@ std::optional<MyLangParser::IdentifierPtr> MyLangParser::parseIdentifier() {
  */
 std::optional<MyLangParser::ExpressionPtr> MyLangParser::parseCastOrNestedExpression() {
     Position position = currentToken->getPosition();
-    std::optional<ConstantType> castType = checkCastType();
+    std::optional<ConstantType> castType = checkTypeName();
     if (castType)
         nextToken();
     if (!consumeIf(TokenType::LEFT_BRACKET)) {
@@ -690,7 +720,7 @@ std::optional<MultiplicativeType> MyLangParser::checkMultiplicationType() {
     }
 }
 
-std::optional<ConstantType> MyLangParser::checkCastType() {
+std::optional<ConstantType> MyLangParser::checkTypeName() {
     switch (currentToken->getType()) {
         case TokenType::INT_KEYWORD:
             return ConstantType::INTEGER;
@@ -715,3 +745,4 @@ std::optional<ConstantType> MyLangParser::checkConstantType() {
             return {};
     }
 }
+
