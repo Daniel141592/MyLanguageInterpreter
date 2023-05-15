@@ -48,7 +48,6 @@ class MyLangParser : public Parser {
     std::unique_ptr<Lexer> lexer;
     HandlerType errorHandler;
     std::optional<Token> currentToken;
-    std::optional<Token> previousToken;
 public:
     MyLangParser(std::unique_ptr<Lexer> l, HandlerType onError);
     Program parse() override;

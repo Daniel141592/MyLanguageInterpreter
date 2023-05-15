@@ -5,7 +5,6 @@ MyLangParser::MyLangParser(std::unique_ptr<Lexer> l, Parser::HandlerType onError
 }
 
 void MyLangParser::nextToken() {
-    previousToken = currentToken;
     currentToken = lexer->nextToken();
 }
 
@@ -408,13 +407,13 @@ std::optional<MyLangParser::MatchStatementPtr> MyLangParser::parseMatchPair(MyLa
  * match_expression	= expression, ”(”, identifier, ”)”, block
  */
 std::optional<MyLangParser::MatchStatementPtr> MyLangParser::parseMatchExpression(MyLangParser::ExpressionPtr expression) {
-    if (!consumeIf(TokenType::RIGHT_BRACKET))
-        criticalError(ErrorType::MISSING_PARENTHESIS);
+    if (!consumeIf(TokenType::LEFT_BRACKET))
+        criticalError(ErrorType::BRACKET_EXPECTED);
     std::optional<IdentifierPtr> identifier = parseIdentifier();
     if (!identifier)
         criticalError(ErrorType::IDENTIFIER_EXPECTED);
-    if (!consumeIf(TokenType::LEFT_BRACKET))
-        criticalError(ErrorType::MISSING_PARENTHESIS);
+    if (!consumeIf(TokenType::RIGHT_BRACKET))
+        criticalError(ErrorType::BRACKET_EXPECTED);
     std::optional<BlockPtr> block = parseBlock();
     if (!block)
         criticalError(ErrorType::BLOCK_EXPECTED);

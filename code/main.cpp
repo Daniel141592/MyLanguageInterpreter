@@ -9,7 +9,7 @@
 #include "parser/PrintVisitor.h"
 #include "parser/MyLangParser.h"
 
-void onLexerError(Position position, ErrorType error) {
+void onError(Position position, ErrorType error) {
     std::cout << "Error: ";
     using PrintUtils::toString;
     std::cout << toString(error) <<"\n\t";
@@ -63,11 +63,11 @@ int main(int argc, char** argv) {
     if (argc > 1) {
         std::ifstream fin(argv[1]);
         if (dontIgnoreComments) {
-            MyLangLexer myLangLexer(fin, onLexerError);
+            MyLangLexer myLangLexer(fin, onError);
             printTokens(&myLangLexer);
         } else {
-            LexerWithoutComments lexerWithoutComments(fin, onLexerError);
-            MyLangParser parser(std::make_unique<LexerWithoutComments>(lexerWithoutComments), onLexerError);
+            LexerWithoutComments lexerWithoutComments(fin, onError);
+            MyLangParser parser(std::make_unique<LexerWithoutComments>(lexerWithoutComments), onError);
             try {
                 Program program = parser.parse();
                 PrintVisitor printVisitor;
