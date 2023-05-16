@@ -110,32 +110,17 @@ std::optional<MyLangParser::SingleInstructionPtr> MyLangParser::parseVariableDec
             return {};
         criticalError(ErrorType::MUT_OUTSIDE_DECLARATION);
     }
-    if (mut) {
-        if (!consumeIf(TokenType::ASSIGN)) {
-            if (!consumeIf(TokenType::SEMICOLON))
-                errorHandler(currentToken->getPosition(), ErrorType::MISSING_SEMICOLON);
-            return std::make_unique<VariableDeclaration>(VariableDeclaration(std::move(identifier.value()), mut));
-        }
-
-        std::optional<ExpressionPtr> expression;
-        expression = parseExpressionOrPair();
-        if (!expression) {
-            criticalError(ErrorType::EXPRESSION_EXPECTED);
-        }
+    std::optional<SingleInstructionPtr> functionCall = parseFunctionCall(identifier.value()->getName());
+    if (functionCall) {
         if (!consumeIf(TokenType::SEMICOLON))
             errorHandler(currentToken->getPosition(), ErrorType::MISSING_SEMICOLON);
-        return std::make_unique<VariableDeclaration>(VariableDeclaration(std::move(identifier.value()),
-                                                                         std::move(expression.value()), mut));
+        return functionCall;
     }
-
-    std::optional<SingleInstructionPtr> instruction = parseFunctionCall(identifier.value()->getName());
-    if (instruction) {
+    if (!consumeIf(TokenType::ASSIGN)) {
         if (!consumeIf(TokenType::SEMICOLON))
             errorHandler(currentToken->getPosition(), ErrorType::MISSING_SEMICOLON);
-        return instruction;
+        return std::make_unique<VariableDeclaration>(std::move(identifier.value()), mut);
     }
-    if (!consumeIf(TokenType::ASSIGN))
-        criticalError(ErrorType::ASSIGN_OR_FUNCTION_CALL_EXPECTED);
     std::optional<ExpressionPtr> expression;
     expression = parseExpressionOrPair();
     if (!expression) {
@@ -143,6 +128,9 @@ std::optional<MyLangParser::SingleInstructionPtr> MyLangParser::parseVariableDec
     }
     if (!consumeIf(TokenType::SEMICOLON))
         errorHandler(currentToken->getPosition(), ErrorType::MISSING_SEMICOLON);
+    if (mut)
+        return std::make_unique<VariableDeclaration>(VariableDeclaration(std::move(identifier.value()),
+                                                                         std::move(expression.value()), mut));
     return std::make_unique<Assign>(std::move(identifier.value()), std::move(expression.value()));
 }
 
