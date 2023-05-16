@@ -1,6 +1,6 @@
 #include <gtest/gtest.h>
 
-#include "../lexer/MyLangLexer.h"
+#include "../../lexer/MyLangLexer.h"
 
 TEST(SimpleTokenTest, BuildOperators) {
     std::istringstream iss("+-*;");

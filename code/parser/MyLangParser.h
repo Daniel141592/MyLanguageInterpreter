@@ -84,10 +84,9 @@ private:
     std::optional<ExpressionPtr> parseTerm();
     std::optional<ExpressionPtr> parseFactor();
     std::optional<ExpressionPtr> parseConstant();
-    std::optional<ExpressionPtr> parseTypename();
     std::optional<ExpressionPtr> parseIdentifierOrFunctionCall();
     std::optional<ExpressionPtr> parseField(ExpressionPtr& expression);
-    std::optional<ExpressionPtr> parseCastOrNestedExpression();
+    std::optional<ExpressionPtr> parseTypenameOrCastOrNestedExpression();
     std::optional<IdentifierPtr> parseIdentifier();
     std::optional<RelativeType> checkRelativeType();
     std::optional<AdditiveType> checkAdditiveType();

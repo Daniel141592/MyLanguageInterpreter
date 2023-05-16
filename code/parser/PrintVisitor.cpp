@@ -1,6 +1,10 @@
 #include "PrintVisitor.h"
 
-PrintVisitor::PrintVisitor() : indent(0) {}
+PrintVisitor::PrintVisitor(std::ostream &os) : output(os), indent(0) {
+
+}
+
+PrintVisitor::PrintVisitor() : output(std::cout), indent(0) {}
 
 void PrintVisitor::visit(const Program* program) {
     print("program");
@@ -24,13 +28,13 @@ void PrintVisitor::visit(const OrExpression* expression) {
     print("or expression");
     manageIndent([&]() {
         if (expression->getLeft()) {
-            print("left: ");
+            print("left");
             manageIndent([&]() {
                 expression->getLeft()->accept(this);
             });
         }
         if (expression->getRight()) {
-            print("right: ");
+            print("right");
             manageIndent([&]() {
                 expression->getRight()->accept(this);
             });
@@ -95,7 +99,10 @@ void PrintVisitor::visit(const Identifier* identifier) {
 }
 
 void PrintVisitor::visit(const Argument* argument) {
-    print("argument");
+    if (argument->isRef())
+        print("argument ref");
+    else
+        print("argument");
     manageIndent([&](){argument->getIdentifier().accept(this);});
 }
 
@@ -178,11 +185,11 @@ void PrintVisitor::visit(const FunctionCall *functionCall) {
             functionCall->getName().accept(this);
         });
         print("args");
-        for (auto &arg: functionCall->getArgs()) {
-            manageIndent([&]() {
+        manageIndent([&]() {
+            for (auto &arg: functionCall->getArgs()) {
                 arg->accept(this);
-            });
-        }
+            }
+        });
     });
 }
 
@@ -290,12 +297,14 @@ void PrintVisitor::visit(const CastExpression *castExpression) {
     print("cast expression");
     manageIndent([&]() {
         print("type");
-        if (castExpression->getType() == ConstantType::INTEGER)
-            print("integer\n");
-        else if (castExpression->getType() == ConstantType::FLOAT)
-            print("float\n");
-        else
-            print("string\n");
+        manageIndent([&]() {
+            if (castExpression->getType() == ConstantType::INTEGER)
+                print("integer\n");
+            else if (castExpression->getType() == ConstantType::FLOAT)
+                print("float\n");
+            else
+                print("string\n");
+        });
         print("expression");
         manageIndent([&]() {
             castExpression->getExpression()->accept(this);
@@ -306,10 +315,7 @@ void PrintVisitor::visit(const CastExpression *castExpression) {
 void PrintVisitor::visit(const NegatedExpression *negatedExpression) {
     print("negated expression");
     manageIndent([&]() {
-        print("expression");
-        manageIndent([&]() {
-            negatedExpression->getExpression()->accept(this);
-        });
+        negatedExpression->getExpression()->accept(this);
     });
 }
 
@@ -395,12 +401,12 @@ void PrintVisitor::visit(const Typename *type) {
 
 void PrintVisitor::print(const char *str) const {
     for (int i = 0; i < indent; i++)
-        std::cout << "  ";
-    std::cout << str;
+        output << "  ";
+    output << str;
 }
 
 void PrintVisitor::manageIndent(const std::function<void()>& lambda) {
-    std::cout << " {\n";
+    output << " {\n";
     indent++;
     lambda();
     indent--;

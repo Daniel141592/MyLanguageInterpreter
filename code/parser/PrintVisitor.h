@@ -35,8 +35,10 @@
 
 class PrintVisitor : public Visitor {
     int indent;
+    std::ostream& output;
 public:
     PrintVisitor();
+    PrintVisitor(std::ostream& os);
     ~PrintVisitor() override = default;
 
     void visit(const Program* program) override;

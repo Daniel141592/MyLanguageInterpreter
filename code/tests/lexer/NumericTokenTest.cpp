@@ -1,7 +1,7 @@
 #include <gtest/gtest.h>
 #include <climits>
 
-#include "../lexer/MyLangLexer.h"
+#include "../../lexer/MyLangLexer.h"
 
 TEST(NumericTokenTest, BuildSimpleInt) {
     std::istringstream iss("1234");

@@ -127,7 +127,7 @@ std::optional<Token> MyLangLexer::tryBuildEOT() {
 
 std::optional<Token> MyLangLexer::tryBuildSimpleTokens() {
     auto it = simpleTokens.find(currentChar);
-    if (it == simpleTokens.end())
+    if (it == simpleTokens.end() && currentChar != '|' && currentChar != '&')
         return {};
     Position tokenPosition = position;
     if (currentChar == '=' || currentChar == '>' || currentChar == '<' || currentChar == '/' || currentChar == '!'

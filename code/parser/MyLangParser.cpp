@@ -22,7 +22,7 @@ void MyLangParser::criticalError(ErrorType type) {
 }
 
 /*
- * program = instruction, {instruction}
+ * program = {instruction}
  */
 Program MyLangParser::parse() {
     std::vector<InstructionPtr> instructions;
@@ -245,7 +245,7 @@ std::optional<MyLangParser::FunctionCallPtr> MyLangParser::parseFunctionCall(con
     while (consumeIf(TokenType::COMMA)) {
         std::optional<ExpressionPtr> arg = parseExpression();
         if (!arg)
-            criticalError(ErrorType::IDENTIFIER_EXPECTED);
+            criticalError(ErrorType::EXPRESSION_EXPECTED);
         args.emplace_back(std::move(arg.value()));
     }
     if (!consumeIf(TokenType::RIGHT_BRACKET))
@@ -552,11 +552,9 @@ std::optional<MyLangParser::ExpressionPtr> MyLangParser::parseFactor() {
         negated = true;
     std::optional<ExpressionPtr> expression = parseConstant();
     if (!expression)
-        expression = parseTypename();
-    if (!expression)
         expression = parseIdentifierOrFunctionCall();
     if (!expression)
-        expression = parseCastOrNestedExpression();
+        expression = parseTypenameOrCastOrNestedExpression();
     if (!expression && negated)
         criticalError(ErrorType::EXPRESSION_EXPECTED);
     if (negated)
@@ -588,19 +586,6 @@ std::optional<MyLangParser::ExpressionPtr> MyLangParser::parseConstant() {
         return std::make_unique<Constant>(currentToken->getPosition(), value);
     }
     return {};
-}
-
-/*
- * typename	= ”String” | ”Float” | ”Int”
- */
-std::optional<MyLangParser::ExpressionPtr> MyLangParser::parseTypename() {
-    Position position = currentToken->getPosition();
-    std::optional<ConstantType> type = checkTypeName();
-    if (type)
-        nextToken();
-    else
-        return {};
-    return std::make_unique<Typename>(position, type.value());
 }
 
 /*
@@ -660,14 +645,14 @@ std::optional<MyLangParser::IdentifierPtr> MyLangParser::parseIdentifier() {
  * cast_or_nested = [cast], "(", expression, ")”
  * cast			  = ”String” | ”Float” | ”Int” )
  */
-std::optional<MyLangParser::ExpressionPtr> MyLangParser::parseCastOrNestedExpression() {
+std::optional<MyLangParser::ExpressionPtr> MyLangParser::parseTypenameOrCastOrNestedExpression() {
     Position position = currentToken->getPosition();
     std::optional<ConstantType> castType = checkTypeName();
     if (castType)
         nextToken();
     if (!consumeIf(TokenType::LEFT_BRACKET)) {
         if (castType)
-            criticalError(ErrorType::EXPRESSION_EXPECTED);
+            return std::make_unique<Typename>(position, castType.value());
         else
             return {};
     }

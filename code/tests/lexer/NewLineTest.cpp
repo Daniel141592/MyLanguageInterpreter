@@ -1,6 +1,6 @@
 #include <gtest/gtest.h>
 
-#include "../lexer/MyLangLexer.h"
+#include "../../lexer/MyLangLexer.h"
 
 TEST(NewLineTests, BasicNewLineCharacter) {
     std::istringstream iss("first line\nsecond line");

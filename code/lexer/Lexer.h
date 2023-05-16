@@ -5,6 +5,7 @@
 #include <map>
 #include <string>
 #include <optional>
+#include <functional>
 
 #include "../TokenType.h"
 #include "../Token.h"
