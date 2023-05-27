@@ -8,7 +8,7 @@ public:
     using DeclarationPtr = std::unique_ptr<Declaration>;
 
     ~Declaration() override = default;
-    void accept(Visitor* visitor) const override = 0;
+    void accept(Visitor& visitor) const override = 0;
 };
 
 

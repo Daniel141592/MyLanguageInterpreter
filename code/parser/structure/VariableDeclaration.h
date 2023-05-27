@@ -21,7 +21,7 @@ public:
     const std::optional<std::unique_ptr<Expression>> &getExpression() const;
 
 
-    void accept(Visitor* visitor) const override;
+    void accept(Visitor& visitor) const override;
 };
 
 

@@ -12,6 +12,6 @@ FieldType Field::getFieldType() const {
     return fieldType;
 }
 
-void Field::accept(Visitor *visitor) const {
-    visitor->visit(this);
+void Field::accept(Visitor& visitor) const {
+    visitor.visit(this);
 }

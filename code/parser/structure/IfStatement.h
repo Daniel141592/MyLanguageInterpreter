@@ -25,7 +25,7 @@ public:
     const BlockPtr &getBlock() const;
     const std::optional<BlockPtr> &getElseBlock() const;
 
-    void accept(Visitor* visitor) const override;
+    void accept(Visitor& visitor) const override;
 };
 
 

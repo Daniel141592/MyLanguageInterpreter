@@ -17,6 +17,6 @@ const std::optional<ConstantType> &MatchType::getConstantType() const {
     return constantType;
 }
 
-void MatchType::accept(Visitor* visitor) const {
-    visitor->visit(this);
+void MatchType::accept(Visitor& visitor) const {
+    visitor.visit(this);
 }

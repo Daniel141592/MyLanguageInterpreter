@@ -17,7 +17,7 @@ TEST(IntegrationWithLexerTest, IntegrationAssignTest) {
         Program program = parser.parse();
         std::ostringstream oss;
         PrintVisitor visitor(oss);
-        program.accept(&visitor);
+        program.accept(visitor);
         std::string expected = "program {\n"
                                "  assign {\n"
                                "    name {\n"
@@ -50,7 +50,7 @@ TEST(IntegrationWithLexerTest, IntegrationFunctionCallTest) {
         Program program = parser.parse();
         std::ostringstream oss;
         PrintVisitor visitor(oss);
-        program.accept(&visitor);
+        program.accept(visitor);
         std::string expected = "program {\n"
                                "  function call {\n"
                                "    name {\n"

@@ -10,8 +10,8 @@ FunctionDeclaration::FunctionDeclaration(Position p, std::string n, BlockPtr blo
 
 }
 
-void FunctionDeclaration::accept(Visitor* visitor) const {
-    visitor->visit(this);
+void FunctionDeclaration::accept(Visitor& visitor) const {
+    visitor.visit(this);
 }
 
 const Identifier &FunctionDeclaration::getIdentifier() const {

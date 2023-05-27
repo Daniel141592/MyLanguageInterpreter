@@ -18,6 +18,6 @@ RelativeType RelativeExpression::getRelativeType() const {
     return relativeType;
 }
 
-void RelativeExpression::accept(Visitor* visitor) const {
-    visitor->visit(this);
+void RelativeExpression::accept(Visitor& visitor) const {
+    visitor.visit(this);
 }

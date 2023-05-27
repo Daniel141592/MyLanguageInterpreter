@@ -9,8 +9,8 @@ VariableDeclaration::VariableDeclaration(IdentifierPtr i, std::unique_ptr<Expres
 
 }
 
-void VariableDeclaration::accept(Visitor* visitor) const {
-    visitor->visit(this);
+void VariableDeclaration::accept(Visitor& visitor) const {
+    visitor.visit(this);
 }
 
 bool VariableDeclaration::isMut() const {

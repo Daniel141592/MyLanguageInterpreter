@@ -13,8 +13,8 @@ const Identifier::IdentifierPtr &MatchExpression::getIdentifier() const {
     return identifier;
 }
 
-void MatchExpression::accept(Visitor* visitor) const {
-    visitor->visit(this);
+void MatchExpression::accept(Visitor& visitor) const {
+    visitor.visit(this);
 }
 
 

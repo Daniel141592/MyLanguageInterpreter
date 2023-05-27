@@ -15,7 +15,7 @@ public:
     MatchStatement(BlockPtr b);
     const BlockPtr &getBlock() const;
 
-    void accept(Visitor* visitor) const override = 0;
+    void accept(Visitor& visitor) const = 0;
 };
 
 

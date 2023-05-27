@@ -20,7 +20,7 @@ TEST(ParseBlockTest, ParseEmptyBlock) {
         Program program = parser.parse();
         std::ostringstream oss;
         PrintVisitor visitor(oss);
-        program.accept(&visitor);
+        program.accept(visitor);
         std::string expected = "program {\n"
                                "  block {\n"
                                "  }\n"

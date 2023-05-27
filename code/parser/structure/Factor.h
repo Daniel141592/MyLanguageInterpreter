@@ -5,11 +5,11 @@
 
 class Factor : public Expression {
 protected:
-    Factor(Position p) : Expression(p) {}
+    explicit Factor(Position p) : Expression(p) {}
 public:
     ~Factor() override = default;
 
-    void accept(Visitor* visitor) const override = 0;
+    void accept(Visitor& visitor) const override = 0;
 };
 
 

@@ -18,7 +18,7 @@ public:
     const ExpressionPtr &getExpression() const;
     const IdentifierPtr &getIdentifier() const;
 
-    void accept(Visitor* visitor) const override;
+    void accept(Visitor& visitor) const override;
 };
 
 

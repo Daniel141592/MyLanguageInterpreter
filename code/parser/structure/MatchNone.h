@@ -7,7 +7,7 @@ class MatchNone : public MatchStatement {
 public:
     MatchNone(Block::BlockPtr b);
 
-    void accept(Visitor* visitor) const override;
+    void accept(Visitor& visitor) const override;
 };
 
 

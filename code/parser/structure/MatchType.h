@@ -17,7 +17,7 @@ public:
     const IdentifierPtr &getIdentifier() const;
     const std::optional<ConstantType> &getConstantType() const;
 
-    void accept(Visitor* visitor) const override;
+    void accept(Visitor& visitor) const override;
 };
 
 

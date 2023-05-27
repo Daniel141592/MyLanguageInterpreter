@@ -17,7 +17,7 @@ public:
     const std::variant<int, double, std::string> &getValue() const;
     ConstantType getConstantType() const;
 
-    void accept(Visitor* visitor) const override;
+    void accept(Visitor& visitor) const override;
 };
 
 

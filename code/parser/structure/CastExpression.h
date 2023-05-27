@@ -15,7 +15,7 @@ public:
     const ExpressionPtr &getExpression() const;
     ConstantType getType() const;
 
-    void accept(Visitor* visitor) const override;
+    void accept(Visitor& visitor) const override;
 };
 
 

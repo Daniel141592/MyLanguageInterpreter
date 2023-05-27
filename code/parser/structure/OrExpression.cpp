@@ -4,8 +4,8 @@ OrExpression::OrExpression(Position p, OrExpression::ExpressionPtr l, OrExpressi
                             : Expression(p), left(std::move(l)), right(std::move(r)) {
 }
 
-void OrExpression::accept(Visitor* visitor) const {
-    visitor->visit(this);
+void OrExpression::accept(Visitor& visitor) const {
+    visitor.visit(this);
 }
 
 const OrExpression::ExpressionPtr &OrExpression::getLeft() const {

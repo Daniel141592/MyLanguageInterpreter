@@ -11,7 +11,7 @@ public:
     Typename(Position p, ConstantType constantType);
     ConstantType getType() const;
 
-    void accept(Visitor *visitor) const override;
+    void accept(Visitor& visitor) const override;
 };
 
 

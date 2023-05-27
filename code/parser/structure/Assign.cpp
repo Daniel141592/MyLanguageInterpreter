@@ -12,8 +12,8 @@ const std::unique_ptr<Expression> &Assign::getExpression() const {
     return expression;
 }
 
-void Assign::accept(Visitor* visitor) const {
-    visitor->visit(this);
+void Assign::accept(Visitor& visitor) const {
+    visitor.visit(this);
 }
 
 

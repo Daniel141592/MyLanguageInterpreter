@@ -12,6 +12,6 @@ const std::optional<ReturnStatement::ExpressionPtr> &ReturnStatement::getExpress
     return expression;
 }
 
-void ReturnStatement::accept(Visitor* visitor) const {
-    visitor->visit(this);
+void ReturnStatement::accept(Visitor& visitor) const {
+    visitor.visit(this);
 }

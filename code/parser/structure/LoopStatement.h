@@ -20,7 +20,7 @@ public:
     const ExpressionPtr &getCondition() const;
     const BlockPtr &getBlock() const;
 
-    void accept(Visitor* visitor) const override;
+    void accept(Visitor& visitor) const override;
 };
 
 

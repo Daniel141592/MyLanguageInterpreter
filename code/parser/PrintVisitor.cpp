@@ -10,7 +10,7 @@ void PrintVisitor::visit(const Program* program) {
     print("program");
     manageIndent([&]() {
         for (auto &ins: program->getInstructions()) {
-            ins->accept(this);
+            ins->accept(*this);
         }
     });
 }
@@ -19,7 +19,7 @@ void PrintVisitor::visit(const Block* block) {
     print("block");
     manageIndent([&]() {
         for (auto &ins: block->getInstructions()) {
-            ins->accept(this);
+            ins->accept(*this);
         }
     });
 }
@@ -30,13 +30,13 @@ void PrintVisitor::visit(const OrExpression* expression) {
         if (expression->getLeft()) {
             print("left");
             manageIndent([&]() {
-                expression->getLeft()->accept(this);
+                expression->getLeft()->accept(*this);
             });
         }
         if (expression->getRight()) {
             print("right");
             manageIndent([&]() {
-                expression->getRight()->accept(this);
+                expression->getRight()->accept(*this);
             });
         }
     });
@@ -48,12 +48,12 @@ void PrintVisitor::visit(const AndExpression* andExpression) {
         if (andExpression->getLeft()) {
             print("left");
             manageIndent([&]() {
-                andExpression->getLeft()->accept(this);
+                andExpression->getLeft()->accept(*this);
             });
         }
         if (andExpression->getRight()) {
             print("right");
-            manageIndent([&]() { andExpression->getRight()->accept(this); });
+            manageIndent([&]() { andExpression->getRight()->accept(*this); });
         }
     });
 }
@@ -64,10 +64,10 @@ void PrintVisitor::visit(const VariableDeclaration* variableDeclaration) {
         if (variableDeclaration->isMut())
             print("mutable: true\n");
         print("name");
-        manageIndent([&]() { variableDeclaration->getIdentifier()->accept(this); });
+        manageIndent([&]() { variableDeclaration->getIdentifier()->accept(*this); });
         if (variableDeclaration->getExpression()) {
             print("expression");
-            manageIndent([&]() { variableDeclaration->getExpression()->get()->accept(this); });
+            manageIndent([&]() { variableDeclaration->getExpression()->get()->accept(*this); });
         }
     });
 }
@@ -77,16 +77,16 @@ void PrintVisitor::visit(const FunctionDeclaration* functionDeclaration) {
     manageIndent([&]() {
         print("name");
         manageIndent([&]() {
-            functionDeclaration->getIdentifier().accept(this);
+            functionDeclaration->getIdentifier().accept(*this);
         });
         if (functionDeclaration->getArguments()) {
             print("arguments");
             manageIndent([&]() {;
             for (auto &arg : *functionDeclaration->getArguments())
-                arg.accept(this);
+                arg.accept(*this);
             });
         }
-        functionDeclaration->getFunctionBody()->accept(this);
+        functionDeclaration->getFunctionBody()->accept(*this);
     });
 }
 
@@ -103,7 +103,7 @@ void PrintVisitor::visit(const Argument* argument) {
         print("argument ref");
     else
         print("argument");
-    manageIndent([&](){argument->getIdentifier().accept(this);});
+    manageIndent([&](){argument->getIdentifier().accept(*this);});
 }
 
 void PrintVisitor::visit(const Assign* assign) {
@@ -111,11 +111,11 @@ void PrintVisitor::visit(const Assign* assign) {
     manageIndent([&]() {
         print("name");
         manageIndent([&]() {
-            assign->getIdentifier()->accept(this);
+            assign->getIdentifier()->accept(*this);
         });
         print("expression");
         manageIndent([&]() {
-            assign->getExpression()->accept(this);
+            assign->getExpression()->accept(*this);
         });
     });
 }
@@ -125,13 +125,13 @@ void PrintVisitor::visit(const IfStatement *ifStatement) {
     manageIndent([&]() {
         print("condition");
         manageIndent([&]() {
-            ifStatement->getCondition()->accept(this);
+            ifStatement->getCondition()->accept(*this);
         });
-        ifStatement->getBlock()->accept(this);
+        ifStatement->getBlock()->accept(*this);
         if (ifStatement->getElseBlock()) {
             print("else");
             manageIndent([&]() {
-                ifStatement->getElseBlock().value()->accept(this);
+                ifStatement->getElseBlock().value()->accept(*this);
             });
         }
     });
@@ -142,9 +142,9 @@ void PrintVisitor::visit(const LoopStatement *loopStatement) {
     manageIndent([&]() {
         print("condition");
         manageIndent([&](){
-            loopStatement->getCondition()->accept(this);
+            loopStatement->getCondition()->accept(*this);
         });
-        loopStatement->getBlock()->accept(this);
+        loopStatement->getBlock()->accept(*this);
     });
 }
 
@@ -153,12 +153,12 @@ void PrintVisitor::visit(const PatternStatement *patternStatement) {
     manageIndent([&]() {
         print("expression");
         manageIndent([&]() {
-            patternStatement->getExpression()->accept(this);
+            patternStatement->getExpression()->accept(*this);
         });
         print("matches");
         manageIndent([&](){
             for (auto &m: patternStatement->getMatches()) {
-                m->accept(this);
+                m->accept(*this);
             }
         });
 
@@ -171,7 +171,7 @@ void PrintVisitor::visit(const ReturnStatement *returnStatement) {
         if (returnStatement->getExpression()) {
             print("expression");
             manageIndent([&]() {
-                returnStatement->getExpression().value()->accept(this);
+                returnStatement->getExpression().value()->accept(*this);
             });
         }
     });
@@ -182,12 +182,12 @@ void PrintVisitor::visit(const FunctionCall *functionCall) {
     manageIndent([&]() {
         print("name");
         manageIndent([&]() {
-            functionCall->getName().accept(this);
+            functionCall->getName().accept(*this);
         });
         print("args");
         manageIndent([&]() {
             for (auto &arg: functionCall->getArgs()) {
-                arg->accept(this);
+                arg->accept(*this);
             }
         });
     });
@@ -209,13 +209,13 @@ void PrintVisitor::visit(const RelativeExpression *relativeExpression) {
         if (relativeExpression->getLeft()) {
             print("left");
             manageIndent([&]() {
-                relativeExpression->getLeft()->accept(this);
+                relativeExpression->getLeft()->accept(*this);
             });
         }
         if (relativeExpression->getRight()) {
             print("right");
             manageIndent([&]() {
-                relativeExpression->getRight()->accept(this);
+                relativeExpression->getRight()->accept(*this);
             });
         }
         relativeExpression->getPosition();
@@ -231,13 +231,13 @@ void PrintVisitor::visit(const AdditiveExpression *additiveExpression) {
         if (additiveExpression->getLeft()) {
             print("left");
             manageIndent([&]() {
-                additiveExpression->getLeft()->accept(this);
+                additiveExpression->getLeft()->accept(*this);
             });
         }
         if (additiveExpression->getRight()) {
             print("right");
             manageIndent([&]() {
-                additiveExpression->getRight()->accept(this);
+                additiveExpression->getRight()->accept(*this);
             });
         }
     });
@@ -255,13 +255,13 @@ void PrintVisitor::visit(const MultiplicationExpression *multiplicationExpressio
         if (multiplicationExpression->getLeft()) {
             print("left");
             manageIndent([&]() {
-                multiplicationExpression->getLeft()->accept(this);
+                multiplicationExpression->getLeft()->accept(*this);
             });
         }
         if (multiplicationExpression->getRight()) {
             print("right");
             manageIndent([&]() {
-                multiplicationExpression->getRight()->accept(this);
+                multiplicationExpression->getRight()->accept(*this);
             });
         }
     });
@@ -288,7 +288,7 @@ void PrintVisitor::visit(const Field *field) {
             print(".second\n");
         print("expression");
         manageIndent([&]() {
-            field->getExpression()->accept(this);
+            field->getExpression()->accept(*this);
         });
     });
 }
@@ -307,7 +307,7 @@ void PrintVisitor::visit(const CastExpression *castExpression) {
         });
         print("expression");
         manageIndent([&]() {
-            castExpression->getExpression()->accept(this);
+            castExpression->getExpression()->accept(*this);
         });
     });
 }
@@ -315,7 +315,7 @@ void PrintVisitor::visit(const CastExpression *castExpression) {
 void PrintVisitor::visit(const NegatedExpression *negatedExpression) {
     print("negated expression");
     manageIndent([&]() {
-        negatedExpression->getExpression()->accept(this);
+        negatedExpression->getExpression()->accept(*this);
     });
 }
 
@@ -324,13 +324,13 @@ void PrintVisitor::visit(const MatchExpression *matchExpression) {
     manageIndent([&]() {
         print("expression");
         manageIndent([&]() {
-            matchExpression->getExpression()->accept(this);
+            matchExpression->getExpression()->accept(*this);
         });
         print("identifier");
         manageIndent([&]() {
-            matchExpression->getIdentifier()->accept(this);
+            matchExpression->getIdentifier()->accept(*this);
         });
-        matchExpression->getBlock()->accept(this);
+        matchExpression->getBlock()->accept(*this);
     });
 }
 
@@ -339,13 +339,13 @@ void PrintVisitor::visit(const MatchPair *matchPair) {
     manageIndent([&]() {
         print("first");
         manageIndent([&]() {
-            matchPair->getFirst()->accept(this);
+            matchPair->getFirst()->accept(*this);
         });
         print("second");
         manageIndent([&]() {
-            matchPair->getSecond()->accept(this);
+            matchPair->getSecond()->accept(*this);
         });
-        matchPair->getBlock()->accept(this);
+        matchPair->getBlock()->accept(*this);
     });
 }
 
@@ -360,15 +360,15 @@ void PrintVisitor::visit(const MatchType *matchType) {
         oss << "string";
     print(oss.str().c_str());
     manageIndent([&]() {
-        matchType->getIdentifier()->accept(this);
-        matchType->getBlock()->accept(this);
+        matchType->getIdentifier()->accept(*this);
+        matchType->getBlock()->accept(*this);
     });
 }
 
 void PrintVisitor::visit(const MatchNone *matchNone) {
     print("match none");
     manageIndent([&]() {
-        matchNone->getBlock()->accept(this);
+        matchNone->getBlock()->accept(*this);
     });
 }
 
@@ -377,11 +377,11 @@ void PrintVisitor::visit(const Pair *pair) {
     manageIndent([&]() {
         print("first");
         manageIndent([&]() {
-            pair->getFirst()->accept(this);
+            pair->getFirst()->accept(*this);
         });
         print("second");
         manageIndent([&]() {
-            pair->getSecond()->accept(this);
+            pair->getSecond()->accept(*this);
         });
     });
 }

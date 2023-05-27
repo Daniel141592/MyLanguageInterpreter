@@ -13,7 +13,7 @@ const std::vector<MatchStatement::MatchStatementPtr> &PatternStatement::getMatch
     return matches;
 }
 
-void PatternStatement::accept(Visitor* visitor) const {
-    visitor->visit(this);
+void PatternStatement::accept(Visitor& visitor) const {
+    visitor.visit(this);
 }
 

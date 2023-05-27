@@ -17,7 +17,7 @@ public:
     explicit Program(std::vector<InstructionPtr> ins);
     const std::vector<InstructionPtr>& getInstructions() const;
 
-    void accept(Visitor* visitor) const override;
+    void accept(Visitor& visitor) const override;
 };
 
 

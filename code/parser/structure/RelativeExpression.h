@@ -17,7 +17,7 @@ public:
     const ExpressionPtr &getRight() const;
     RelativeType getRelativeType() const;
 
-    void accept(Visitor* visitor) const override;
+    void accept(Visitor& visitor) const override;
 };
 
 

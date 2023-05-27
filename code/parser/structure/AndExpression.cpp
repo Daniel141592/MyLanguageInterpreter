@@ -4,8 +4,8 @@ AndExpression::AndExpression(Position p, AndExpression::ExpressionPtr l, AndExpr
         : Expression(p), left(std::move(l)), right(std::move(r)) {
 }
 
-void AndExpression::accept(Visitor* visitor) const {
-    visitor->visit(this);
+void AndExpression::accept(Visitor& visitor) const {
+    visitor.visit(this);
 }
 
 const AndExpression::ExpressionPtr &AndExpression::getLeft() const {

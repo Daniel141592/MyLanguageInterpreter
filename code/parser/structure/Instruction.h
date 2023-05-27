@@ -11,7 +11,7 @@ public:
     typedef std::unique_ptr<Instruction> InstructionPtr;
     ~Instruction() override = default;
 
-    void accept(Visitor* visitor) const override = 0;
+    void accept(Visitor& visitor) const override = 0;
 };
 
 

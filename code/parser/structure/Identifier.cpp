@@ -10,6 +10,6 @@ std::string Identifier::getName() const {
     return name;
 }
 
-void Identifier::accept(Visitor* visitor) const {
-    visitor->visit(this);
+void Identifier::accept(Visitor& visitor) const {
+    visitor.visit(this);
 }

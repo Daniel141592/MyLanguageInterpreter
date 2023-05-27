@@ -6,6 +6,6 @@ ConstantType Typename::getType() const {
     return type;
 }
 
-void Typename::accept(Visitor *visitor) const {
-    visitor->visit(this);
+void Typename::accept(Visitor& visitor) const {
+    visitor.visit(this);
 }
