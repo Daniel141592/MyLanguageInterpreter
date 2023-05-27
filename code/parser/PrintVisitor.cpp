@@ -67,7 +67,7 @@ void PrintVisitor::visit(const VariableDeclaration* variableDeclaration) {
         manageIndent([&]() { variableDeclaration->getIdentifier()->accept(*this); });
         if (variableDeclaration->getExpression()) {
             print("expression");
-            manageIndent([&]() { variableDeclaration->getExpression()->get()->accept(*this); });
+            manageIndent([&]() { variableDeclaration->getExpression()->accept(*this); });
         }
     });
 }
@@ -131,7 +131,7 @@ void PrintVisitor::visit(const IfStatement *ifStatement) {
         if (ifStatement->getElseBlock()) {
             print("else");
             manageIndent([&]() {
-                ifStatement->getElseBlock().value()->accept(*this);
+                ifStatement->getElseBlock()->accept(*this);
             });
         }
     });

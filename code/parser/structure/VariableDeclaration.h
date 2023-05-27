@@ -11,14 +11,14 @@ class VariableDeclaration : public Declaration {
     using IdentifierPtr = Identifier::IdentifierPtr;
     bool mut;
     IdentifierPtr identifier;
-    std::optional<std::unique_ptr<Expression>> expression;
+    std::unique_ptr<Expression> expression;
 public:
     explicit VariableDeclaration(IdentifierPtr i, bool m = false);
     VariableDeclaration(IdentifierPtr i, std::unique_ptr<Expression> e, bool m = false);
 
     bool isMut() const;
     const IdentifierPtr& getIdentifier() const;
-    const std::optional<std::unique_ptr<Expression>> &getExpression() const;
+    const std::unique_ptr<Expression> &getExpression() const;
 
 
     void accept(Visitor& visitor) const override;

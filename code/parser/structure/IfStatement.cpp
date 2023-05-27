@@ -8,7 +8,7 @@ const Block::BlockPtr &IfStatement::getBlock() const {
     return block;
 }
 
-const std::optional<Block::BlockPtr> &IfStatement::getElseBlock() const {
+const Block::BlockPtr &IfStatement::getElseBlock() const {
     return elseBlock;
 }
 

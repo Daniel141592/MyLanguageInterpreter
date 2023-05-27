@@ -21,6 +21,6 @@ const VariableDeclaration::IdentifierPtr& VariableDeclaration::getIdentifier() c
     return identifier;
 }
 
-const std::optional<std::unique_ptr<Expression>> &VariableDeclaration::getExpression() const {
+const std::unique_ptr<Expression> &VariableDeclaration::getExpression() const {
     return expression;
 }

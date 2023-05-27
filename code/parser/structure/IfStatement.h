@@ -16,14 +16,14 @@ public:
 private:
     ExpressionPtr condition;
     BlockPtr block;
-    std::optional<BlockPtr> elseBlock;
+    BlockPtr elseBlock;
 public:
     IfStatement(ExpressionPtr e, BlockPtr b);
     IfStatement(ExpressionPtr e, BlockPtr b, BlockPtr elsB);
 
     const ExpressionPtr &getCondition() const;
     const BlockPtr &getBlock() const;
-    const std::optional<BlockPtr> &getElseBlock() const;
+    const BlockPtr &getElseBlock() const;
 
     void accept(Visitor& visitor) const override;
 };

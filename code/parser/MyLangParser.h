@@ -54,40 +54,40 @@ public:
 private:
     bool parseInstruction(std::vector<InstructionPtr>& instructions,
                           std::unordered_map<std::string, FunctionDeclaration>& functions);
-    std::optional<BlockPtr> parseBlock();
-    std::optional<SingleInstructionPtr> parseSingleInstruction(std::unordered_map<std::string,
-                                                               FunctionDeclaration>& functions);
-    std::optional<StatementPtr> parseStatement();
-    std::optional<SingleInstructionPtr> parseVariableDeclarationOrAssignOrFunctionCall();
-    std::optional<SingleInstructionPtr> parseFunctionDeclaration(
+    BlockPtr parseBlock();
+    SingleInstructionPtr parseSingleInstruction(std::unordered_map<std::string,
+                                                 FunctionDeclaration>& functions);
+    StatementPtr parseStatement();
+    SingleInstructionPtr parseVariableDeclarationOrAssignOrFunctionCall();
+    SingleInstructionPtr parseFunctionDeclaration(
             std::unordered_map<std::string, FunctionDeclaration>& functions);
     std::optional<std::vector<Argument>> parseArgumentsList();
     std::optional<Argument> parseArgument();
-    std::optional<FunctionCallPtr> parseFunctionCall(const std::string& identifier);
-    std::optional<StatementPtr> parseIfStatement();
-    std::optional<BlockPtr> parseElseStatement();
-    std::optional<StatementPtr> parseLoopStatement();
-    std::optional<StatementPtr> parsePatternStatement();
-    std::optional<StatementPtr> parseReturnStatement();
+    FunctionCallPtr parseFunctionCall(const std::string& identifier);
+    StatementPtr parseIfStatement();
+    BlockPtr parseElseStatement();
+    StatementPtr parseLoopStatement();
+    StatementPtr parsePatternStatement();
+    StatementPtr parseReturnStatement();
     bool parseMatchStatement(std::vector<MatchStatementPtr>& matches);
-    std::optional<MatchStatementPtr> parseMatchType();
-    std::optional<MatchStatementPtr> parseMatchNone();
-    std::optional<MatchStatementPtr> parseMatchPairOrExpression();
-    std::optional<MatchStatementPtr> parseMatchPair(ExpressionPtr first);
-    std::optional<MatchStatementPtr> parseMatchExpression(ExpressionPtr expression);
-    std::optional<ExpressionPtr> parseExpression();
-    std::optional<ExpressionPtr> parseExpressionOrPair();
-    std::optional<ExpressionPtr> parseAndExpression();
-    std::optional<ExpressionPtr> parseRelativeExpression();
-    std::optional<ExpressionPtr> parseNumericExpression();
-    std::optional<ExpressionPtr> parseNumericPair();
-    std::optional<ExpressionPtr> parseTerm();
-    std::optional<ExpressionPtr> parseFactor();
-    std::optional<ExpressionPtr> parseConstant();
-    std::optional<ExpressionPtr> parseIdentifierOrFunctionCall();
-    std::optional<ExpressionPtr> parseField(ExpressionPtr& expression);
-    std::optional<ExpressionPtr> parseTypenameOrCastOrNestedExpression();
-    std::optional<IdentifierPtr> parseIdentifier();
+    MatchStatementPtr parseMatchType();
+    MatchStatementPtr parseMatchNone();
+    MatchStatementPtr parseMatchPairOrExpression();
+    MatchStatementPtr parseMatchPair(ExpressionPtr first);
+    MatchStatementPtr parseMatchExpression(ExpressionPtr expression);
+    ExpressionPtr parseExpression();
+    ExpressionPtr parseExpressionOrPair();
+    ExpressionPtr parseAndExpression();
+    ExpressionPtr parseRelativeExpression();
+    ExpressionPtr parseNumericExpression();
+    ExpressionPtr parseNumericPair();
+    ExpressionPtr parseTerm();
+    ExpressionPtr parseFactor();
+    ExpressionPtr parseConstant();
+    ExpressionPtr parseIdentifierOrFunctionCall();
+    ExpressionPtr parseField(ExpressionPtr& expression);
+    ExpressionPtr parseTypenameOrCastOrNestedExpression();
+    IdentifierPtr parseIdentifier();
 
     void nextToken();
     bool consumeIf(TokenType tokenType);
