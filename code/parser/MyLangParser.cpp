@@ -1,5 +1,41 @@
 #include "MyLangParser.h"
 
+namespace {
+    const std::unordered_map<TokenType, RelativeType> relativeTypes = {
+            {TokenType::GREATER_OR_EQUAL, RelativeType::GREATER_EQUAL},
+            {TokenType::GREATER_THAN, RelativeType::GREATER},
+            {TokenType::EQUAL, RelativeType::EQUAL},
+            {TokenType::LESS_OR_EQUAL, RelativeType::LESS_EQUAL},
+            {TokenType::LESS_THAN, RelativeType::LESS},
+            {TokenType::NOT_EQUAL, RelativeType::NOT_EQUAL},
+            {TokenType::IS_KEYWORD, RelativeType::IS}
+    };
+
+    const std::unordered_map<TokenType, AdditiveType> additiveTypes = {
+            {TokenType::PLUS, AdditiveType::ADD},
+            {TokenType::MINUS, AdditiveType::SUBTRACT}
+    };
+
+    const std::unordered_map<TokenType, MultiplicativeType> multiplicativeTypes = {
+            {TokenType::ASTERISK, MultiplicativeType::MULTIPLY},
+            {TokenType::DIVISION, MultiplicativeType::DIVIDE},
+            {TokenType::INT_DIVISION, MultiplicativeType::INT_DIVIDE},
+            {TokenType::MODULO, MultiplicativeType::MODULO}
+    };
+
+    const std::unordered_map<TokenType, ConstantType> typeNames = {
+            {TokenType::INT_KEYWORD, ConstantType::INTEGER},
+            {TokenType::FLOAT_KEYWORD, ConstantType::FLOAT},
+            {TokenType::STRING_KEYWORD, ConstantType::STRING}
+    };
+
+    const std::unordered_map<TokenType, ConstantType> constantTypes = {
+            {TokenType::INTEGER_VALUE, ConstantType::INTEGER},
+            {TokenType::FLOAT_VALUE, ConstantType::FLOAT},
+            {TokenType::STRING_LITERAL, ConstantType::STRING}
+    };
+}
+
 MyLangParser::MyLangParser(std::unique_ptr<Lexer> l, Parser::HandlerType onError) : lexer(std::move(l)), errorHandler(std::move(onError)) {
     currentToken = lexer->nextToken();
 }
@@ -169,9 +205,8 @@ MyLangParser::parseFunctionDeclaration(std::unordered_map<std::string, FunctionD
     std::optional<BlockPtr> block = parseBlock();
     if (!block)
         criticalError(ErrorType::BLOCK_EXPECTED);
-    FunctionDeclaration functionDeclaration(position, identifier.value()->getName(),
-                                            std::move(block.value()), std::move(args.value()));
-    return std::make_unique<FunctionDeclaration>(std::move(functionDeclaration));
+    return std::make_unique<FunctionDeclaration>(position, identifier.value()->getName(),
+            std::move(block.value()), std::move(args.value()));
 }
 
 /*
@@ -465,15 +500,16 @@ std::optional<MyLangParser::ExpressionPtr> MyLangParser::parseRelativeExpression
     std::optional<ExpressionPtr> left = parseNumericExpression();
     if (!left)
         return {};
-    std::optional<RelativeType> relativeType;
-    while ((relativeType = checkRelativeType())) {
+    auto it = relativeTypes.find(currentToken->getType());
+    while (it != relativeTypes.end()) {
         nextToken();
-        std::optional<ExpressionPtr> right = relativeType == RelativeType::IS
+        std::optional<ExpressionPtr> right = it->second == RelativeType::IS
                                       ? parseNumericPair() : parseNumericExpression();
         if (!right)
             criticalError(ErrorType::EXPRESSION_EXPECTED);
         left = std::make_unique<RelativeExpression>(currentToken->getPosition(), std::move(left.value()),
-                                                    std::move(right.value()), relativeType.value());
+                                                    std::move(right.value()), it->second);
+        it = relativeTypes.find(currentToken->getType());
     }
     return left;
 }
@@ -485,14 +521,15 @@ std::optional<MyLangParser::ExpressionPtr> MyLangParser::parseNumericExpression(
     std::optional<ExpressionPtr> left = parseTerm();
     if (!left)
         return {};
-    std::optional<AdditiveType> additiveType;
-    while ((additiveType = checkAdditiveType())) {
+    auto it = additiveTypes.find(currentToken->getType());
+    while (it != additiveTypes.end()) {
         nextToken();
         std::optional<ExpressionPtr> right = parseTerm();
         if (!right)
             criticalError(ErrorType::EXPRESSION_EXPECTED);
         left = std::make_unique<AdditiveExpression>(currentToken->getPosition(), std::move(left.value()),
-                                                    std::move(right.value()), additiveType.value());
+                                                    std::move(right.value()), it->second);
+        it = additiveTypes.find(currentToken->getType());
     }
     return left;
 }
@@ -519,14 +556,15 @@ std::optional<MyLangParser::ExpressionPtr> MyLangParser::parseTerm() {
     std::optional<ExpressionPtr> left = parseFactor();
     if (!left)
         return {};
-    std::optional<MultiplicativeType> multiplicativeType;
-    while ((multiplicativeType = checkMultiplicationType())) {
+    auto it = multiplicativeTypes.find(currentToken->getType());
+    while (it != multiplicativeTypes.end()) {
         nextToken();
         std::optional<ExpressionPtr> right = parseFactor();
         if (!right)
             criticalError(ErrorType::EXPRESSION_EXPECTED);
         left = std::make_unique<MultiplicationExpression>(currentToken->getPosition(), std::move(left.value()),
-                                                    std::move(right.value()), multiplicativeType.value());
+                                                    std::move(right.value()), it->second);
+        it = multiplicativeTypes.find(currentToken->getType());
     }
     return left;
 }
@@ -555,20 +593,20 @@ std::optional<MyLangParser::ExpressionPtr> MyLangParser::parseFactor() {
  * number	= int | float
  */
 std::optional<MyLangParser::ExpressionPtr> MyLangParser::parseConstant() {
-    std::optional<ConstantType> constantType = checkConstantType();
-    if (!constantType)
+    auto it = constantTypes.find(currentToken->getType());
+    if (it == constantTypes.end())
         return {};
-    if (constantType == ConstantType::INTEGER) {
+    if (it->second == ConstantType::INTEGER) {
         int value = std::get<int>(currentToken->getValue());
         nextToken();
         return std::make_unique<Constant>(currentToken->getPosition(), value);
     }
-    if (constantType == ConstantType::FLOAT) {
+    if (it->second == ConstantType::FLOAT) {
         double value = std::get<double>(currentToken->getValue());
         nextToken();
         return std::make_unique<Constant>(currentToken->getPosition(), value);
     }
-    if (constantType == ConstantType::STRING) {
+    if (it->second == ConstantType::STRING) {
         std::string value = std::get<std::string>(currentToken->getValue());
         nextToken();
         return std::make_unique<Constant>(currentToken->getPosition(), value);
@@ -635,93 +673,19 @@ std::optional<MyLangParser::IdentifierPtr> MyLangParser::parseIdentifier() {
  */
 std::optional<MyLangParser::ExpressionPtr> MyLangParser::parseTypenameOrCastOrNestedExpression() {
     Position position = currentToken->getPosition();
-    std::optional<ConstantType> castType = checkTypeName();
-    if (castType)
+    auto it = typeNames.find(currentToken->getType());
+    if (it != typeNames.end())
         nextToken();
     if (!consumeIf(TokenType::LEFT_BRACKET)) {
-        if (castType)
-            return std::make_unique<Typename>(position, castType.value());
+        if (it != typeNames.end())
+            return std::make_unique<Typename>(position, it->second);
         else
             return {};
     }
     std::optional<ExpressionPtr> expression = parseExpression();
     if (!consumeIf(TokenType::RIGHT_BRACKET))
         criticalError(ErrorType::BRACKET_EXPECTED);
-    if (castType)
-        return std::make_unique<CastExpression>(position, std::move(expression.value()), castType.value());
+    if (it != typeNames.end())
+        return std::make_unique<CastExpression>(position, std::move(expression.value()), it->second);
     return expression;
 }
-
-std::optional<RelativeType> MyLangParser::checkRelativeType() {
-    switch (currentToken->getType()) {
-        case TokenType::GREATER_OR_EQUAL:
-            return RelativeType::GREATER_EQUAL;
-        case TokenType::GREATER_THAN:
-            return RelativeType::GREATER;
-        case TokenType::EQUAL:
-            return RelativeType::EQUAL;
-        case TokenType::LESS_OR_EQUAL:
-            return RelativeType::LESS_EQUAL;
-        case TokenType::LESS_THAN:
-            return RelativeType::LESS;
-        case TokenType::NOT_EQUAL:
-            return RelativeType::NOT_EQUAL;
-        case TokenType::IS_KEYWORD:
-            return RelativeType::IS;
-        default:
-            return {};
-    }
-}
-
-std::optional<AdditiveType> MyLangParser::checkAdditiveType() {
-    switch (currentToken->getType()) {
-        case TokenType::PLUS:
-            return AdditiveType::ADD;
-        case TokenType::MINUS:
-            return AdditiveType::SUBTRACT;
-        default:
-            return {};
-    }
-}
-
-std::optional<MultiplicativeType> MyLangParser::checkMultiplicationType() {
-    switch (currentToken->getType()) {
-        case TokenType::ASTERISK:
-            return MultiplicativeType::MULTIPLY;
-        case TokenType::DIVISION:
-            return MultiplicativeType::DIVIDE;
-        case TokenType::INT_DIVISION:
-            return MultiplicativeType::INT_DIVIDE;
-        case TokenType::MODULO:
-            return MultiplicativeType::MODULO;
-        default:
-            return {};
-    }
-}
-
-std::optional<ConstantType> MyLangParser::checkTypeName() {
-    switch (currentToken->getType()) {
-        case TokenType::INT_KEYWORD:
-            return ConstantType::INTEGER;
-        case TokenType::FLOAT_KEYWORD:
-            return ConstantType::FLOAT;
-        case TokenType::STRING_KEYWORD:
-            return ConstantType::STRING;
-        default:
-            return {};
-    }
-}
-
-std::optional<ConstantType> MyLangParser::checkConstantType() {
-    switch (currentToken->getType()) {
-        case TokenType::INTEGER_VALUE:
-            return ConstantType::INTEGER;
-        case TokenType::FLOAT_VALUE:
-            return ConstantType::FLOAT;
-        case TokenType::STRING_LITERAL:
-            return ConstantType::STRING;
-        default:
-            return {};
-    }
-}
-

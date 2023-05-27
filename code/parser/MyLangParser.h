@@ -88,11 +88,6 @@ private:
     std::optional<ExpressionPtr> parseField(ExpressionPtr& expression);
     std::optional<ExpressionPtr> parseTypenameOrCastOrNestedExpression();
     std::optional<IdentifierPtr> parseIdentifier();
-    std::optional<RelativeType> checkRelativeType();
-    std::optional<AdditiveType> checkAdditiveType();
-    std::optional<MultiplicativeType> checkMultiplicationType();
-    std::optional<ConstantType> checkTypeName();
-    std::optional<ConstantType> checkConstantType();
 
     void nextToken();
     bool consumeIf(TokenType tokenType);
