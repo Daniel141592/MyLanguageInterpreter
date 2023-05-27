@@ -15,12 +15,12 @@ func fibonacci(num) {
     if num == 2 {
         return 1;
     }
-    return fibonacci(num - 1) + fibonacci(num - 2);    
+    return fibonacci(num - 1) + fibonacci(num - 2);
 }
 
 $ pattern matching
 pattern zmienna {
-    match (x, y) {
+    match x, y {
         $ kod wykonywany jeśli "zmienna" jest parą
         standardOutput("pierwsza liczba z pary:"+x);     $ konkatenacja stringów
     }
@@ -31,27 +31,37 @@ pattern zmienna {
     match Float (f) {
         $ kod wykonywany jeśli "zmienna" jest typu float
     }
-    match 5 * 7 + 3 (x) {
+    match (5 * 7 + 3) (x) {
         $ kod wykonywany jeśli "zmienna" jest równa 38
+        a = 28.28;
     }
-    match even (x) {
+    match (even) (x) {
         $ kod wykonywany jeśli funkcja (w tym przypadku "even") zwróci wartość
         $ prawdziwą, dla argumentu "zmienna"
     }
-    match x {
-        $ kod wykonywany jeśli "zmienna" jest dowolną zmienną
+    match (function(arg)) (x) {
+        $ kod wykonywany jeśli funkcja (w tym przypadku "even") zwróci wartość
+        $ prawdziwą, dla argumentu "zmienna"
     }
-    none {
+    match none {
         $ kod wykonywany jeśli żaden z poprzednich wzorców nie pasuje
     }
 }
+
+a = 5, 2;
+b = a.first;
+c = a.second;
 
 if zmienna is Float {
     $ zmienna jest typu Float
 }
 
-if zmienna is (x, 5) {
+if zmienna is x, 5 {
     $ zmienna jest typu Pair, a jej druga wartość wynosi 5
+}
+
+if zmienna is 10 + 5 {
+    standardOutput("zmienna jest dziesiątką");
 }
 
 standardOutput("jakiś tekst");    $ wypisanie tekstu na standardowe wyjście

@@ -2,11 +2,14 @@
 #include <sstream>
 #include <fstream>
 #include <cstring>
+#include <memory>
 
-#include "LexerWithoutComments.h"
+#include "lexer/LexerWithoutComments.h"
 #include "print_utils.h"
+#include "parser/PrintVisitor.h"
+#include "parser/MyLangParser.h"
 
-void onLexerError(Position position, ErrorType error) {
+void onError(Position position, ErrorType error) {
     std::cout << "Error: ";
     using PrintUtils::toString;
     std::cout << toString(error) <<"\n\t";
@@ -15,12 +18,12 @@ void onLexerError(Position position, ErrorType error) {
 }
 
 void printTokens(Lexer* lexer, int maxTokenCount = 4096) {
-    Token token;
     std::cout.precision(10);
     while (maxTokenCount--) {
-        if (!lexer->nextToken())
+        auto tokenOptional = lexer->nextToken();
+        if (!tokenOptional)
             continue;
-        token = lexer->getToken();
+        Token token = *tokenOptional;
         if (token.getType() == TokenType::END_OF_TEXT)
             return;
         std::cout << "line: " << token.getPosition().getLine() << ' ';
@@ -60,11 +63,18 @@ int main(int argc, char** argv) {
     if (argc > 1) {
         std::ifstream fin(argv[1]);
         if (dontIgnoreComments) {
-            MyLangLexer myLangLexer(fin, onLexerError);
+            MyLangLexer myLangLexer(fin, onError);
             printTokens(&myLangLexer);
         } else {
-            LexerWithoutComments lexerWithoutComments(fin, onLexerError);
-            printTokens(&lexerWithoutComments);
+            LexerWithoutComments lexerWithoutComments(fin, onError);
+            MyLangParser parser(std::make_unique<LexerWithoutComments>(lexerWithoutComments), onError);
+            try {
+                Program program = parser.parse();
+                PrintVisitor printVisitor;
+                printVisitor.visit(&program);
+            } catch (...) {
+                std::cout << "Parsing failed!\n";
+            }
         }
         fin.close();
     } else {

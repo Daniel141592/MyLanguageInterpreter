@@ -33,6 +33,8 @@ enum class TokenType {
     GREATER_OR_EQUAL,
     LESS_OR_EQUAL,
     NEGATION,
+    OR,
+    AND,
     PLUS,
     MINUS,
     ASTERISK,
