@@ -9,7 +9,7 @@ public:
 private:
     ExpressionPtr expression;
 public:
-    NegatedExpression(ExpressionPtr e);
+    explicit NegatedExpression(ExpressionPtr e);
     const ExpressionPtr &getExpression() const;
 
     void accept(Visitor& visitor) const override;

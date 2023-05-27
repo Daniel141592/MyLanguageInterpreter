@@ -12,7 +12,7 @@ public:
 private:
     BlockPtr block;
 public:
-    MatchStatement(BlockPtr b);
+    explicit MatchStatement(BlockPtr b);
     const BlockPtr &getBlock() const;
 
     void accept(Visitor& visitor) const = 0;

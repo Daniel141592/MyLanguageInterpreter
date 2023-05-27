@@ -13,7 +13,7 @@ class VariableDeclaration : public Declaration {
     IdentifierPtr identifier;
     std::optional<std::unique_ptr<Expression>> expression;
 public:
-    VariableDeclaration(IdentifierPtr i, bool m = false);
+    explicit VariableDeclaration(IdentifierPtr i, bool m = false);
     VariableDeclaration(IdentifierPtr i, std::unique_ptr<Expression> e, bool m = false);
 
     bool isMut() const;

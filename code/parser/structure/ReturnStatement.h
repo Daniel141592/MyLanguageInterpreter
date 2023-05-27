@@ -12,7 +12,7 @@ private:
     std::optional<ExpressionPtr> expression;
 public:
     ReturnStatement();
-    ReturnStatement(ExpressionPtr e);
+    explicit ReturnStatement(ExpressionPtr e);
     const std::optional<ExpressionPtr> &getExpression() const;
 
     void accept(Visitor& visitor) const override;
