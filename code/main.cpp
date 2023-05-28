@@ -8,6 +8,7 @@
 #include "print_utils.h"
 #include "parser/PrintVisitor.h"
 #include "parser/MyLangParser.h"
+#include "interpreter/MyLangInterpreter.h"
 
 void onError(Position position, ErrorType error) {
     std::cout << "Error: ";
@@ -72,6 +73,8 @@ int main(int argc, char** argv) {
                 Program program = parser.parse();
                 PrintVisitor printVisitor;
                 printVisitor.visit(program);
+                MyLangInterpreter interpreter(std::cout, std::cin, onError);
+                interpreter.execute(program);
             } catch (...) {
                 std::cout << "Parsing failed!\n";
             }
