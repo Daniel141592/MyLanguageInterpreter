@@ -38,7 +38,7 @@ class PrintVisitor : public Visitor {
     std::ostream& output;
 public:
     PrintVisitor();
-    PrintVisitor(std::ostream& os);
+    explicit PrintVisitor(std::ostream& os);
     ~PrintVisitor() override = default;
 
     void visit(const Program& program) override;
