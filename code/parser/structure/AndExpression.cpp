@@ -5,7 +5,7 @@ AndExpression::AndExpression(Position p, AndExpression::ExpressionPtr l, AndExpr
 }
 
 void AndExpression::accept(Visitor& visitor) const {
-    visitor.visit(this);
+    visitor.visit(*this);
 }
 
 const AndExpression::ExpressionPtr &AndExpression::getLeft() const {

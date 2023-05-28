@@ -13,5 +13,5 @@ const Block::BlockPtr &LoopStatement::getBlock() const {
 }
 
 void LoopStatement::accept(Visitor& visitor) const {
-    visitor.visit(this);
+    visitor.visit(*this);
 }

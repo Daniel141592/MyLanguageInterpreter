@@ -19,6 +19,6 @@ MultiplicativeType MultiplicationExpression::getMultiplicativeType() const {
 }
 
 void MultiplicationExpression::accept(Visitor& visitor) const {
-    visitor.visit(this);
+    visitor.visit(*this);
 }
 

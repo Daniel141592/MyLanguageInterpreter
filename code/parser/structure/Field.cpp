@@ -13,5 +13,5 @@ FieldType Field::getFieldType() const {
 }
 
 void Field::accept(Visitor& visitor) const {
-    visitor.visit(this);
+    visitor.visit(*this);
 }

@@ -5,7 +5,7 @@ OrExpression::OrExpression(Position p, OrExpression::ExpressionPtr l, OrExpressi
 }
 
 void OrExpression::accept(Visitor& visitor) const {
-    visitor.visit(this);
+    visitor.visit(*this);
 }
 
 const OrExpression::ExpressionPtr &OrExpression::getLeft() const {

@@ -10,5 +10,5 @@ const NegatedExpression::ExpressionPtr &NegatedExpression::getExpression() const
 }
 
 void NegatedExpression::accept(Visitor& visitor) const {
-    visitor.visit(this);
+    visitor.visit(*this);
 }

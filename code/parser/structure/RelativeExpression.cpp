@@ -19,5 +19,5 @@ RelativeType RelativeExpression::getRelativeType() const {
 }
 
 void RelativeExpression::accept(Visitor& visitor) const {
-    visitor.visit(this);
+    visitor.visit(*this);
 }

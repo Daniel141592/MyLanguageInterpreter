@@ -18,5 +18,5 @@ const std::optional<ConstantType> &MatchType::getConstantType() const {
 }
 
 void MatchType::accept(Visitor& visitor) const {
-    visitor.visit(this);
+    visitor.visit(*this);
 }

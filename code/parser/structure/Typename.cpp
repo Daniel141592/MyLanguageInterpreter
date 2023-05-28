@@ -7,5 +7,5 @@ ConstantType Typename::getType() const {
 }
 
 void Typename::accept(Visitor& visitor) const {
-    visitor.visit(this);
+    visitor.visit(*this);
 }

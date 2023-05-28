@@ -14,5 +14,5 @@ const MatchPair::ExpressionPtr &MatchPair::getSecond() const {
 }
 
 void MatchPair::accept(Visitor& visitor) const {
-    visitor.visit(this);
+    visitor.visit(*this);
 }

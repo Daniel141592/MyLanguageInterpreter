@@ -12,5 +12,5 @@ const std::vector<Instruction::InstructionPtr> &Block::getInstructions() const {
 }
 
 void Block::accept(Visitor& visitor) const {
-    visitor.visit(this);
+    visitor.visit(*this);
 }

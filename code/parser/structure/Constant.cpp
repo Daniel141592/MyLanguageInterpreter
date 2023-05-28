@@ -21,5 +21,5 @@ Constant::Constant(Position p, std::string v) : Factor(p), value(v) {
 }
 
 void Constant::accept(Visitor& visitor) const {
-    visitor.visit(this);
+    visitor.visit(*this);
 }

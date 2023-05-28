@@ -11,5 +11,5 @@ std::string Identifier::getName() const {
 }
 
 void Identifier::accept(Visitor& visitor) const {
-    visitor.visit(this);
+    visitor.visit(*this);
 }

@@ -18,5 +18,5 @@ IfStatement::IfStatement(IfStatement::ExpressionPtr e, BlockPtr b, BlockPtr elsB
 }
 
 void IfStatement::accept(Visitor& visitor) const {
-    visitor.visit(this);
+    visitor.visit(*this);
 }

@@ -1,7 +1,7 @@
 #ifndef CODE_VISITABLE_H
 #define CODE_VISITABLE_H
 
-#include "Visitor.h"
+#include "../Visitor.h"
 
 class Visitable {
 public:

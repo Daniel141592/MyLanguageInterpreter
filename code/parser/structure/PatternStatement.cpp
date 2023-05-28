@@ -14,6 +14,6 @@ const std::vector<MatchStatement::MatchStatementPtr> &PatternStatement::getMatch
 }
 
 void PatternStatement::accept(Visitor& visitor) const {
-    visitor.visit(this);
+    visitor.visit(*this);
 }
 

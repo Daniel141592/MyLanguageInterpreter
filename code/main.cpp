@@ -71,7 +71,7 @@ int main(int argc, char** argv) {
             try {
                 Program program = parser.parse();
                 PrintVisitor printVisitor;
-                printVisitor.visit(&program);
+                printVisitor.visit(program);
             } catch (...) {
                 std::cout << "Parsing failed!\n";
             }

@@ -20,5 +20,5 @@ AdditiveType AdditiveExpression::getAdditiveType() const {
 }
 
 void AdditiveExpression::accept(Visitor& visitor) const {
-    visitor.visit(this);
+    visitor.visit(*this);
 }

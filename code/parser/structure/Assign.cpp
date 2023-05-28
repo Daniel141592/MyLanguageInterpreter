@@ -13,7 +13,7 @@ const std::unique_ptr<Expression> &Assign::getExpression() const {
 }
 
 void Assign::accept(Visitor& visitor) const {
-    visitor.visit(this);
+    visitor.visit(*this);
 }
 
 

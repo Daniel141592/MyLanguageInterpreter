@@ -14,7 +14,7 @@ const Identifier::IdentifierPtr &MatchExpression::getIdentifier() const {
 }
 
 void MatchExpression::accept(Visitor& visitor) const {
-    visitor.visit(this);
+    visitor.visit(*this);
 }
 
 

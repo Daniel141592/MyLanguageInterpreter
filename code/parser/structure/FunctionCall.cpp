@@ -14,5 +14,5 @@ const std::vector<FunctionCall::ExpressionPtr> &FunctionCall::getArgs() const {
 }
 
 void FunctionCall::accept(Visitor& visitor) const {
-    visitor.visit(this);
+    visitor.visit(*this);
 }

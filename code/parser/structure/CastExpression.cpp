@@ -14,5 +14,5 @@ ConstantType CastExpression::getType() const {
 }
 
 void CastExpression::accept(Visitor& visitor) const {
-    visitor.visit(this);
+    visitor.visit(*this);
 }

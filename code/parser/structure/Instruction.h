@@ -4,7 +4,7 @@
 
 #include <memory>
 #include "../Visitable.h"
-#include "../Visitor.h"
+#include "../../Visitor.h"
 
 class Instruction : public Visitable {
 public:

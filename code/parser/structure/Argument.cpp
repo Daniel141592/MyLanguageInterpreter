@@ -5,7 +5,7 @@ Argument::Argument(Position p, std::string name, bool r) : identifier(p, std::mo
 }
 
 void Argument::accept(Visitor& visitor) const {
-    visitor.visit(this);
+    visitor.visit(*this);
 }
 
 const Identifier &Argument::getIdentifier() const {

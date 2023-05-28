@@ -13,5 +13,5 @@ const Pair::ExpressionPtr &Pair::getSecond() const {
 }
 
 void Pair::accept(Visitor& visitor) const {
-    visitor.visit(this);
+    visitor.visit(*this);
 }
