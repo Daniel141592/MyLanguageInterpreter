@@ -292,8 +292,6 @@ MyLangParser::StatementPtr MyLangParser::parseIfStatement() {
     if (!ifBlock)
         criticalError(ErrorType::BLOCK_EXPECTED);
     BlockPtr elseBlock = parseElseStatement();
-//    if (!elseBlock)
-//        return std::make_unique<IfStatement>(std::move(expression), std::move(ifBlock.value()));
     return std::make_unique<IfStatement>(std::move(expression),
                                          std::move(ifBlock), std::move(elseBlock));
 }

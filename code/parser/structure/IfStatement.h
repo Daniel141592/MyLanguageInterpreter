@@ -18,7 +18,6 @@ private:
     BlockPtr block;
     BlockPtr elseBlock;
 public:
-    IfStatement(ExpressionPtr e, BlockPtr b);
     IfStatement(ExpressionPtr e, BlockPtr b, BlockPtr elsB);
 
     const ExpressionPtr &getCondition() const;

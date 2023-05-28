@@ -12,10 +12,6 @@ const Block::BlockPtr &IfStatement::getElseBlock() const {
     return elseBlock;
 }
 
-IfStatement::IfStatement(IfStatement::ExpressionPtr e, BlockPtr b): condition(std::move(e)), block(std::move(b)) {
-
-}
-
 IfStatement::IfStatement(IfStatement::ExpressionPtr e, BlockPtr b, BlockPtr elsB) : condition(std::move(e)),
                                         block(std::move(b)), elseBlock(std::move(elsB)) {
 
