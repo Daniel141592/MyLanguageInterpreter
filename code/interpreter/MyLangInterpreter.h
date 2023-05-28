@@ -6,7 +6,7 @@
 
 #include "Interpreter.h"
 #include "../Visitor.h"
-#include "../parser/structure/Program.h"
+#include "../structure/Program.h"
 
 class MyLangInterpreter : public Interpreter, public Visitor {
     std::ostream& os;
@@ -15,6 +15,7 @@ class MyLangInterpreter : public Interpreter, public Visitor {
 public:
     MyLangInterpreter(std::ostream& o, std::istream& i, HandlerType onError);
     ~MyLangInterpreter() override = default;
+
     void visit(const Program& program) override;
     void visit(const Block& block) override;
     void visit(const OrExpression& orExpression) override;

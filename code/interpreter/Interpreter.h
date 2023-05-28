@@ -1,7 +1,7 @@
 #ifndef CODE_INTERPRETER_H
 #define CODE_INTERPRETER_H
 
-#include "../parser/structure/Program.h"
+#include "../structure/Program.h"
 #include "../Position.h"
 #include "../ErrorType.h"
 

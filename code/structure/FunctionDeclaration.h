@@ -19,6 +19,7 @@ class FunctionDeclaration : public Declaration {
 public:
     FunctionDeclaration(Position p, std::string n, BlockPtr block);
     FunctionDeclaration(Position p, std::string n, BlockPtr block, std::vector<Argument> args);
+    ~FunctionDeclaration() override = default;
 
     const Identifier &getIdentifier() const;
     const std::optional<std::vector<Argument>> &getArguments() const;

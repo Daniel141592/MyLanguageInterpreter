@@ -7,7 +7,7 @@
 #include <memory>
 
 #include "Instruction.h"
-#include "../Visitable.h"
+#include "../parser/Visitable.h"
 
 
 class Program : public Visitable {

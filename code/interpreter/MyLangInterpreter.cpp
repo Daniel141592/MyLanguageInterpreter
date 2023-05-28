@@ -1,5 +1,6 @@
 #include "MyLangInterpreter.h"
 #include "Variable.h"
+#include "../structure/FunctionDeclaration.h"
 
 MyLangInterpreter::MyLangInterpreter(std::ostream &o, std::istream &i, Interpreter::HandlerType onError)
                                                                     : os(o), is(i), errorHandler(std::move(onError)) {
@@ -11,7 +12,8 @@ void MyLangInterpreter::execute(const Program &program) {
 }
 
 void MyLangInterpreter::visit(const Program &program) {
-    std::vector<Variable> variables;
+    std::vector<std::unordered_map<std::string, Variable>> variables;
+    std::vector<std::unordered_map<std::string, FunctionDeclaration>> functions;
     for (auto &ins: program.getInstructions()) {
         ins->accept(*this);
     }

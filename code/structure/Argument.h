@@ -2,7 +2,7 @@
 #define CODE_ARGUMENT_H
 
 
-#include "../Visitable.h"
+#include "../parser/Visitable.h"
 #include "Identifier.h"
 
 class Argument : Visitable {

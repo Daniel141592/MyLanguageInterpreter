@@ -2,8 +2,8 @@
 #define CODE_EXPRESSION_H
 
 #include <memory>
-#include "../Visitable.h"
-#include "../../Position.h"
+#include "../parser/Visitable.h"
+#include "../Position.h"
 
 class Expression : public Visitable {
 protected:

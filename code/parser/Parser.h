@@ -3,7 +3,7 @@
 
 #include <functional>
 
-#include "structure/Program.h"
+#include "../structure/Program.h"
 #include "../Position.h"
 #include "../ErrorType.h"
 #include "../Token.h"

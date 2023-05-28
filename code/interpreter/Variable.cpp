@@ -1,14 +1,14 @@
 #include "Variable.h"
 
-Variable::Variable(std::string n, double v, bool m) : name(std::move(n)), type(ConstantType::FLOAT), value(v), mut(m) {
+Variable::Variable(double v, bool m) : type(ConstantType::FLOAT), value(v), mut(m) {
 
 }
 
-Variable::Variable(std::string n, int v, bool m) : name(std::move(n)), type(ConstantType::INTEGER), value(v), mut(m) {
+Variable::Variable(int v, bool m) : type(ConstantType::INTEGER), value(v), mut(m) {
 
 }
 
-Variable::Variable(std::string n, std::string v, bool m) : name(std::move(n)), type(ConstantType::STRING), value(v), mut(m) {
+Variable::Variable(std::string v, bool m) : type(ConstantType::STRING), value(v), mut(m) {
 
 }
 
