@@ -10,7 +10,7 @@
 
 class Context {
     std::string currentFunction;
-    const std::vector<Expression::ExpressionPtr>* functionArgs{};
+    const std::vector<Expression::ExpressionPtr>* functionArgs{};   //TODO można to usunąć jak się dobrze kod przerobi
     std::deque<Scope> scopes;
 public:
     using BlockPtr = Block::BlockPtr;
@@ -22,7 +22,7 @@ public:
     void updateVariable(const std::string& name, int value);
     void updateVariable(const std::string& name, std::string value);
     void addFunction(const FunctionDeclaration &functionDeclaration);
-    const FunctionDeclaration& getFunction(const std::string& name);
+    const FunctionDeclaration& findFunction(const std::string& name);
     const std::vector<Expression::ExpressionPtr> *getFunctionArgs() const;
     void setFunctionArgs(const std::vector<Expression::ExpressionPtr> *args);
 

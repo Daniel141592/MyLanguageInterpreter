@@ -73,11 +73,13 @@ void Context::addFunction(const FunctionDeclaration &functionDeclaration) {
             std::make_pair(functionDeclaration.getIdentifier().getName(), std::ref(functionDeclaration)));
 }
 
-const FunctionDeclaration &Context::getFunction(const std::string &name) {
-    auto it = scopes.back().getFunctions().find(name);
-    if (it == scopes.back().getFunctions().end())
-        throw "TODO";
-    return it->second;
+const FunctionDeclaration &Context::findFunction(const std::string &name) {
+    for (auto sit = scopes.rbegin(); sit != scopes.rend(); ++sit) {
+        auto fit = sit->getFunctions().find(name);
+        if (fit != scopes.back().getFunctions().end())
+            return fit->second;
+    }
+    throw "TODO";
 }
 
 const std::vector<Expression::ExpressionPtr> *Context::getFunctionArgs() const {

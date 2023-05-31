@@ -15,19 +15,21 @@ std::string_view PrintUtils::toString(ErrorType errorType) {
             {ErrorType::MISSING_SEMICOLON,           "MISSING_SEMICOLON"},
             {ErrorType::MUT_OUTSIDE_DECLARATION,     "MUT_OUTSIDE_DECLARATION"},
             {ErrorType::EXPRESSION_EXPECTED,         "EXPRESSION_EXPECTED"},
-            {ErrorType::IDENTIFIER_EXPECTED,         "IDENTIFIER_EXPECTED"},
-            {ErrorType::FUNCTION_REDEFINITION,       "FUNCTION_REDEFINITION"},
-            {ErrorType::ARGUMENTS_LIST_EXPECTED,     "ARGUMENTS_LIST_EXPECTED"},
-            {ErrorType::BLOCK_EXPECTED,              "BLOCK_EXPECTED"},
-            {ErrorType::BRACKET_EXPECTED,            "BRACKET_EXPECTED"},
+            {ErrorType::IDENTIFIER_EXPECTED,              "IDENTIFIER_EXPECTED"},
+            {ErrorType::FUNCTION_REDEFINITION,            "FUNCTION_REDEFINITION"},
+            {ErrorType::ARGUMENTS_LIST_EXPECTED,          "ARGUMENTS_LIST_EXPECTED"},
+            {ErrorType::BLOCK_EXPECTED,                   "BLOCK_EXPECTED"},
+            {ErrorType::BRACKET_EXPECTED,                 "BRACKET_EXPECTED"},
             {ErrorType::ASSIGN_OR_FUNCTION_CALL_EXPECTED, "ASSIGN_OR_FUNCTION_CALL_EXPECTED"},
-            {ErrorType::INVALID_MATCH_SYNTAX,        "INVALID_MATCH_SYNTAX"},
-            {ErrorType::FIRST_OR_SECOND_EXPECTED,    "FIRST_OR_SECOND_EXPECTED"},
-            {ErrorType::INVALID_OPERAND,             "INVALID_OPERAND"},
-            {ErrorType::INCOMPATIBLE_DATA_TYPES,     "INCOMPATIBLE_DATA_TYPES"},
-            {ErrorType::NO_SUCH_FUNCTION,            "NO_SUCH_FUNCTION"},
+            {ErrorType::INVALID_MATCH_SYNTAX,             "INVALID_MATCH_SYNTAX"},
+            {ErrorType::FIRST_OR_SECOND_EXPECTED,         "FIRST_OR_SECOND_EXPECTED"},
+            {ErrorType::INVALID_OPERAND,                  "INVALID_OPERAND"},
+            {ErrorType::INCOMPATIBLE_DATA_TYPES,          "INCOMPATIBLE_DATA_TYPES"},
+            {ErrorType::UNDEFINED_FUNCTION,               "UNDEFINED_FUNCTION"},
+            {ErrorType::UNDEFINED_VARIABLE,               "UNDEFINED_VARIABLE"},
+            {ErrorType::INCORRECT_ARGS_COUNT,             "INCORRECT_ARGS_COUNT"},
 
-            {ErrorType::OtherError,                  "OtherError"}
+            {ErrorType::OtherError,                       "OtherError"}
     };
     auto it = errorTypesNames.find(errorType);
     if (it != errorTypesNames.end())
