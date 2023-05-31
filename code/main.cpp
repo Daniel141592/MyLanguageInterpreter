@@ -71,12 +71,14 @@ int main(int argc, char** argv) {
             MyLangParser parser(std::make_unique<LexerWithoutComments>(lexerWithoutComments), onError);
             try {
                 Program program = parser.parse();
-                PrintVisitor printVisitor;
-                printVisitor.visit(program);
+//                PrintVisitor printVisitor;
+//                printVisitor.visit(program);
                 MyLangInterpreter interpreter(std::cout, std::cin, onError);
                 interpreter.execute(program);
+            }  catch (const std::exception& e) {
+                std::cout << e.what() << "\n";
             } catch (...) {
-                std::cout << "Parsing failed!\n";
+                std::cout << "Parsing failed!\n";   //TODO or maybe interpreting?
             }
         }
         fin.close();
@@ -86,3 +88,4 @@ int main(int argc, char** argv) {
 
     return 0;
 }
+

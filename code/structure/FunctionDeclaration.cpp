@@ -10,6 +10,12 @@ FunctionDeclaration::FunctionDeclaration(Position p, std::string n, BlockPtr blo
 
 }
 
+FunctionDeclaration::FunctionDeclaration(FunctionDeclaration &&other)
+noexcept: identifier(other.identifier), functionBody(std::move(other.functionBody)),
+          arguments(std::move(other.arguments)) {
+
+}
+
 void FunctionDeclaration::accept(Visitor& visitor) const {
     visitor.visit(*this);
 }

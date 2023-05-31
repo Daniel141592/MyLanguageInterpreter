@@ -6,12 +6,47 @@
 
 #include "Interpreter.h"
 #include "../Visitor.h"
-#include "../structure/Program.h"
+#include "../structure/FunctionDeclaration.h"
+#include "../structure/Statement.h"
+#include "../structure/SingleInstruction.h"
+#include "../structure/Block.h"
+#include "../structure/Declaration.h"
+#include "../structure/VariableDeclaration.h"
+#include "../structure/FunctionCall.h"
+#include "../structure/Identifier.h"
+#include "../structure/Assign.h"
+#include "../structure/IfStatement.h"
+#include "../structure/LoopStatement.h"
+#include "../structure/PatternStatement.h"
+#include "../structure/ReturnStatement.h"
+#include "../structure/MatchStatement.h"
+#include "../structure/MatchNone.h"
+#include "../structure/MatchType.h"
+#include "../structure/MatchPair.h"
+#include "../structure/MatchExpression.h"
+#include "../structure/OrExpression.h"
+#include "../structure/AndExpression.h"
+#include "../structure/RelativeExpression.h"
+#include "../structure/AdditiveExpression.h"
+#include "../structure/MultiplicationExpression.h"
+#include "../structure/NegatedExpression.h"
+#include "../structure/CastExpression.h"
+#include "../structure/Constant.h"
+#include "../structure/Field.h"
+#include "../structure/ConstantType.h"
+#include "../structure/Pair.h"
+#include "../structure/Typename.h"
+#include "Context.h"
+#include "Variable.h"
+#include "Value.h"
+#include "../structure/StandardOutput.h"
 
 class MyLangInterpreter : public Interpreter, public Visitor {
     std::ostream& os;
     std::istream& is;
     HandlerType errorHandler;
+    Context context;
+    Value result;
 public:
     MyLangInterpreter(std::ostream& o, std::istream& i, HandlerType onError);
     ~MyLangInterpreter() override = default;
@@ -43,8 +78,10 @@ public:
     void visit(const MatchNone& matchNone) override;
     void visit(const Pair& pair) override;
     void visit(const Typename& type) override;
+    void visit(const StandardOutput &standardOutput) override;
 
     void execute(const Program& program) override;
+    void criticalError(ErrorType type);
 };
 
 #endif //CODE_MYLANGINTERPRETER_H

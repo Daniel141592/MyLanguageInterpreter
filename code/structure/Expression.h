@@ -15,7 +15,7 @@ public:
 
     const Position &getPosition() const;
 
-    void accept(Visitor& visitor) const = 0;
+    void accept(Visitor& visitor) const override = 0;
 };
 
 #endif //CODE_EXPRESSION_H

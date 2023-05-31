@@ -399,6 +399,10 @@ void PrintVisitor::visit(const Typename &type) {
     print(oss.str().c_str());
 }
 
+void PrintVisitor::visit(const StandardOutput &standardOutput) {
+    // it will never happen
+}
+
 void PrintVisitor::print(const char *str) const {
     for (int i = 0; i < indent; i++)
         output << "  ";

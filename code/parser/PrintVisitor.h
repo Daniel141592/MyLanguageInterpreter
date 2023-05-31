@@ -32,6 +32,7 @@
 #include "../structure/MatchNone.h"
 #include "../structure/Pair.h"
 #include "../structure/Typename.h"
+#include "../structure/StandardOutput.h"
 
 class PrintVisitor : public Visitor {
     int indent;
@@ -68,6 +69,7 @@ public:
     void visit(const MatchNone& matchNone) override;
     void visit(const Pair& pair) override;
     void visit(const Typename& type) override;
+    void visit(const StandardOutput& standardOutput) override;
 private:
     void print(const char* str) const;
     void manageIndent(const std::function<void()>& lambda);

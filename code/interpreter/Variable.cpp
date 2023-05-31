@@ -19,3 +19,11 @@ const std::variant<double, int, std::string> &Variable::getValue() const {
 void Variable::setValue(const std::variant<double, int, std::string> &value) {
     Variable::value = value;
 }
+
+ConstantType Variable::getType() const {
+    return type;
+}
+
+bool Variable::isMut() const {
+    return mut;
+}

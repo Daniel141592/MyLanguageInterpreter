@@ -17,6 +17,7 @@ public:
     const ExpressionPtr &getRight() const;
     MultiplicativeType getMultiplicativeType() const;
 
+
     void accept(Visitor& visitor) const override;
 };
 

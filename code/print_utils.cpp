@@ -23,6 +23,10 @@ std::string_view PrintUtils::toString(ErrorType errorType) {
             {ErrorType::ASSIGN_OR_FUNCTION_CALL_EXPECTED, "ASSIGN_OR_FUNCTION_CALL_EXPECTED"},
             {ErrorType::INVALID_MATCH_SYNTAX,        "INVALID_MATCH_SYNTAX"},
             {ErrorType::FIRST_OR_SECOND_EXPECTED,    "FIRST_OR_SECOND_EXPECTED"},
+            {ErrorType::INVALID_OPERAND,             "INVALID_OPERAND"},
+            {ErrorType::INCOMPATIBLE_DATA_TYPES,     "INCOMPATIBLE_DATA_TYPES"},
+            {ErrorType::NO_SUCH_FUNCTION,            "NO_SUCH_FUNCTION"},
+
             {ErrorType::OtherError,                  "OtherError"}
     };
     auto it = errorTypesNames.find(errorType);

@@ -28,6 +28,7 @@ class MatchType;
 class MatchNone;
 class Pair;
 class Typename;
+class StandardOutput;
 
 class Visitor {
 public:
@@ -59,6 +60,7 @@ public:
     virtual void visit(const MatchType& matchType) = 0;
     virtual void visit(const MatchNone& matchNone) = 0;
     virtual void visit(const Typename& type) = 0;
+    virtual void visit(const StandardOutput& standardOutput) = 0;
 };
 
 #endif //CODE_VISITOR_H
