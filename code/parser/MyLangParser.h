@@ -52,15 +52,12 @@ public:
     MyLangParser(std::unique_ptr<Lexer> l, HandlerType onError);
     Program parse() override;
 private:
-    bool parseInstruction(std::vector<InstructionPtr>& instructions,
-                          std::unordered_map<std::string, FunctionDeclaration>& functions);
+    bool parseInstruction(std::vector<InstructionPtr>& instructions);
     BlockPtr parseBlock();
-    SingleInstructionPtr parseSingleInstruction(std::unordered_map<std::string,
-                                                 FunctionDeclaration>& functions);
+    SingleInstructionPtr parseSingleInstruction();
     StatementPtr parseStatement();
     SingleInstructionPtr parseVariableDeclarationOrAssignOrFunctionCall();
-    SingleInstructionPtr parseFunctionDeclaration(
-            std::unordered_map<std::string, FunctionDeclaration>& functions);
+    SingleInstructionPtr parseFunctionDeclaration();
     std::optional<std::vector<Argument>> parseArgumentsList();
     std::optional<Argument> parseArgument();
     FunctionCallPtr parseFunctionCall(const std::string& identifier);

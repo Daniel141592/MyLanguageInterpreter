@@ -2,8 +2,6 @@
 #include "MultiplicativeVisitor.h"
 #include "AdditiveVisitor.h"
 
-#include <utility>
-
 MyLangInterpreter::MyLangInterpreter(std::ostream &o, std::istream &i, Interpreter::HandlerType onError)
                                                                     : os(o), is(i), errorHandler(std::move(onError)) {
 
@@ -24,10 +22,6 @@ void MyLangInterpreter::visit(const Program &program) {
     instructions.emplace_back(std::make_unique<StandardOutput>(os));
     FunctionDeclaration standardOutput(Position(-1, -1), "standardOutput", std::make_unique<Block>(std::move(instructions)));
     context.addFunction(standardOutput);
-
-
-    std::unordered_map<std::string, Variable::VariablePtr> variables;
-    std::unordered_map<std::string, FunctionDeclaration> functions; //TODO fix
     for (auto &ins: program.getInstructions()) {
         ins->accept(*this);
     }
@@ -35,8 +29,6 @@ void MyLangInterpreter::visit(const Program &program) {
 
 void MyLangInterpreter::visit(const Block &block) {
 //    context.addScope();
-    std::unordered_map<std::string, Variable::VariablePtr> variables;
-    std::unordered_map<std::string, FunctionDeclaration> functions; //TODO fix
     for (auto &ins: block.getInstructions()) {
         ins->accept(*this);
     }
@@ -216,4 +208,3 @@ void MyLangInterpreter::visit(const StandardOutput &standardOutput) {
     }
     os << '\n';
 }
-

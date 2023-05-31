@@ -62,8 +62,7 @@ void MyLangParser::criticalError(ErrorType type) {
  */
 Program MyLangParser::parse() {
     std::vector<InstructionPtr> instructions;
-    std::unordered_map<std::string, FunctionDeclaration> functions;
-    while (parseInstruction(instructions, functions));
+    while (parseInstruction(instructions));
 
     Program program(std::move(instructions));
     return program;
@@ -72,11 +71,10 @@ Program MyLangParser::parse() {
 /*
  * instruction = block | single_instruction | statement
  */
-bool MyLangParser::parseInstruction(std::vector<InstructionPtr>& instructions, std::unordered_map<std::string,
-                                    FunctionDeclaration>& functions) {
+bool MyLangParser::parseInstruction(std::vector<InstructionPtr>& instructions) {
     InstructionPtr instruction = parseBlock();
     if (!instruction)
-        instruction = parseSingleInstruction(functions);
+        instruction = parseSingleInstruction();
     if (!instruction)
         instruction = parseStatement();
     if (instruction) {
@@ -91,9 +89,8 @@ bool MyLangParser::parseInstruction(std::vector<InstructionPtr>& instructions, s
  */
 MyLangParser::BlockPtr MyLangParser::parseBlock() {
     std::vector<InstructionPtr> instructions;
-    std::unordered_map<std::string, FunctionDeclaration> functions;
     if (consumeIf(TokenType::LEFT_PARENTHESIS)) {
-        while (parseInstruction(instructions, functions));
+        while (parseInstruction(instructions));
         if (!consumeIf(TokenType::RIGHT_PARENTHESIS))
             criticalError(ErrorType::MISSING_PARENTHESIS);
         return std::make_unique<Block>(std::move(instructions));
@@ -104,9 +101,8 @@ MyLangParser::BlockPtr MyLangParser::parseBlock() {
 /*
  * single_instruction = (function_declaration | variable_declaration | assign_or_function_call)
  */
-MyLangParser::SingleInstructionPtr MyLangParser::parseSingleInstruction(std::unordered_map<std::string,
-                                                                                       FunctionDeclaration>& functions) {
-    SingleInstructionPtr instruction = parseFunctionDeclaration(functions);
+MyLangParser::SingleInstructionPtr MyLangParser::parseSingleInstruction() {
+    SingleInstructionPtr instruction = parseFunctionDeclaration();
     if (!instruction)
         instruction = parseVariableDeclarationOrAssignOrFunctionCall();
     if (instruction) {
@@ -189,16 +185,13 @@ MyLangParser::ExpressionPtr MyLangParser::parseExpressionOrPair() {
  * function_declaration	= ”func”, identifier, arguments_list, block
  */
 MyLangParser::SingleInstructionPtr
-MyLangParser::parseFunctionDeclaration(std::unordered_map<std::string, FunctionDeclaration> &functions) {
+MyLangParser::parseFunctionDeclaration() {
     if (!consumeIf(TokenType::FUNC_KEYWORD))
         return {};
     Position position = currentToken->getPosition();
     IdentifierPtr identifier = parseIdentifier();
     if (!identifier)
         criticalError(ErrorType::IDENTIFIER_EXPECTED);
-    auto it = functions.find(identifier->getName());
-    if (it != functions.end())
-        criticalError(ErrorType::FUNCTION_REDEFINITION);
     std::optional<std::vector<Argument>> args = parseArgumentsList();
     if (!args)
         criticalError(ErrorType::ARGUMENTS_LIST_EXPECTED);

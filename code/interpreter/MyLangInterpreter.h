@@ -36,10 +36,10 @@
 #include "../structure/ConstantType.h"
 #include "../structure/Pair.h"
 #include "../structure/Typename.h"
+#include "../structure/StandardOutput.h"
 #include "Context.h"
 #include "Variable.h"
 #include "Value.h"
-#include "../structure/StandardOutput.h"
 
 class MyLangInterpreter : public Interpreter, public Visitor {
     std::ostream& os;
@@ -81,6 +81,7 @@ public:
     void visit(const StandardOutput &standardOutput) override;
 
     void execute(const Program& program) override;
+private:
     void criticalError(ErrorType type);
 };
 
