@@ -9,11 +9,11 @@ class ReturnStatement : public Statement {
 public:
     using ExpressionPtr = Expression::ExpressionPtr;
 private:
-    std::optional<ExpressionPtr> expression;
+    ExpressionPtr expression;
 public:
     ReturnStatement();
     explicit ReturnStatement(ExpressionPtr e);
-    const std::optional<ExpressionPtr> &getExpression() const;
+    const ExpressionPtr &getExpression() const;
 
     void accept(Visitor& visitor) const override;
 };

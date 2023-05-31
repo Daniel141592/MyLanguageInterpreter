@@ -171,7 +171,7 @@ void PrintVisitor::visit(const ReturnStatement &returnStatement) {
         if (returnStatement.getExpression()) {
             print("expression");
             manageIndent([&]() {
-                returnStatement.getExpression().value()->accept(*this);
+                returnStatement.getExpression()->accept(*this);
             });
         }
     });

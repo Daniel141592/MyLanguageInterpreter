@@ -31,6 +31,9 @@ void MyLangInterpreter::visit(const Program &program) {
 void MyLangInterpreter::visit(const Block &block) {
     for (auto &ins: block.getInstructions()) {
         ins->accept(*this);
+        if (result.isReturned()) {
+            return;
+        }
     }
 }
 
@@ -115,7 +118,8 @@ void MyLangInterpreter::visit(const PatternStatement &patternStatement) {
 }
 
 void MyLangInterpreter::visit(const ReturnStatement &returnStatement) {
-
+    returnStatement.getExpression()->accept(*this);
+    result.setReturned();
 }
 
 void MyLangInterpreter::visit(const FunctionCall &functionCall) {
@@ -139,6 +143,8 @@ void MyLangInterpreter::visit(const FunctionCall &functionCall) {
             context.setFunctionArgs(&args);
         }
         functionDeclaration.getFunctionBody()->accept(*this);
+        if (result.isReturned())
+            result.setReturned(false);
         context.removeScope();
     } catch (...) {
         criticalError(ErrorType::UNDEFINED_FUNCTION);

@@ -11,6 +11,7 @@ class Value {
     std::optional<std::variant<int, double, std::string>> value{};
     ConstantType type;
     Position position;
+    bool returned;
 public:
     Value();
     Value(Position p, int v);
@@ -21,6 +22,8 @@ public:
     void setValue(const std::optional<std::variant<int, double, std::string>> &value);
     ConstantType getType() const;
     const Position &getPosition() const;
+    bool isReturned() const;
+    void setReturned(bool returned = true);
 };
 
 
