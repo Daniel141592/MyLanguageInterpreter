@@ -2,19 +2,19 @@
 
 std::string_view PrintUtils::toString(ErrorType errorType) {
     static const std::unordered_map<ErrorType, std::string_view> errorTypesNames = {
-            {ErrorType::IntRangeError,               "IntRangeError"},
-            {ErrorType::IncorrectFloatValue,         "IncorrectFloatValue"},
-            {ErrorType::UnknownToken,                "UnknownToken"},
-            {ErrorType::UnexpectedEndOfText,         "UnexpectedEndOfText"},
-            {ErrorType::UnknownEscapeCharacter,      "UnknownEscapeCharacter"},
-            {ErrorType::TooLongStringLiteral,        "TooLongStringLiteral"},
-            {ErrorType::TooLongIdentifier,           "TooLongIdentifier"},
-            {ErrorType::TooLongComment,              "TooLongComment"},
-            {ErrorType::InconsistentNewlineSequence, "InconsistentNewlineSequence"},
-            {ErrorType::MISSING_PARENTHESIS,         "MISSING_PARENTHESIS"},
-            {ErrorType::MISSING_SEMICOLON,           "MISSING_SEMICOLON"},
-            {ErrorType::MUT_OUTSIDE_DECLARATION,     "MUT_OUTSIDE_DECLARATION"},
-            {ErrorType::EXPRESSION_EXPECTED,         "EXPRESSION_EXPECTED"},
+            {ErrorType::IntRangeError,                    "IntRangeError"},
+            {ErrorType::IncorrectFloatValue,              "IncorrectFloatValue"},
+            {ErrorType::UnknownToken,                     "UnknownToken"},
+            {ErrorType::UnexpectedEndOfText,              "UnexpectedEndOfText"},
+            {ErrorType::UnknownEscapeCharacter,           "UnknownEscapeCharacter"},
+            {ErrorType::TooLongStringLiteral,             "TooLongStringLiteral"},
+            {ErrorType::TooLongIdentifier,                "TooLongIdentifier"},
+            {ErrorType::TooLongComment,                   "TooLongComment"},
+            {ErrorType::InconsistentNewlineSequence,      "InconsistentNewlineSequence"},
+            {ErrorType::MISSING_PARENTHESIS,              "MISSING_PARENTHESIS"},
+            {ErrorType::MISSING_SEMICOLON,                "MISSING_SEMICOLON"},
+            {ErrorType::MUT_OUTSIDE_DECLARATION,          "MUT_OUTSIDE_DECLARATION"},
+            {ErrorType::EXPRESSION_EXPECTED,              "EXPRESSION_EXPECTED"},
             {ErrorType::IDENTIFIER_EXPECTED,              "IDENTIFIER_EXPECTED"},
             {ErrorType::FUNCTION_REDEFINITION,            "FUNCTION_REDEFINITION"},
             {ErrorType::ARGUMENTS_LIST_EXPECTED,          "ARGUMENTS_LIST_EXPECTED"},
@@ -28,6 +28,7 @@ std::string_view PrintUtils::toString(ErrorType errorType) {
             {ErrorType::UNDEFINED_FUNCTION,               "UNDEFINED_FUNCTION"},
             {ErrorType::UNDEFINED_VARIABLE,               "UNDEFINED_VARIABLE"},
             {ErrorType::INCORRECT_ARGS_COUNT,             "INCORRECT_ARGS_COUNT"},
+            {ErrorType::VARIABLE_REDEFINITION,            "VARIABLE_REDEFINITION"},
 
             {ErrorType::OtherError,                       "OtherError"}
     };

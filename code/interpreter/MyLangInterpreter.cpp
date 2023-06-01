@@ -21,7 +21,8 @@ void MyLangInterpreter::visit(const Program &program) {
     context.addScope();
     std::vector<Instruction::InstructionPtr> instructions;
     instructions.emplace_back(std::make_unique<StandardOutput>(os));
-    FunctionDeclaration standardOutput(Position(-1, -1), "standardOutput", std::make_unique<Block>(std::move(instructions)));
+    FunctionDeclaration standardOutput(Position(-1, -1), "standardOutput",
+                                       std::make_unique<Block>(std::move(instructions)));
     context.addFunction(standardOutput);
     for (auto &ins: program.getInstructions()) {
         ins->accept(*this);
@@ -56,7 +57,13 @@ void MyLangInterpreter::visit(const AndExpression &andExpression) {
 }
 
 void MyLangInterpreter::visit(const VariableDeclaration &variableDeclaration) {
-    // TODO
+    variableDeclaration.getExpression()->accept(*this);
+    const std::string& name = variableDeclaration.getIdentifier()->getName();
+    if (context.findVariable(name))
+        criticalError(ErrorType::VARIABLE_REDEFINITION);
+    std::visit([&](const auto& value) {
+        context.addVariable(name, Variable(value, true));
+    }, result.getValue().value());
 }
 
 void MyLangInterpreter::visit(const FunctionDeclaration &functionDeclaration) {
@@ -191,7 +198,6 @@ void MyLangInterpreter::visit(const AdditiveExpression &additiveExpression) {
     }), first.getValue().value(), result.getValue().value());
 }
 
-
 void MyLangInterpreter::visit(const MultiplicationExpression &multiplicationExpression) {
     multiplicationExpression.getLeft()->accept(*this);
     const Value first = result;
@@ -239,11 +245,11 @@ void MyLangInterpreter::visit(const MatchNone &matchNone) {
 }
 
 void MyLangInterpreter::visit(const Pair &pair) {
-//    result = pair;
+
 }
 
 void MyLangInterpreter::visit(const Typename &type) {
-//    result = type;
+
 }
 
 void MyLangInterpreter::visit(const StandardOutput &standardOutput) {

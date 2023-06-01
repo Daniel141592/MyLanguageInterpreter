@@ -26,6 +26,8 @@ void Context::updateVariable(const std::string& name, int value) {
         if (vit != sit->getVariables().end()) {
             if (vit->second.getType() != ConstantType::INTEGER)
                 throw "TODO";
+            if (!vit->second.isMut())
+                throw "TODO";
             vit->second.setValue(value);
             return;
         }
@@ -39,6 +41,8 @@ void Context::updateVariable(const std::string& name, double value) {
         if (vit != sit->getVariables().end()) {
             if (vit->second.getType() != ConstantType::FLOAT)
                 throw "TODO";
+            if (!vit->second.isMut())
+                throw "TODO";
             vit->second.setValue(value);
             return;
         }
@@ -46,12 +50,13 @@ void Context::updateVariable(const std::string& name, double value) {
     addVariable(name, Variable(value, false));
 }
 
-
 void Context::updateVariable(const std::string& name, std::string value) {
     for (auto sit = scopes.rbegin(); sit != scopes.rend(); ++sit) {
         auto vit = sit->getVariables().find(name);
         if (vit != sit->getVariables().end()) {
             if (vit->second.getType() != ConstantType::STRING)
+                throw "TODO";
+            if (!vit->second.isMut())
                 throw "TODO";
             vit->second.setValue(value);
             return;
