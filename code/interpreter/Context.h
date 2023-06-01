@@ -7,6 +7,7 @@
 
 #include "Scope.h"
 #include "Variable.h"
+#include "Exceptions.h"
 
 class Context {
     std::string currentFunction;

@@ -21,14 +21,14 @@ void Context::addVariable(const std::string& name, const Variable &variable) {
     scopes.back()->addVariable(name, variable);
 }
 
-void Context::updateVariable(const std::string& name, int value) {
+void Context::updateVariable(const std::string &name, int value) {
     for (auto sit = scopes.rbegin(); sit != scopes.rend(); ++sit) {
         auto vit = (*sit)->getVariables().find(name);
         if (vit != (*sit)->getVariables().end()) {
             if (vit->second.getType() != ConstantType::INTEGER)
-                throw "TODO";
+                throw IncompatibleTypeException(vit->second.getType(), ConstantType::INTEGER);
             if (!vit->second.isMut())
-                throw "TODO";
+                throw ReassignImmutableVariable(name);
             vit->second.setValue(value);
             return;
         }
@@ -41,9 +41,9 @@ void Context::updateVariable(const std::string& name, double value) {
         auto vit = (*sit)->getVariables().find(name);
         if (vit != (*sit)->getVariables().end()) {
             if (vit->second.getType() != ConstantType::FLOAT)
-                throw "TODO";
+                throw IncompatibleTypeException(vit->second.getType(), ConstantType::FLOAT);
             if (!vit->second.isMut())
-                throw "TODO";
+                throw ReassignImmutableVariable(name);
             vit->second.setValue(value);
             return;
         }
@@ -56,9 +56,9 @@ void Context::updateVariable(const std::string& name, std::string value) {
         auto vit = (*sit)->getVariables().find(name);
         if (vit != (*sit)->getVariables().end()) {
             if (vit->second.getType() != ConstantType::STRING)
-                throw "TODO";
+                throw IncompatibleTypeException(vit->second.getType(), ConstantType::STRING);
             if (!vit->second.isMut())
-                throw "TODO";
+                throw ReassignImmutableVariable(name);
             vit->second.setValue(value);
             return;
         }
@@ -85,7 +85,7 @@ const FunctionDeclaration &Context::findFunction(const std::string &name) {
         if (fit != scopes.back()->getFunctions().end())
             return fit->second;
     }
-    throw "TODO";
+    throw UnknownIdentifierException(name);
 }
 
 const std::vector<Expression::ExpressionPtr> *Context::getFunctionArgs() const {

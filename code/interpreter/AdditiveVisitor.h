@@ -10,9 +10,8 @@
 class AdditiveVisitor {
     Value &result;
     AdditiveType type;
-    std::function<void(ErrorType)> errorHandler;
 public:
-    AdditiveVisitor(Value &v, AdditiveType at, std::function<void(ErrorType)> onError);
+    AdditiveVisitor(Value &v, AdditiveType at);
 
     template<typename T>
     void operator()(T a, T b) {
@@ -32,13 +31,13 @@ public:
                 result.setValue(a + b);
                 break;
             case AdditiveType::SUBTRACT:
-                errorHandler(ErrorType::INVALID_OPERAND);
+                throw InvalidOperands(ConstantType::STRING, ConstantType::STRING);
         }
     }
 
     template<typename T, typename U>
     void operator()(T a, U b) {
-        errorHandler(ErrorType::INCOMPATIBLE_DATA_TYPES);
+        throw InvalidOperands(a, b);
     }
 };
 

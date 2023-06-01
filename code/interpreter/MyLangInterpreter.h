@@ -3,6 +3,7 @@
 
 #include <functional>
 #include <utility>
+#include <sstream>
 
 #include "Interpreter.h"
 #include "../Visitor.h"
@@ -82,7 +83,7 @@ public:
 
     void execute(const Program& program) override;
 private:
-    void criticalError(ErrorType type);
+    void criticalError(ErrorType type, const std::string& message = "");
 };
 
 #endif //CODE_MYLANGINTERPRETER_H

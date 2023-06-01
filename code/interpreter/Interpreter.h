@@ -7,7 +7,7 @@
 
 class Interpreter {
 public:
-    typedef std::function<void(Position, ErrorType)> HandlerType;
+    typedef std::function<void(Position, ErrorType, const std::string&)> HandlerType;
     ~Interpreter() = default;
     virtual void execute(const Program& program) = 0;
 };

@@ -4,15 +4,15 @@
 #include "Value.h"
 #include "../structure/MultiplicativeType.h"
 #include "../ErrorType.h"
+#include "Exceptions.h"
 
 #include <functional>
 
 class MultiplicativeVisitor {
     Value &result;
     MultiplicativeType type;
-    std::function<void(ErrorType)> errorHandler;
 public:
-    MultiplicativeVisitor(Value &v, MultiplicativeType at, std::function<void(ErrorType)> onError);
+    MultiplicativeVisitor(Value &v, MultiplicativeType at);
 
     void operator()(int a, int b) {
         if (type == MultiplicativeType::MODULO)
@@ -25,16 +25,16 @@ public:
         if (type != MultiplicativeType::MODULO)
             exec(a, b);
         else
-            errorHandler(ErrorType::INVALID_OPERAND);
+            throw InvalidOperands(a, b);
     }
 
     void operator()(const std::string &a, const std::string &b) const {
-        errorHandler(ErrorType::INVALID_OPERAND);
+        throw InvalidOperands(a, b);
     }
 
     template<typename T, typename U>
     void operator()(T a, U b) {
-        errorHandler(ErrorType::INCOMPATIBLE_DATA_TYPES);
+        throw InvalidOperands(a, b);
     }
 
 private:
@@ -45,9 +45,13 @@ private:
                 result.setValue(a * b);
                 break;
             case MultiplicativeType::DIVIDE:
+                if (b == 0)
+                    throw DivisionByZeroException();
                 result.setValue(a / b);
                 break;
             case MultiplicativeType::INT_DIVIDE:
+                if (b == 0)
+                    throw DivisionByZeroException();
                 result.setValue((int) a / (int) b);
                 break;
             default:

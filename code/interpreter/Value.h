@@ -6,6 +6,7 @@
 #include <optional>
 #include "../structure/ConstantType.h"
 #include "../Position.h"
+#include "Exceptions.h"
 
 class Value {
     std::optional<std::variant<int, double, std::string>> value{};

@@ -17,6 +17,12 @@ void onError(Position position, ErrorType error) {
     std::cout << "column: " << position.getColumn() << '\n';
 }
 
+void onInterpreterError(Position position, ErrorType error, const std::string& msg) {
+    onError(position, error);
+    if (!msg.empty())
+        std::cout << msg << '\n';
+}
+
 void printTokens(Lexer* lexer, int maxTokenCount = 4096) {
     std::cout.precision(10);
     while (maxTokenCount--) {
@@ -72,19 +78,16 @@ int main(int argc, char** argv) {
                 Program program = parser.parse();
 //                PrintVisitor printVisitor;
 //                printVisitor.visit(program);
-                MyLangInterpreter interpreter(std::cout, std::cin, onError);
+                MyLangInterpreter interpreter(std::cout, std::cin, onInterpreterError);
                 interpreter.execute(program);
-            }  catch (const std::exception& e) {
-                std::cout << e.what() << "\n";
             } catch (...) {
-                std::cout << "Parsing failed!\n";   //TODO or maybe interpreting?
+                std::cout << "Run failed!\n";
             }
         }
         fin.close();
     } else {
         std::cout << "USAGE: " << argv[0] << " <input file> [--dont-ignore-comments]\n";
     }
-
     return 0;
 }
 

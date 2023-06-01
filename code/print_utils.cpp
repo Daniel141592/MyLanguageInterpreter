@@ -29,6 +29,9 @@ std::string_view PrintUtils::toString(ErrorType errorType) {
             {ErrorType::UNDEFINED_VARIABLE,               "UNDEFINED_VARIABLE"},
             {ErrorType::INCORRECT_ARGS_COUNT,             "INCORRECT_ARGS_COUNT"},
             {ErrorType::VARIABLE_REDEFINITION,            "VARIABLE_REDEFINITION"},
+            {ErrorType::DIVISION_BY_ZERO,                 "DIVISION_BY_ZERO"},
+            {ErrorType::EMPTY_VALUE,                      "EMPTY_VALUE"},
+            {ErrorType::UNKNOWN_IDENTIFIER,               "UNKNOWN_IDENTIFIER"},
 
             {ErrorType::OtherError,                       "OtherError"}
     };
