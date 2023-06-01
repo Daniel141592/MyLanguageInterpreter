@@ -75,8 +75,11 @@ void Context::removeScope() {
 }
 
 void Context::addFunction(const FunctionDeclaration &functionDeclaration) {
-    scopes.back()->getFunctions().insert(
-            std::make_pair(functionDeclaration.getIdentifier().getName(), std::ref(functionDeclaration)));
+    const std::string& name = functionDeclaration.getIdentifier().getName();
+    auto fit = scopes.back()->getFunctions().find(name);
+    if (fit != scopes.back()->getFunctions().end())
+        throw RedefinitionException(name);
+    scopes.back()->getFunctions().insert(std::make_pair(name, std::ref(functionDeclaration)));
 }
 
 const FunctionDeclaration &Context::findFunction(const std::string &name) {

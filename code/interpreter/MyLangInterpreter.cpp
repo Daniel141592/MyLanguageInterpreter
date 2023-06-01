@@ -77,7 +77,7 @@ void MyLangInterpreter::visit(const AndExpression &andExpression) {
 }
 
 void MyLangInterpreter::visit(const VariableDeclaration &variableDeclaration) {
-    result.setPosition(variableDeclaration.getExpression()->getPosition());
+    result.setPosition(variableDeclaration.getIdentifier()->getPosition());
     const std::string& name = variableDeclaration.getIdentifier()->getName();
     if (contexts.back().variableDeclaredInCurrentScope(name))
         criticalError(ErrorType::VARIABLE_REDEFINITION, name);
@@ -85,6 +85,7 @@ void MyLangInterpreter::visit(const VariableDeclaration &variableDeclaration) {
         contexts.back().addVariable(name, Variable(0, true));   //TODO przydało by się zrobić pustą wartość, a nie 0
         return;
     }
+    result.setPosition(variableDeclaration.getExpression()->getPosition());
     variableDeclaration.getExpression()->accept(*this);
     std::visit([&](const auto& value) {
         contexts.back().addVariable(name, Variable(value, true));
