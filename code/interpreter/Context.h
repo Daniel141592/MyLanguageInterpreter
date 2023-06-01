@@ -15,7 +15,7 @@ class Context {
 public:
     using BlockPtr = Block::BlockPtr;
     Context();
-    Context(std::string f, ScopePtr scope);
+    Context(std::string f, ScopePtr globalScope, ScopePtr newScope);
     std::optional<Variable> findVariable(const std::string& name);
     void addVariable(const std::string& name, const Variable &variable);
     void updateVariable(const std::string& name, double value);

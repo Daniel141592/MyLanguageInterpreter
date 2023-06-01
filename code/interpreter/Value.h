@@ -18,7 +18,7 @@ public:
     Value(Position p, double v);
     Value(Position p, const std::string& v);
 
-    const std::optional<std::variant<int, double, std::string>> &getValue() const;
+    const std::variant<int, double, std::string> &getValue() const;
     void setValue(const std::optional<std::variant<int, double, std::string>> &value);
     ConstantType getType() const;
     const Position &getPosition() const;

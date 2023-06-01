@@ -22,3 +22,7 @@ bool Scope::variableDeclared(const std::string &name) {
         return true;
     return false;
 }
+
+void Scope::addVariable(const std::string &name, const Variable &variable) {
+    variables.insert(std::make_pair(name, variable));
+}

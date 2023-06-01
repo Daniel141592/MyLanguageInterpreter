@@ -14,8 +14,10 @@ Value::Value(Position p, const std::string& v) : position(p), value(v), type(Con
 
 }
 
-const std::optional<std::variant<int, double, std::string>> &Value::getValue() const {
-    return value;
+const std::variant<int, double, std::string> &Value::getValue() const {
+    if (value)
+        return value.value();
+    throw "TODO";
 }
 
 ConstantType Value::getType() const {

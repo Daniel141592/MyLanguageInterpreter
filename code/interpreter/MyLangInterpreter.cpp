@@ -41,20 +41,20 @@ void MyLangInterpreter::visit(const Block &block) {
 
 void MyLangInterpreter::visit(const OrExpression &orExpression) {
     orExpression.getLeft()->accept(*this);
-    std::visit(BooleanVisitor(result), result.getValue().value());
-    if (std::holds_alternative<int>(result.getValue().value()) && std::get<int>(result.getValue().value()) != 0)
+    std::visit(BooleanVisitor(result), result.getValue());
+    if (std::holds_alternative<int>(result.getValue()) && std::get<int>(result.getValue()) != 0)
         return;
     orExpression.getRight()->accept(*this);
-    std::visit(BooleanVisitor(result), result.getValue().value());
+    std::visit(BooleanVisitor(result), result.getValue());
 }
 
 void MyLangInterpreter::visit(const AndExpression &andExpression) {
     andExpression.getLeft()->accept(*this);
-    std::visit(BooleanVisitor(result), result.getValue().value());
-    if (!std::holds_alternative<int>(result.getValue().value()) || std::get<int>(result.getValue().value()) == 0)
+    std::visit(BooleanVisitor(result), result.getValue());
+    if (!std::holds_alternative<int>(result.getValue()) || std::get<int>(result.getValue()) == 0)
         return;
     andExpression.getRight()->accept(*this);
-    std::visit(BooleanVisitor(result), result.getValue().value());
+    std::visit(BooleanVisitor(result), result.getValue());
 }
 
 void MyLangInterpreter::visit(const VariableDeclaration &variableDeclaration) {
@@ -68,7 +68,7 @@ void MyLangInterpreter::visit(const VariableDeclaration &variableDeclaration) {
     variableDeclaration.getExpression()->accept(*this);
     std::visit([&](const auto& value) {
         contexts.back().addVariable(name, Variable(value, true));
-    }, result.getValue().value());
+    }, result.getValue());
 }
 
 void MyLangInterpreter::visit(const FunctionDeclaration &functionDeclaration) {
@@ -103,13 +103,13 @@ struct AssignVisitor {
 
 void MyLangInterpreter::visit(const Assign &assign) {
     assign.getExpression()->accept(*this);
-    std::visit(AssignVisitor(assign.getIdentifier()->getName(), contexts.back()), result.getValue().value());
+    std::visit(AssignVisitor(assign.getIdentifier()->getName(), contexts.back()), result.getValue());
 }
 
 void MyLangInterpreter::visit(const IfStatement &ifStatement) {
     ifStatement.getCondition()->accept(*this);
-    std::visit(BooleanVisitor(result), result.getValue().value());
-    if (std::holds_alternative<int>(result.getValue().value()) && std::get<int>(result.getValue().value()) != 0) {
+    std::visit(BooleanVisitor(result), result.getValue());
+    if (std::holds_alternative<int>(result.getValue()) && std::get<int>(result.getValue()) != 0) {
         contexts.back().addScope();
         ifStatement.getBlock()->accept(*this);
         contexts.back().removeScope();
@@ -122,13 +122,13 @@ void MyLangInterpreter::visit(const IfStatement &ifStatement) {
 
 void MyLangInterpreter::visit(const LoopStatement &loopStatement) {
     loopStatement.getCondition()->accept(*this);
-    std::visit(BooleanVisitor(result), result.getValue().value());
-    while (std::holds_alternative<int>(result.getValue().value()) && std::get<int>(result.getValue().value()) != 0) {
+    std::visit(BooleanVisitor(result), result.getValue());
+    while (std::holds_alternative<int>(result.getValue()) && std::get<int>(result.getValue()) != 0) {
         contexts.back().addScope();
         loopStatement.getBlock()->accept(*this);
         contexts.back().removeScope();
         loopStatement.getCondition()->accept(*this);
-        std::visit(BooleanVisitor(result), result.getValue().value());
+        std::visit(BooleanVisitor(result), result.getValue());
     }
 }
 
@@ -137,7 +137,10 @@ void MyLangInterpreter::visit(const PatternStatement &patternStatement) {
 }
 
 void MyLangInterpreter::visit(const ReturnStatement &returnStatement) {
-    returnStatement.getExpression()->accept(*this);
+    if (returnStatement.getExpression() != nullptr)
+        returnStatement.getExpression()->accept(*this);
+    else
+        result.setValue({});
     result.setReturned();
 }
 
@@ -146,25 +149,29 @@ void MyLangInterpreter::visit(const FunctionCall &functionCall) {
         const auto& functionDeclaration = contexts.back().findFunction(functionCall.getName().getName());
         const auto& args = functionCall.getArgs();
         const auto& argsNames = functionDeclaration.getArguments();
-        contexts.emplace_back(functionCall.getName().getName(), contexts.back().getGlobalScope());
+        // TODO zastanowić się nad tym jeszcze
         if (argsNames) {
             if (args.size() != argsNames->size())
                 criticalError(ErrorType::INCORRECT_ARGS_COUNT);
-
+            ScopePtr scope = std::make_shared<Scope>();
             for (int i = 0; i < args.size(); i++) {
                 args[i]->accept(*this);
                 Value argValue = result;
                 std::visit([&](const auto& value) {
-                    contexts.back().addVariable(argsNames.value()[i].getIdentifier().getName(), Variable(value, false));
-                }, argValue.getValue().value());
+                    scope->addVariable(argsNames.value()[i].getIdentifier().getName(), Variable(value, false));
+                }, argValue.getValue());
             }
+            contexts.emplace_back(functionCall.getName().getName(), contexts.back().getGlobalScope(), scope);
+            functionDeclaration.getFunctionBody()->accept(*this);
+            if (result.isReturned())
+                result.setReturned(false);
+            else
+                result.setValue({});
+            contexts.pop_back();
         } else {
             contexts.back().setFunctionArgs(&args);
+            functionDeclaration.getFunctionBody()->accept(*this);
         }
-        functionDeclaration.getFunctionBody()->accept(*this);
-        if (result.isReturned())
-            result.setReturned(false);
-        contexts.pop_back();
     } catch (...) {
         criticalError(ErrorType::UNDEFINED_FUNCTION);
     }
@@ -178,22 +185,22 @@ void MyLangInterpreter::visit(const RelativeExpression &relativeExpression) {
         criticalError(ErrorType::INVALID_OPERAND);
     switch (relativeExpression.getRelativeType()) {
         case RelativeType::EQUAL:
-            result.setValue(first.getValue().value() == result.getValue().value());
+            result.setValue(first.getValue() == result.getValue());
             break;
         case RelativeType::NOT_EQUAL:
-            result.setValue(first.getValue().value() != result.getValue().value());
+            result.setValue(first.getValue() != result.getValue());
             break;
         case RelativeType::GREATER:
-            result.setValue(first.getValue().value() > result.getValue().value());
+            result.setValue(first.getValue() > result.getValue());
             break;
         case RelativeType::LESS:
-            result.setValue(first.getValue().value() < result.getValue().value());
+            result.setValue(first.getValue() < result.getValue());
             break;
         case RelativeType::GREATER_EQUAL:
-            result.setValue(first.getValue().value() >= result.getValue().value());
+            result.setValue(first.getValue() >= result.getValue());
             break;
         case RelativeType::LESS_EQUAL:
-            result.setValue(first.getValue().value() <= result.getValue().value());
+            result.setValue(first.getValue() <= result.getValue());
             break;
         case RelativeType::IS:
             //TODO no i tutaj zaczynają się schody...
@@ -207,7 +214,7 @@ void MyLangInterpreter::visit(const AdditiveExpression &additiveExpression) {
     additiveExpression.getRight()->accept(*this);
     std::visit(AdditiveVisitor(result, additiveExpression.getAdditiveType(), [&](ErrorType et) {
         criticalError(et);
-    }), first.getValue().value(), result.getValue().value());
+    }), first.getValue(), result.getValue());
 }
 
 void MyLangInterpreter::visit(const MultiplicationExpression &multiplicationExpression) {
@@ -216,7 +223,7 @@ void MyLangInterpreter::visit(const MultiplicationExpression &multiplicationExpr
     multiplicationExpression.getRight()->accept(*this);
     std::visit(MultiplicativeVisitor(result, multiplicationExpression.getMultiplicativeType(), [&](ErrorType et) {
         criticalError(et);
-    }), first.getValue().value(), result.getValue().value());
+    }), first.getValue(), result.getValue());
 }
 
 void MyLangInterpreter::visit(const Constant &constant) {

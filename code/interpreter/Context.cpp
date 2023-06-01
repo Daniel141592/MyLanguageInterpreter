@@ -3,9 +3,9 @@
 
 Context::Context() = default;
 
-Context::Context(std::string f, ScopePtr scope) : currentFunction(std::move(f)) {
-    scopes.emplace_back(std::move(scope));
-    addScope();
+Context::Context(std::string f, ScopePtr globalScope, ScopePtr newScope) : currentFunction(std::move(f)) {
+    scopes.emplace_back(std::move(globalScope));
+    scopes.emplace_back(std::move(newScope));
 }
 
 std::optional<Variable> Context::findVariable(const std::string& name) {
@@ -18,7 +18,7 @@ std::optional<Variable> Context::findVariable(const std::string& name) {
 }
 
 void Context::addVariable(const std::string& name, const Variable &variable) {
-    scopes.back()->getVariables().insert(std::make_pair(name, variable));
+    scopes.back()->addVariable(name, variable);
 }
 
 void Context::updateVariable(const std::string& name, int value) {

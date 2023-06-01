@@ -11,5 +11,5 @@ void StandardOutput::accept(Visitor &visitor) const {
 void StandardOutput::print(const Value& value) const {
     std::visit([&](const auto& v) {
         os << v;
-    }, value.getValue().value());
+    }, value.getValue());
 }
