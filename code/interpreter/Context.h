@@ -26,6 +26,7 @@ public:
     const std::vector<Expression::ExpressionPtr> *getFunctionArgs() const;
     void setFunctionArgs(const std::vector<Expression::ExpressionPtr> *args);
     ScopePtr& getGlobalScope();
+    bool variableDeclaredInCurrentScope(const std::string& name);
 
     void addScope();
     void removeScope();

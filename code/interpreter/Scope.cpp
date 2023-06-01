@@ -15,3 +15,10 @@ std::unordered_map<std::string, Variable> &Scope::getVariables() {
 std::unordered_map<std::string, const FunctionDeclaration&> &Scope::getFunctions() {
     return functions;
 }
+
+bool Scope::variableDeclared(const std::string &name) {
+    auto vit = variables.find(name);
+    if (vit != variables.end())
+        return true;
+    return false;
+}

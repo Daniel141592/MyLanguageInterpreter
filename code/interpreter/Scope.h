@@ -19,6 +19,7 @@ public:
 
     std::unordered_map<std::string, Variable> &getVariables();
     std::unordered_map<std::string, const FunctionDeclaration&> &getFunctions();
+    bool variableDeclared(const std::string& name);
 };
 using ScopePtr = std::shared_ptr<Scope>;
 

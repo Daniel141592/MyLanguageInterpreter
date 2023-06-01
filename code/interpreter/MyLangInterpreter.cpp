@@ -59,7 +59,7 @@ void MyLangInterpreter::visit(const AndExpression &andExpression) {
 
 void MyLangInterpreter::visit(const VariableDeclaration &variableDeclaration) {
     const std::string& name = variableDeclaration.getIdentifier()->getName();
-    if (contexts.back().findVariable(name))
+    if (contexts.back().variableDeclaredInCurrentScope(name))
         criticalError(ErrorType::VARIABLE_REDEFINITION);
     if (variableDeclaration.getExpression() == nullptr) {
         contexts.back().addVariable(name, Variable(0, true));   //TODO przydało by się zrobić pustą wartość, a nie 0
@@ -109,17 +109,24 @@ void MyLangInterpreter::visit(const Assign &assign) {
 void MyLangInterpreter::visit(const IfStatement &ifStatement) {
     ifStatement.getCondition()->accept(*this);
     std::visit(BooleanVisitor(result), result.getValue().value());
-    if (std::holds_alternative<int>(result.getValue().value()) && std::get<int>(result.getValue().value()) != 0)
+    if (std::holds_alternative<int>(result.getValue().value()) && std::get<int>(result.getValue().value()) != 0) {
+        contexts.back().addScope();
         ifStatement.getBlock()->accept(*this);
-    else if (ifStatement.getElseBlock() != nullptr)
+        contexts.back().removeScope();
+    } else if (ifStatement.getElseBlock() != nullptr) {
+        contexts.back().addScope();
         ifStatement.getElseBlock()->accept(*this);
+        contexts.back().removeScope();
+    }
 }
 
 void MyLangInterpreter::visit(const LoopStatement &loopStatement) {
     loopStatement.getCondition()->accept(*this);
     std::visit(BooleanVisitor(result), result.getValue().value());
     while (std::holds_alternative<int>(result.getValue().value()) && std::get<int>(result.getValue().value()) != 0) {
+        contexts.back().addScope();
         loopStatement.getBlock()->accept(*this);
+        contexts.back().removeScope();
         loopStatement.getCondition()->accept(*this);
         std::visit(BooleanVisitor(result), result.getValue().value());
     }
@@ -139,7 +146,6 @@ void MyLangInterpreter::visit(const FunctionCall &functionCall) {
         const auto& functionDeclaration = contexts.back().findFunction(functionCall.getName().getName());
         const auto& args = functionCall.getArgs();
         const auto& argsNames = functionDeclaration.getArguments();
-        // contexts.back().addScope(); //TODO fix
         contexts.emplace_back(functionCall.getName().getName(), contexts.back().getGlobalScope());
         if (argsNames) {
             if (args.size() != argsNames->size())
@@ -158,7 +164,6 @@ void MyLangInterpreter::visit(const FunctionCall &functionCall) {
         functionDeclaration.getFunctionBody()->accept(*this);
         if (result.isReturned())
             result.setReturned(false);
-        // contexts.back().removeScope();
         contexts.pop_back();
     } catch (...) {
         criticalError(ErrorType::UNDEFINED_FUNCTION);

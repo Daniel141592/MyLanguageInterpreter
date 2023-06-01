@@ -99,3 +99,7 @@ void Context::setFunctionArgs(const std::vector<Expression::ExpressionPtr> *args
 ScopePtr& Context::getGlobalScope() {
     return scopes.front();
 }
+
+bool Context::variableDeclaredInCurrentScope(const std::string &name) {
+    return scopes.back()->variableDeclared(name);
+}
