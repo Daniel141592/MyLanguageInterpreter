@@ -32,10 +32,19 @@ void Value::setValue(const std::optional<std::variant<int, double, std::string>>
     Value::value = value;
 }
 
+void Value::setValue(const std::optional<std::variant<int, double, std::string>> &value, Position pos) {
+    setValue(value);
+    position = pos;
+}
+
 bool Value::isReturned() const {
     return returned;
 }
 
 void Value::setReturned(bool r) {
     Value::returned = r;
+}
+
+void Value::setPosition(const Position &pos) {
+    position = pos;
 }

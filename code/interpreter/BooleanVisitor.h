@@ -5,15 +5,17 @@
 
 class BooleanVisitor {
     Value& result;
+    Position position;
 public:
     explicit BooleanVisitor(Value& r);
+    BooleanVisitor(Value& r, Position pos);
 
     template<typename T>
     void operator()(T value) {
-        result.setValue(value != 0);
+        result.setValue(value != 0, position);
     }
     void operator()(const std::string& value) {
-        result.setValue(!value.empty());
+        result.setValue(!value.empty(), position);
     }
 };
 

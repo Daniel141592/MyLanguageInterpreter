@@ -21,10 +21,12 @@ public:
 
     const std::variant<int, double, std::string> &getValue() const;
     void setValue(const std::optional<std::variant<int, double, std::string>> &value);
+    void setValue(const std::optional<std::variant<int, double, std::string>> &value, Position pos);
     ConstantType getType() const;
     const Position &getPosition() const;
     bool isReturned() const;
     void setReturned(bool returned = true);
+    void setPosition(const Position &position);
 };
 
 
