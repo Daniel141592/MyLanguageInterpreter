@@ -151,6 +151,35 @@ public:
     }
 };
 
+class InvalidUnaryOperandException : public std::exception {
+    ConstantType type_;
+
+    ConstantType constantType(int) {
+        return ConstantType::INTEGER;
+    }
+
+    ConstantType constantType(double) {
+        return ConstantType::FLOAT;
+    }
+
+    ConstantType constantType(std::string) {
+        return ConstantType::STRING;
+    }
+public:
+    InvalidUnaryOperandException() = default;
+    InvalidUnaryOperandException(ConstantType type) : type_(type) {}
+    template<typename T>
+    InvalidUnaryOperandException(T type) : type_(constantType(type)) {}
+
+    const char * what() const noexcept override {
+        return "Invalid unary operand: ";
+    }
+
+    const std::string& getType() const {
+        return typesToString[type_];
+    }
+};
+
 class InvalidConversionException : public std::exception {
     ConstantType from_;
     ConstantType to_;

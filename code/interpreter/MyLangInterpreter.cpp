@@ -36,6 +36,8 @@ void MyLangInterpreter::execute(const Program &program) {
         criticalError(ErrorType::INVALID_CONVERSION, std::string(e.what())+"from: "+e.getFrom()+", to: "+e.getTo());
     } catch (const OutOfRangeException& e) {
         criticalError(ErrorType::OUT_OF_RANGE, e.what());
+    } catch (const InvalidUnaryOperandException& e) {
+        criticalError(ErrorType::INVALID_OPERAND, std::string(e.what())+e.getType());
     }
 }
 
@@ -276,8 +278,31 @@ void MyLangInterpreter::visit(const CastExpression &castExpression) {
     std::visit(CastVisitor(castExpression.getType(), result), result.getValue());
 }
 
-void MyLangInterpreter::visit(const NegatedExpression &negatedExpression) {
+class NegationVisitor {
+    Value& result;
+public:
+    explicit NegationVisitor(Value& r) : result(r) {}
 
+    void operator()(const std::string& str) {
+        throw InvalidUnaryOperandException(str);
+    }
+
+    template<typename T>
+    void operator()(T value) {
+        result.setValue(-value);
+    }
+};
+
+void MyLangInterpreter::visit(const NegatedExpression &negatedExpression) {
+    result.setPosition(negatedExpression.getPosition());
+    negatedExpression.getExpression()->accept(*this);
+    if (negatedExpression.getNegationType() == NegationType::LOGICAL) {
+        std::visit(BooleanVisitor(result), result.getValue());
+        int value = std::get<int>(result.getValue());
+        result.setValue(value == 0 ? 1 : 0);
+        return;
+    }
+    std::visit(NegationVisitor(result), result.getValue());
 }
 
 void MyLangInterpreter::visit(const MatchExpression &matchExpression) {

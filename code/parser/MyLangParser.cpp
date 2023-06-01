@@ -564,18 +564,20 @@ MyLangParser::ExpressionPtr MyLangParser::parseTerm() {
  * factor = ["!" |"-"], constant | typename | id_or_function_call | field | cast_or_nested
  */
 MyLangParser::ExpressionPtr MyLangParser::parseFactor() {
-    bool negated = false;
-    if (consumeIf(TokenType::NEGATION) || consumeIf(TokenType::MINUS))
-        negated = true;
+    NegationType negationType = NegationType::NONE;
+    if (consumeIf(TokenType::NEGATION))
+        negationType = NegationType::LOGICAL;
+    else if (consumeIf(TokenType::MINUS))
+        negationType = NegationType::ARITHMETIC;
     ExpressionPtr expression = parseConstant();
     if (!expression)
         expression = parseIdentifierOrFunctionCall();
     if (!expression)
         expression = parseTypenameOrCastOrNestedExpression();
-    if (!expression && negated)
+    if (!expression && negationType != NegationType::NONE)
         criticalError(ErrorType::EXPRESSION_EXPECTED);
-    if (negated)
-        return std::make_unique<NegatedExpression>(std::move(expression));
+    if (negationType != NegationType::NONE)
+        return std::make_unique<NegatedExpression>(std::move(expression), negationType);
     return expression;
 }
 
