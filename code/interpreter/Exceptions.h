@@ -80,11 +80,11 @@ public:
     }
 };
 
-class ReassignImmutableVariable : public std::exception {
+class ReassignImmutableVariableException : public std::exception {
     std::string identifier_;
 public:
-    ReassignImmutableVariable() = default;
-    ReassignImmutableVariable(std::string identifier)
+    ReassignImmutableVariableException() = default;
+    ReassignImmutableVariableException(std::string identifier)
             : identifier_(std::move(identifier)) {}
     const char * what() const noexcept override {
         return "Reassign immutable variable: ";
@@ -95,12 +95,12 @@ public:
     }
 };
 
-class IncorrectArgsCount : public std::exception {
+class IncorrectArgsCountException : public std::exception {
     int expected_;
     int provided_;
 public:
-    IncorrectArgsCount() = default;
-    IncorrectArgsCount(int expected, int provided)
+    IncorrectArgsCountException() = default;
+    IncorrectArgsCountException(int expected, int provided)
             : expected_(expected), provided_(provided) {}
     const char * what() const noexcept override {
         return "Incorrect args count: ";
@@ -115,7 +115,7 @@ public:
     }
 };
 
-class InvalidOperands : public std::exception {
+class InvalidOperandsException : public std::exception {
     ConstantType first_;
     ConstantType second_;
 
@@ -131,11 +131,11 @@ class InvalidOperands : public std::exception {
         return ConstantType::STRING;
     }
 public:
-    InvalidOperands() = default;
-    InvalidOperands(ConstantType first, ConstantType second)
+    InvalidOperandsException() = default;
+    InvalidOperandsException(ConstantType first, ConstantType second)
             : first_(first), second_(second) {}
     template<typename T, typename U>
-    InvalidOperands(T first, U second)
+    InvalidOperandsException(T first, U second)
             : first_(constantType(first)), second_(constantType(second)) {}
 
     const char * what() const noexcept override {
@@ -148,6 +148,50 @@ public:
 
     const std::string& getSecond() const {
         return typesToString[second_];
+    }
+};
+
+class InvalidConversionException : public std::exception {
+    ConstantType from_;
+    ConstantType to_;
+
+    ConstantType constantType(int) {
+        return ConstantType::INTEGER;
+    }
+
+    ConstantType constantType(double) {
+        return ConstantType::FLOAT;
+    }
+
+    ConstantType constantType(std::string) {
+        return ConstantType::STRING;
+    }
+public:
+    InvalidConversionException() = default;
+    InvalidConversionException(ConstantType first, ConstantType second)
+            : from_(first), to_(second) {}
+    template<typename T, typename U>
+    InvalidConversionException(T first, U second)
+            : from_(constantType(first)), to_(constantType(second)) {}
+
+    const char * what() const noexcept override {
+        return "Invalid conversion: ";
+    }
+
+    const std::string& getFrom() const {
+        return typesToString[from_];
+    }
+
+    const std::string& getTo() const {
+        return typesToString[to_];
+    }
+};
+
+class OutOfRangeException : public std::exception {
+public:
+    OutOfRangeException() = default;
+    const char * what() const noexcept override {
+        return "Out of range: ";
     }
 };
 

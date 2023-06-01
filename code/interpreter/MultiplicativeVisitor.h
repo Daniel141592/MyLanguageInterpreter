@@ -25,16 +25,16 @@ public:
         if (type != MultiplicativeType::MODULO)
             exec(a, b);
         else
-            throw InvalidOperands(a, b);
+            throw InvalidOperandsException(a, b);
     }
 
     void operator()(const std::string &a, const std::string &b) const {
-        throw InvalidOperands(a, b);
+        throw InvalidOperandsException(a, b);
     }
 
     template<typename T, typename U>
     void operator()(T a, U b) {
-        throw InvalidOperands(a, b);
+        throw InvalidOperandsException(a, b);
     }
 
 private:

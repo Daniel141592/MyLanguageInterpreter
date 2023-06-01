@@ -28,7 +28,7 @@ void Context::updateVariable(const std::string &name, int value) {
             if (vit->second.getType() != ConstantType::INTEGER)
                 throw IncompatibleTypeException(vit->second.getType(), ConstantType::INTEGER);
             if (!vit->second.isMut())
-                throw ReassignImmutableVariable(name);
+                throw ReassignImmutableVariableException(name);
             vit->second.setValue(value);
             return;
         }
@@ -43,7 +43,7 @@ void Context::updateVariable(const std::string& name, double value) {
             if (vit->second.getType() != ConstantType::FLOAT)
                 throw IncompatibleTypeException(vit->second.getType(), ConstantType::FLOAT);
             if (!vit->second.isMut())
-                throw ReassignImmutableVariable(name);
+                throw ReassignImmutableVariableException(name);
             vit->second.setValue(value);
             return;
         }
@@ -58,7 +58,7 @@ void Context::updateVariable(const std::string& name, std::string value) {
             if (vit->second.getType() != ConstantType::STRING)
                 throw IncompatibleTypeException(vit->second.getType(), ConstantType::STRING);
             if (!vit->second.isMut())
-                throw ReassignImmutableVariable(name);
+                throw ReassignImmutableVariableException(name);
             vit->second.setValue(value);
             return;
         }

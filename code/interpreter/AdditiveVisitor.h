@@ -31,13 +31,13 @@ public:
                 result.setValue(a + b);
                 break;
             case AdditiveType::SUBTRACT:
-                throw InvalidOperands(ConstantType::STRING, ConstantType::STRING);
+                throw InvalidOperandsException(ConstantType::STRING, ConstantType::STRING);
         }
     }
 
     template<typename T, typename U>
     void operator()(T a, U b) {
-        throw InvalidOperands(a, b);
+        throw InvalidOperandsException(a, b);
     }
 };
 

@@ -1,7 +1,5 @@
 #include "MyLangInterpreter.h"
-#include "MultiplicativeVisitor.h"
-#include "AdditiveVisitor.h"
-#include "BooleanVisitor.h"
+#include "CastVisitor.h"
 
 MyLangInterpreter::MyLangInterpreter(std::ostream &o, std::istream &i, Interpreter::HandlerType onError)
                                                                     : os(o), is(i), errorHandler(std::move(onError)) {
@@ -24,13 +22,20 @@ void MyLangInterpreter::execute(const Program &program) {
         criticalError(ErrorType::UNKNOWN_IDENTIFIER, e.what()+e.getIdentifier());
     } catch (const RedefinitionException& e) {
         criticalError(ErrorType::IDENTIFIER_REDEFINITION, e.what()+e.getIdentifier());
-    } catch (const IncorrectArgsCount& e) {
+    } catch (const IncorrectArgsCountException& e) {
         std::ostringstream oss;
         oss << e.what() << "expected: " << e.getExpected() << ", provided: " << e.getProvided();
         criticalError(ErrorType::INCORRECT_ARGS_COUNT, oss.str());
-    } catch (const InvalidOperands& e) {
+    } catch (const InvalidOperandsException& e) {
         criticalError(ErrorType::INVALID_OPERAND,
                       std::string(e.what()) + "first: " + e.getFirst() + ", second: " + e.getSecond());
+    } catch (const IncompatibleTypeException& e) {
+        criticalError(ErrorType::INCOMPATIBLE_DATA_TYPES,
+                      std::string(e.what()) + "expected: " + e.getExpected() + ", provided: " + e.getProvided());
+    } catch (const InvalidConversionException& e) {
+        criticalError(ErrorType::INVALID_CONVERSION, std::string(e.what())+"from: "+e.getFrom()+", to: "+e.getTo());
+    } catch (const OutOfRangeException& e) {
+        criticalError(ErrorType::OUT_OF_RANGE, e.what());
     }
 }
 
@@ -180,7 +185,7 @@ void MyLangInterpreter::visit(const FunctionCall &functionCall) {
     // TODO zastanowić się nad tym jeszcze
     if (argsNames) {
         if (args.size() != argsNames->size())
-            throw IncorrectArgsCount(argsNames->size(), args.size());
+            throw IncorrectArgsCountException(argsNames->size(), args.size());
         ScopePtr scope = std::make_shared<Scope>();
         for (int i = 0; i < args.size(); i++) {
             args[i]->accept(*this);
@@ -208,7 +213,7 @@ void MyLangInterpreter::visit(const RelativeExpression &relativeExpression) {
     Value first = result;
     relativeExpression.getRight()->accept(*this);
     if (first.getType() != ConstantType::INTEGER && first.getType() != ConstantType::FLOAT)
-        throw InvalidOperands(first.getType(), result.getType());
+        throw InvalidOperandsException(first.getType(), result.getType());
     switch (relativeExpression.getRelativeType()) {
         case RelativeType::EQUAL:
             result.setValue(first.getValue() == result.getValue());
@@ -266,7 +271,9 @@ void MyLangInterpreter::visit(const Field &field) {
 }
 
 void MyLangInterpreter::visit(const CastExpression &castExpression) {
-
+    result.setPosition(castExpression.getPosition());
+    castExpression.getExpression()->accept(*this);
+    std::visit(CastVisitor(castExpression.getType(), result), result.getValue());
 }
 
 void MyLangInterpreter::visit(const NegatedExpression &negatedExpression) {

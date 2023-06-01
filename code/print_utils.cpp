@@ -32,6 +32,8 @@ std::string_view PrintUtils::toString(ErrorType errorType) {
             {ErrorType::DIVISION_BY_ZERO,                 "DIVISION_BY_ZERO"},
             {ErrorType::EMPTY_VALUE,                      "EMPTY_VALUE"},
             {ErrorType::UNKNOWN_IDENTIFIER,               "UNKNOWN_IDENTIFIER"},
+            {ErrorType::INVALID_CONVERSION,               "INVALID_CONVERSION"},
+            {ErrorType::OUT_OF_RANGE,                     "OUT_OF_RANGE"},
 
             {ErrorType::OtherError,                       "OtherError"}
     };
