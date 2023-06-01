@@ -11,11 +11,11 @@
 class Context {
     std::string currentFunction;
     const std::vector<Expression::ExpressionPtr>* functionArgs{};   //TODO można to usunąć jak się dobrze kod przerobi
-    std::deque<Scope> scopes;
+    std::deque<ScopePtr> scopes;
 public:
     using BlockPtr = Block::BlockPtr;
     Context();
-    Context(std::string f);
+    Context(std::string f, ScopePtr scope);
     std::optional<Variable> findVariable(const std::string& name);
     void addVariable(const std::string& name, const Variable &variable);
     void updateVariable(const std::string& name, double value);
@@ -25,6 +25,7 @@ public:
     const FunctionDeclaration& findFunction(const std::string& name);
     const std::vector<Expression::ExpressionPtr> *getFunctionArgs() const;
     void setFunctionArgs(const std::vector<Expression::ExpressionPtr> *args);
+    ScopePtr& getGlobalScope();
 
     void addScope();
     void removeScope();

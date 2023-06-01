@@ -20,6 +20,6 @@ public:
     std::unordered_map<std::string, Variable> &getVariables();
     std::unordered_map<std::string, const FunctionDeclaration&> &getFunctions();
 };
-
+using ScopePtr = std::shared_ptr<Scope>;
 
 #endif //CODE_SCOPE_H

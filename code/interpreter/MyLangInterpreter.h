@@ -45,7 +45,7 @@ class MyLangInterpreter : public Interpreter, public Visitor {
     std::ostream& os;
     std::istream& is;
     HandlerType errorHandler;
-    Context context;
+    std::deque<Context> contexts;
     Value result;
 public:
     MyLangInterpreter(std::ostream& o, std::istream& i, HandlerType onError);

@@ -18,12 +18,13 @@ void MyLangInterpreter::execute(const Program &program) {
 }
 
 void MyLangInterpreter::visit(const Program &program) {
-    context.addScope();
+    contexts.emplace_back();
+    contexts.back().addScope();
     std::vector<Instruction::InstructionPtr> instructions;
     instructions.emplace_back(std::make_unique<StandardOutput>(os));
     FunctionDeclaration standardOutput(Position(-1, -1), "standardOutput",
                                        std::make_unique<Block>(std::move(instructions)));
-    context.addFunction(standardOutput);
+    contexts.back().addFunction(standardOutput);
     for (auto &ins: program.getInstructions()) {
         ins->accept(*this);
     }
@@ -57,21 +58,25 @@ void MyLangInterpreter::visit(const AndExpression &andExpression) {
 }
 
 void MyLangInterpreter::visit(const VariableDeclaration &variableDeclaration) {
-    variableDeclaration.getExpression()->accept(*this);
     const std::string& name = variableDeclaration.getIdentifier()->getName();
-    if (context.findVariable(name))
+    if (contexts.back().findVariable(name))
         criticalError(ErrorType::VARIABLE_REDEFINITION);
+    if (variableDeclaration.getExpression() == nullptr) {
+        contexts.back().addVariable(name, Variable(0, true));   //TODO przydało by się zrobić pustą wartość, a nie 0
+        return;
+    }
+    variableDeclaration.getExpression()->accept(*this);
     std::visit([&](const auto& value) {
-        context.addVariable(name, Variable(value, true));
+        contexts.back().addVariable(name, Variable(value, true));
     }, result.getValue().value());
 }
 
 void MyLangInterpreter::visit(const FunctionDeclaration &functionDeclaration) {
-    context.addFunction(functionDeclaration);
+    contexts.back().addFunction(functionDeclaration);
 }
 
 void MyLangInterpreter::visit(const Identifier &identifier) {
-    auto opt = context.findVariable(identifier.getName());
+    auto opt = contexts.back().findVariable(identifier.getName());
     if (!opt)
         criticalError(ErrorType::UNDEFINED_VARIABLE);
     std::visit([&](const auto& v) {
@@ -98,7 +103,7 @@ struct AssignVisitor {
 
 void MyLangInterpreter::visit(const Assign &assign) {
     assign.getExpression()->accept(*this);
-    std::visit(AssignVisitor(assign.getIdentifier()->getName(), context), result.getValue().value());
+    std::visit(AssignVisitor(assign.getIdentifier()->getName(), contexts.back()), result.getValue().value());
 }
 
 void MyLangInterpreter::visit(const IfStatement &ifStatement) {
@@ -131,10 +136,11 @@ void MyLangInterpreter::visit(const ReturnStatement &returnStatement) {
 
 void MyLangInterpreter::visit(const FunctionCall &functionCall) {
     try {
-        const auto& functionDeclaration = context.findFunction(functionCall.getName().getName());
+        const auto& functionDeclaration = contexts.back().findFunction(functionCall.getName().getName());
         const auto& args = functionCall.getArgs();
         const auto& argsNames = functionDeclaration.getArguments();
-        context.addScope();
+        // contexts.back().addScope(); //TODO fix
+        contexts.emplace_back(functionCall.getName().getName(), contexts.back().getGlobalScope());
         if (argsNames) {
             if (args.size() != argsNames->size())
                 criticalError(ErrorType::INCORRECT_ARGS_COUNT);
@@ -143,16 +149,17 @@ void MyLangInterpreter::visit(const FunctionCall &functionCall) {
                 args[i]->accept(*this);
                 Value argValue = result;
                 std::visit([&](const auto& value) {
-                    context.addVariable(argsNames.value()[i].getIdentifier().getName(), Variable(value, false));
+                    contexts.back().addVariable(argsNames.value()[i].getIdentifier().getName(), Variable(value, false));
                 }, argValue.getValue().value());
             }
         } else {
-            context.setFunctionArgs(&args);
+            contexts.back().setFunctionArgs(&args);
         }
         functionDeclaration.getFunctionBody()->accept(*this);
         if (result.isReturned())
             result.setReturned(false);
-        context.removeScope();
+        // contexts.back().removeScope();
+        contexts.pop_back();
     } catch (...) {
         criticalError(ErrorType::UNDEFINED_FUNCTION);
     }
@@ -253,7 +260,7 @@ void MyLangInterpreter::visit(const Typename &type) {
 }
 
 void MyLangInterpreter::visit(const StandardOutput &standardOutput) {
-    for (const auto& arg : *context.getFunctionArgs()) {
+    for (const auto& arg : *contexts.back().getFunctionArgs()) {
         arg->accept(*this);
         standardOutput.print(result);
     }
