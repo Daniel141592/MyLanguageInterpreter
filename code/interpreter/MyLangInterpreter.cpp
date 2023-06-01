@@ -38,6 +38,8 @@ void MyLangInterpreter::execute(const Program &program) {
         criticalError(ErrorType::OUT_OF_RANGE, e.what());
     } catch (const InvalidUnaryOperandException& e) {
         criticalError(ErrorType::INVALID_OPERAND, std::string(e.what())+e.getType());
+    } catch (const ReassignImmutableVariableException& e) {
+        criticalError(ErrorType::REASSIGN_IMMUTABLE_VARIABLE, std::string(e.what())+e.getIdentifier());
     }
 }
 
@@ -89,7 +91,7 @@ void MyLangInterpreter::visit(const VariableDeclaration &variableDeclaration) {
     if (contexts.back().variableDeclaredInCurrentScope(name))
         criticalError(ErrorType::VARIABLE_REDEFINITION, name);
     if (variableDeclaration.getExpression() == nullptr) {
-        contexts.back().addVariable(name, Variable(0, true));   //TODO przydało by się zrobić pustą wartość, a nie 0
+        contexts.back().addVariable(name, Variable());
         return;
     }
     result.setPosition(variableDeclaration.getExpression()->getPosition());

@@ -34,6 +34,7 @@ std::string_view PrintUtils::toString(ErrorType errorType) {
             {ErrorType::UNKNOWN_IDENTIFIER,               "UNKNOWN_IDENTIFIER"},
             {ErrorType::INVALID_CONVERSION,               "INVALID_CONVERSION"},
             {ErrorType::OUT_OF_RANGE,                     "OUT_OF_RANGE"},
+            {ErrorType::REASSIGN_IMMUTABLE_VARIABLE,      "REASSIGN_IMMUTABLE_VARIABLE"},
 
             {ErrorType::OtherError,                       "OtherError"}
     };

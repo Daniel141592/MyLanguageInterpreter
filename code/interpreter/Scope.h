@@ -1,7 +1,6 @@
 #ifndef CODE_SCOPE_H
 #define CODE_SCOPE_H
 
-
 #include <string>
 #include <unordered_map>
 #include <vector>
