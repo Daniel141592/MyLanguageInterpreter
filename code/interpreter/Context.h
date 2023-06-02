@@ -25,9 +25,11 @@ public:
     void setFunctionArgs(const std::vector<Expression::ExpressionPtr> *args);
     ScopePtr& getGlobalScope();
     bool variableDeclaredInCurrentScope(const std::string& name);
-
     void addScope();
     void removeScope();
+    const std::optional<Value> &getMatching() const;
+    void setMatching(const std::optional<Value> &matching);
+    void endMatching();
 
     template<typename T>
     VariableType getExpectedType();

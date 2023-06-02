@@ -62,6 +62,18 @@ bool Context::variableDeclaredInCurrentScope(const std::string &name) {
     return scopes.back()->variableDeclared(name);
 }
 
+const std::optional<Value> &Context::getMatching() const {
+    return scopes.back()->getMatching();
+}
+
+void Context::setMatching(const std::optional<Value> &matching) {
+    scopes.back()->setMatching(matching);
+}
+
+void Context::endMatching() {
+    setMatching({});
+}
+
 template<>
 VariableType Context::getExpectedType<int>() {
     return VariableType::INTEGER;

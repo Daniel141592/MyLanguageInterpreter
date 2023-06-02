@@ -11,6 +11,7 @@
 class Scope {
     std::unordered_map<std::string, Variable> variables;
     std::unordered_map<std::string, const FunctionDeclaration&> functions;
+    std::optional<Value> matching;
 public:
     Scope();
     Scope(std::unordered_map<std::string, Variable> vars,
@@ -20,6 +21,8 @@ public:
     std::unordered_map<std::string, const FunctionDeclaration&> &getFunctions();
     bool variableDeclared(const std::string& name);
     void addVariable(const std::string& name, const Variable &variable);
+    const std::optional<Value> &getMatching() const;
+    void setMatching(const std::optional<Value> &matching);
 };
 using ScopePtr = std::shared_ptr<Scope>;
 

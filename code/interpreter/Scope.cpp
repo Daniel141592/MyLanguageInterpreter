@@ -26,3 +26,12 @@ bool Scope::variableDeclared(const std::string &name) {
 void Scope::addVariable(const std::string &name, const Variable &variable) {
     variables.insert(std::make_pair(name, variable));
 }
+
+const std::optional<Value> &Scope::getMatching() const {
+    return matching;
+}
+
+void Scope::setMatching(const std::optional<Value> &m) {
+    matching = m;
+}
+

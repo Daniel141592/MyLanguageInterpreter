@@ -186,14 +186,14 @@ void MyLangInterpreter::visit(const LoopStatement &loopStatement) {
 
 void MyLangInterpreter::visit(const PatternStatement &patternStatement) {
     result.setPosition(patternStatement.getExpression()->getPosition());
-    matching = true;
+    patternStatement.getExpression()->accept(*this);
+    contexts.back().setMatching(result);
     for (const auto& match : patternStatement.getMatches()) {
-        patternStatement.getExpression()->accept(*this);
         match->accept(*this);
-        if (!matching)
+        if (!contexts.back().getMatching())
             break;
     }
-    matching = false;
+    contexts.back().endMatching();
 }
 
 void MyLangInterpreter::visit(const ReturnStatement &returnStatement) {
@@ -344,7 +344,6 @@ void MyLangInterpreter::visit(const MatchPair &matchPair) {
 }
 
 void MyLangInterpreter::visit(const MatchType &matchType) {
-    Value value = result;
     ValueType valueType;
     switch (matchType.getConstantType().value()) {
         case ConstantType::INTEGER:
@@ -357,18 +356,19 @@ void MyLangInterpreter::visit(const MatchType &matchType) {
             valueType = VariableType::STRING;
             break;
     }
-    std::visit(RelativeVisitor(result, RelativeType::IS), result.getValue(), valueType);
+    const Value& value = contexts.back().getMatching().value();
+    std::visit(RelativeVisitor(result, RelativeType::IS), value.getValue(), valueType);
     if (std::get<int>(result.getValue()) != 0) {
-        matching = false;
         contexts.back().addScope();
         std::visit(AssignVisitor(contexts.back(), matchType.getIdentifier()->getName()), value.getValue());
         matchType.getBlock()->accept(*this);
         contexts.back().removeScope();
+        contexts.back().endMatching();
     }
 }
 
 void MyLangInterpreter::visit(const MatchNone &matchNone) {
-    matching = false;
+    contexts.back().endMatching();
     contexts.back().addScope();
     matchNone.getBlock()->accept(*this);
     contexts.back().removeScope();
