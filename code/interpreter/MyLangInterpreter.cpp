@@ -263,8 +263,28 @@ void MyLangInterpreter::visit(const Constant &constant) {
         result = Value(constant.getPosition(), std::get<double>(constant.getValue()));
 }
 
-void MyLangInterpreter::visit(const Field &field) {
+class FieldVisitor {
+    Value& result;
+    FieldType type;
+public:
+    FieldVisitor(Value& v, FieldType t) : result(v), type(t) {}
 
+    void operator()(const SimplePair& pair) {
+        std::visit([&](const auto& v) {
+            result.setValue(v);
+        }, type == FieldType::FIRST ? pair.first : pair.second);
+    }
+
+    template<typename T>
+    void operator()(const T& v) {
+        throw InvalidUnaryOperandException(v);
+    }
+};
+
+void MyLangInterpreter::visit(const Field &field) {
+    result.setPosition(field.getPosition());
+    field.getExpression()->accept(*this);
+    std::visit(FieldVisitor(result, field.getFieldType()), result.getValue());
 }
 
 void MyLangInterpreter::visit(const CastExpression &castExpression) {
@@ -325,6 +345,7 @@ void MyLangInterpreter::visit(const MatchNone &matchNone) {
 }
 
 void MyLangInterpreter::visit(const Pair &pair) {
+    result.setPosition(pair.getPosition());
     pair.getFirst()->accept(*this);
     Value first = result;
     pair.getSecond()->accept(*this);
@@ -332,6 +353,7 @@ void MyLangInterpreter::visit(const Pair &pair) {
 }
 
 void MyLangInterpreter::visit(const Typename &type) {
+    result.setPosition(type.getPosition());
     switch (type.getType()) {
         case ConstantType::INTEGER:
             result.setValue(VariableType::INTEGER);
