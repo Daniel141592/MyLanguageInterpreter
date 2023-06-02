@@ -21,6 +21,7 @@ public:
     Value(Position p, double v);
     Value(Position p, const std::string& v);
     Value(Position p, const SimplePair& v);
+    Value(Position p, VariableType v);
 
     const ValueType & getValue() const;
     void setValue(const std::optional<ValueType> &value);

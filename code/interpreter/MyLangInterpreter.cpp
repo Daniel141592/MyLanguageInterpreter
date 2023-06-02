@@ -84,6 +84,22 @@ void MyLangInterpreter::visit(const AndExpression &andExpression) {
     std::visit(BooleanVisitor(result), result.getValue());
 }
 
+class VariableDeclarationVisitor {
+    Context& context;
+    const std::string& name;
+public:
+    VariableDeclarationVisitor(Context& c, const std::string& n) : context(c), name(n) {}
+
+    template<typename T>
+    void operator()(const T& value) {
+        context.addVariable(name, Variable(value, true));
+    }
+
+    void operator()(VariableType) {
+        throw EmptyValueException();
+    }
+};
+
 void MyLangInterpreter::visit(const VariableDeclaration &variableDeclaration) {
     result.setPosition(variableDeclaration.getIdentifier()->getPosition());
     const std::string& name = variableDeclaration.getIdentifier()->getName();
@@ -95,9 +111,7 @@ void MyLangInterpreter::visit(const VariableDeclaration &variableDeclaration) {
     }
     result.setPosition(variableDeclaration.getExpression()->getPosition());
     variableDeclaration.getExpression()->accept(*this);
-    std::visit([&](const auto& value) {
-        contexts.back().addVariable(name, Variable(value, true));
-    }, result.getValue());
+    std::visit(VariableDeclarationVisitor(contexts.back(), name), result.getValue());
 }
 
 void MyLangInterpreter::visit(const FunctionDeclaration &functionDeclaration) {
@@ -119,13 +133,27 @@ void MyLangInterpreter::visit(const Argument &argument) {
     result = Value(argument.getIdentifier().getPosition(), argument.getIdentifier().getName());
 }
 
+class AssignVisitor {
+    Context& context;
+    const std::string& name;
+public:
+    AssignVisitor(Context& c, const std::string& n) : context(c), name(n) {}
+
+    template<typename T>
+    void operator()(const T& value) {
+        context.updateVariable(name, value);
+    }
+
+    void operator()(VariableType) {
+        throw EmptyValueException();
+    }
+};
+
 void MyLangInterpreter::visit(const Assign &assign) {
     result.setPosition(assign.getExpression()->getPosition());
     assign.getExpression()->accept(*this);
     result.setPosition(assign.getIdentifier()->getPosition());
-    std::visit([&](const auto& value) {
-        contexts.back().updateVariable(assign.getIdentifier()->getName(), value);
-    }, result.getValue());
+    std::visit(AssignVisitor(contexts.back(), assign.getIdentifier()->getName()), result.getValue());
 }
 
 void MyLangInterpreter::visit(const IfStatement &ifStatement) {
@@ -182,9 +210,9 @@ void MyLangInterpreter::visit(const FunctionCall &functionCall) {
         for (int i = 0; i < args.size(); i++) {
             args[i]->accept(*this);
             Value argValue = result;
-            std::visit([&](const auto& value) {
-                scope->addVariable(argsNames.value()[i].getIdentifier().getName(), Variable(value, false));
-            }, argValue.getValue());
+            Variable var;
+            std::visit(PassFunctionArgumentVisitor(var), argValue.getValue());
+            scope->addVariable(argsNames.value()[i].getIdentifier().getName(), var);
         }
         contexts.emplace_back(functionCall.getName().getName(), contexts.back().getGlobalScope(), scope);
         functionDeclaration.getFunctionBody()->accept(*this);
@@ -258,6 +286,10 @@ public:
         throw InvalidUnaryOperandException(VariableType::PAIR);
     }
 
+    void operator()(VariableType) {
+        throw EmptyValueException();
+    }
+
     template<typename T>
     void operator()(const T& value) {
         result.setValue(-value);
@@ -300,7 +332,17 @@ void MyLangInterpreter::visit(const Pair &pair) {
 }
 
 void MyLangInterpreter::visit(const Typename &type) {
-
+    switch (type.getType()) {
+        case ConstantType::INTEGER:
+            result.setValue(VariableType::INTEGER);
+            break;
+        case ConstantType::FLOAT:
+            result.setValue(VariableType::FLOAT);
+            break;
+        case ConstantType::STRING:
+            result.setValue(VariableType::STRING);
+            break;
+    }
 }
 
 void MyLangInterpreter::visit(const StandardOutput &standardOutput) {

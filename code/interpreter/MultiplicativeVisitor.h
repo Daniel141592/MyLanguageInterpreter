@@ -14,27 +14,12 @@ class MultiplicativeVisitor {
 public:
     MultiplicativeVisitor(Value &v, MultiplicativeType at);
 
-    void operator()(int a, int b) {
-        if (type == MultiplicativeType::MODULO)
-            result.setValue(a % b);
-        else
-            exec(a, b);
-    }
+    void operator()(int a, int b);
+    void operator()(double a, double b);
+    void operator()(const std::string &a, const std::string &b) const;
+    void operator()(const SimplePair& a, const SimplePair& b) const;
 
-    void operator()(double a, double b) {
-        if (type != MultiplicativeType::MODULO)
-            exec(a, b);
-        else
-            throw InvalidOperandsException(a, b);
-    }
-
-    void operator()(const std::string &a, const std::string &b) const {
-        throw InvalidOperandsException(a, b);
-    }
-
-    void operator()(const SimplePair& a, const SimplePair& b) const {
-        throw InvalidOperandsException(a, b);
-    }
+    void operator()(VariableType);
 
     template<typename T, typename U>
     void operator()(T& a, U& b) {

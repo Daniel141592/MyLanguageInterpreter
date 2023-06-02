@@ -20,6 +20,10 @@ public:
         }, value.first, value.second);
     }
 
+    void operator()(VariableType) {
+        throw EmptyValueException();
+    }
+
     template<typename T>
     void operator()(const T& value) {
         std::ostringstream os;

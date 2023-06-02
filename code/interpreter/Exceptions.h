@@ -31,6 +31,10 @@ namespace {
     VariableType variableType(const SimplePair&) {
         return VariableType::PAIR;
     }
+
+    VariableType variableType(VariableType) {
+        return VariableType::NONE;
+    }
 }
 
 class DivisionByZeroException : public std::exception {

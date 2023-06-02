@@ -49,6 +49,38 @@ public:
     }
 
     void operator()(const SimplePair& f, const SimplePair& s);
+
+    VariableType variableType(int) {
+        return VariableType::INTEGER;
+    }
+
+    VariableType variableType(double) {
+        return VariableType::FLOAT;
+    }
+
+    VariableType variableType(const std::string &) {
+        return VariableType::STRING;
+    }
+
+    VariableType variableType(const SimplePair&) {
+        return VariableType::PAIR;
+    }
+
+    VariableType variableType(VariableType) {
+        return VariableType::NONE;
+    }
+
+    template<typename T>
+    void operator()(const T& f, VariableType s) {
+        if (type == RelativeType::IS)
+            result.setValue(variableType(f) == s);
+        else
+            throw InvalidOperandsException(f, s);
+    }
+
+    void operator()(VariableType, VariableType) {
+        throw EmptyValueException();
+    }
 };
 
 

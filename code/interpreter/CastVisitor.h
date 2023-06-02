@@ -16,6 +16,7 @@ public:
     void operator()(int from);
     void operator()(const std::string& from);
     void operator()(const SimplePair& from);
+    void operator()(VariableType);
 private:
     template<typename T>
     void convertFromString(const std::string& from) {

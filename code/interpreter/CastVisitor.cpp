@@ -46,3 +46,7 @@ void CastVisitor::operator()(const SimplePair& from) {
     else if (to == VariableType::STRING)
         convertToString(from);
 }
+
+void CastVisitor::operator()(VariableType) {
+    throw EmptyValueException();
+}

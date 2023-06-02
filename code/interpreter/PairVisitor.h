@@ -15,6 +15,17 @@ public:
     }
 
     void operator()(const SimplePair& f, const SimplePair& s);
+    void operator()(VariableType, VariableType);
+
+    template<typename T>
+    void operator()(VariableType, const T&) {
+        throw EmptyValueException();
+    }
+
+    template<typename T>
+    void operator()(const T&, VariableType) {
+        throw EmptyValueException();
+    }
 
     template<typename T>
     void operator()(const SimplePair& f, const T& s) {
@@ -25,6 +36,9 @@ public:
     void operator()(const T& f, const SimplePair& s) {
         throw IncompatibleTypeException(f, s);
     }
+
+    void operator()(VariableType, const SimplePair&);
+    void operator()(const SimplePair&, VariableType);
 };
 
 #endif //CODE_PAIRVISITOR_H

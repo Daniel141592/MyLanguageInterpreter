@@ -18,6 +18,10 @@ Value::Value(Position p, const SimplePair &v) : position(p), value(v), returned(
 
 }
 
+Value::Value(Position p, VariableType v) : position(p), value(v), returned(false) {
+
+}
+
 Value::Value(const Value &other) = default;
 
 const ValueType & Value::getValue() const {

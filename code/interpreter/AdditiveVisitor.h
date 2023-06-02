@@ -25,18 +25,18 @@ public:
         }
     }
 
-    void operator()(const std::string &a, const std::string &b) {
-        switch (type) {
-            case AdditiveType::ADD:
-                result.setValue(a + b);
-                break;
-            case AdditiveType::SUBTRACT:
-                throw InvalidOperandsException(VariableType::STRING, VariableType::STRING);
-        }
+    void operator()(const std::string &a, const std::string &b);
+    void operator()(const SimplePair &a, const SimplePair &b);
+    void operator()(VariableType, VariableType);
+
+    template<typename T>
+    void operator()(VariableType f, const T& s) {
+        throw IncompatibleTypeException(f, s);
     }
 
-    void operator()(const SimplePair &a, const SimplePair &b) {
-        throw InvalidOperandsException(VariableType::STRING, VariableType::STRING);
+    template<typename T>
+    void operator()(const T&, VariableType) {
+        throw EmptyValueException();
     }
 
     template<typename T, typename U>

@@ -48,6 +48,7 @@
 #include "Aliases.h"
 #include "PairVisitor.h"
 #include "RelativeVisitor.h"
+#include "PassFunctionArgumentVisitor.h"
 
 class MyLangInterpreter : public Interpreter, public Visitor {
     std::ostream& os;
