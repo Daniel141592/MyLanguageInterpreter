@@ -7,26 +7,29 @@
 #include "../structure/ConstantType.h"
 #include "../Position.h"
 #include "Exceptions.h"
+#include "Aliases.h"
 
 class Value {
-    std::optional<std::variant<int, double, std::string>> value{};
-    ConstantType type;
+private:
+    std::optional<ValueType> value{};
     Position position;
     bool returned;
 public:
     Value();
+    Value(const Value& other);
     Value(Position p, int v);
     Value(Position p, double v);
     Value(Position p, const std::string& v);
+    Value(Position p, const SimplePair& v);
 
-    const std::variant<int, double, std::string> &getValue() const;
-    void setValue(const std::optional<std::variant<int, double, std::string>> &value);
-    void setValue(const std::optional<std::variant<int, double, std::string>> &value, Position pos);
-    ConstantType getType() const;
+    const ValueType & getValue() const;
+    void setValue(const std::optional<ValueType> &value);
+    void setValue(const std::optional<ValueType> &value, Position pos);
     const Position &getPosition() const;
     bool isReturned() const;
     void setReturned(bool returned = true);
     void setPosition(const Position &position);
+    Value& operator=(const Value& other);
 };
 
 

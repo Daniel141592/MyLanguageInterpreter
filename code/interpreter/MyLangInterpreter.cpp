@@ -1,5 +1,4 @@
 #include "MyLangInterpreter.h"
-#include "CastVisitor.h"
 
 MyLangInterpreter::MyLangInterpreter(std::ostream &o, std::istream &i, Interpreter::HandlerType onError)
                                                                     : os(o), is(i), errorHandler(std::move(onError)) {
@@ -120,24 +119,13 @@ void MyLangInterpreter::visit(const Argument &argument) {
     result = Value(argument.getIdentifier().getPosition(), argument.getIdentifier().getName());
 }
 
-struct AssignVisitor {
-    const std::string& name;
-    Context& context;
-    AssignVisitor(const std::string& n, Context& c) : name(n), context(c) {};
-    template<typename T>
-    void operator()(T value) {
-        context.updateVariable(name, value);
-    }
-    void operator()(std::string value) {
-        context.updateVariable(name, std::move(value));
-    }
-};
-
 void MyLangInterpreter::visit(const Assign &assign) {
     result.setPosition(assign.getExpression()->getPosition());
     assign.getExpression()->accept(*this);
     result.setPosition(assign.getIdentifier()->getPosition());
-    std::visit(AssignVisitor(assign.getIdentifier()->getName(), contexts.back()), result.getValue());
+    std::visit([&](const auto& value) {
+        contexts.back().updateVariable(assign.getIdentifier()->getName(), value);
+    }, result.getValue());
 }
 
 void MyLangInterpreter::visit(const IfStatement &ifStatement) {
@@ -216,31 +204,8 @@ void MyLangInterpreter::visit(const RelativeExpression &relativeExpression) {
     relativeExpression.getLeft()->accept(*this);
     Value first = result;
     relativeExpression.getRight()->accept(*this);
-    if (first.getType() != ConstantType::INTEGER && first.getType() != ConstantType::FLOAT)
-        throw InvalidOperandsException(first.getType(), result.getType());
-    switch (relativeExpression.getRelativeType()) {
-        case RelativeType::EQUAL:
-            result.setValue(first.getValue() == result.getValue());
-            break;
-        case RelativeType::NOT_EQUAL:
-            result.setValue(first.getValue() != result.getValue());
-            break;
-        case RelativeType::GREATER:
-            result.setValue(first.getValue() > result.getValue());
-            break;
-        case RelativeType::LESS:
-            result.setValue(first.getValue() < result.getValue());
-            break;
-        case RelativeType::GREATER_EQUAL:
-            result.setValue(first.getValue() >= result.getValue());
-            break;
-        case RelativeType::LESS_EQUAL:
-            result.setValue(first.getValue() <= result.getValue());
-            break;
-        case RelativeType::IS:
-            //TODO no i tutaj zaczynają się schody...
-            break;
-    }
+    std::visit(RelativeVisitor(result, relativeExpression.getRelativeType()), first.getValue(), result.getValue());
+    std::visit(BooleanVisitor(result), result.getValue());
 }
 
 void MyLangInterpreter::visit(const AdditiveExpression &additiveExpression) {
@@ -289,8 +254,12 @@ public:
         throw InvalidUnaryOperandException(str);
     }
 
+    void operator()(const SimplePair& p) {
+        throw InvalidUnaryOperandException(VariableType::PAIR);
+    }
+
     template<typename T>
-    void operator()(T value) {
+    void operator()(const T& value) {
         result.setValue(-value);
     }
 };
@@ -324,7 +293,10 @@ void MyLangInterpreter::visit(const MatchNone &matchNone) {
 }
 
 void MyLangInterpreter::visit(const Pair &pair) {
-
+    pair.getFirst()->accept(*this);
+    Value first = result;
+    pair.getSecond()->accept(*this);
+    std::visit(PairVisitor(result), first.getValue(), result.getValue());
 }
 
 void MyLangInterpreter::visit(const Typename &type) {

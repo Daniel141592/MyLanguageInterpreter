@@ -4,25 +4,29 @@ Variable::Variable() : mut(true) {
 
 }
 
-Variable::Variable(double v, bool m) : type(ConstantType::FLOAT), value(v), mut(m) {
+Variable::Variable(double v, bool m) : type(VariableType::FLOAT), value(v), mut(m) {
 
 }
 
-Variable::Variable(int v, bool m) : type(ConstantType::INTEGER), value(v), mut(m) {
+Variable::Variable(int v, bool m) : type(VariableType::INTEGER), value(v), mut(m) {
 
 }
 
-Variable::Variable(std::string v, bool m) : type(ConstantType::STRING), value(v), mut(m) {
+Variable::Variable(std::string v, bool m) : type(VariableType::STRING), value(v), mut(m) {
 
 }
 
-const std::variant<double, int, std::string> &Variable::getValue() const {
+Variable::Variable(const SimplePair& v, bool m) : type(VariableType::PAIR), value(v), mut(m) {
+
+}
+
+const Variable::VariableValueTypename &Variable::getValue() const {
     if (value)
         return value.value();
     throw EmptyValueException();
 }
 
-std::optional<ConstantType> Variable::getType() const {
+std::optional<VariableType> Variable::getType() const {
     return type;
 }
 
@@ -32,15 +36,21 @@ bool Variable::isMut() const {
 
 void Variable::setValue(int v) {
     value = v;
-    type = ConstantType::INTEGER;
+    type = VariableType::INTEGER;
 }
 
 void Variable::setValue(double v) {
     value = v;
-    type = ConstantType::FLOAT;
+    type = VariableType::FLOAT;
 }
 
 void Variable::setValue(const std::string& v) {
     value = v;
-    type = ConstantType::STRING;
+    type = VariableType::STRING;
+}
+
+
+void Variable::setValue(const SimplePair &v) {
+    value = v;
+    type = VariableType::PAIR;
 }

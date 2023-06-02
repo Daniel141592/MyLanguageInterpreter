@@ -31,12 +31,16 @@ public:
                 result.setValue(a + b);
                 break;
             case AdditiveType::SUBTRACT:
-                throw InvalidOperandsException(ConstantType::STRING, ConstantType::STRING);
+                throw InvalidOperandsException(VariableType::STRING, VariableType::STRING);
         }
     }
 
+    void operator()(const SimplePair &a, const SimplePair &b) {
+        throw InvalidOperandsException(VariableType::STRING, VariableType::STRING);
+    }
+
     template<typename T, typename U>
-    void operator()(T a, U b) {
+    void operator()(T& a, U& b) {
         throw InvalidOperandsException(a, b);
     }
 };

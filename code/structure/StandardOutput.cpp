@@ -8,8 +8,28 @@ void StandardOutput::accept(Visitor &visitor) const {
     visitor.visit(*this);
 }
 
+class PrintVisitor {
+    std::string& result;
+public:
+    explicit PrintVisitor(std::string& s) : result(s) {}
+    void operator()(const SimplePair& value) {
+        std::visit([&](const auto& f, const auto& s) {
+            std::ostringstream os;
+            os << f << ", " << s;
+            result = os.str();
+        }, value.first, value.second);
+    }
+
+    template<typename T>
+    void operator()(const T& value) {
+        std::ostringstream os;
+        os << value;
+        result = os.str();
+    }
+};
+
 void StandardOutput::print(const Value& value) const {
-    std::visit([&](const auto& v) {
-        os << v;
-    }, value.getValue());
+    std::string str;
+    std::visit(PrintVisitor(str), value.getValue());
+    os << str;
 }

@@ -2,8 +2,10 @@
 #define CODE_STANDARDOUTPUT_H
 
 #include <iostream>
+#include <sstream>
 #include "SingleInstruction.h"
 #include "../interpreter/Value.h"
+#include "../interpreter/Aliases.h"
 
 class StandardOutput : public SingleInstruction {
     std::ostream& os;

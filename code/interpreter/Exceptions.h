@@ -5,15 +5,33 @@
 #include <string>
 #include <utility>
 #include <unordered_map>
+#include "VariableType.h"
+#include "Aliases.h"
 
 namespace {
-    std::unordered_map<ConstantType, std::string> typesToString = {
-            {ConstantType::INTEGER, "integer"},
-            {ConstantType::FLOAT, "float"},
-            {ConstantType::STRING, "string"}
+    std::unordered_map<VariableType, std::string> typesToString = {
+            {VariableType::INTEGER, "integer"},
+            {VariableType::FLOAT, "float"},
+            {VariableType::STRING, "string"},
+            {VariableType::PAIR, "pair"}
     };
-}
 
+    VariableType variableType(int) {
+        return VariableType::INTEGER;
+    }
+
+    VariableType variableType(double) {
+        return VariableType::FLOAT;
+    }
+
+    VariableType variableType(const std::string &) {
+        return VariableType::STRING;
+    }
+
+    VariableType variableType(const SimplePair&) {
+        return VariableType::PAIR;
+    }
+}
 
 class DivisionByZeroException : public std::exception {
 public:
@@ -33,7 +51,7 @@ class UnknownIdentifierException : public std::exception {
     std::string identifier_;
 
 public:
-    UnknownIdentifierException(std::string identifier)
+    explicit UnknownIdentifierException(std::string identifier)
             : identifier_(std::move(identifier)) {}
 
     const char* what() const noexcept override {
@@ -61,12 +79,15 @@ public:
 };
 
 class IncompatibleTypeException : public std::exception {
-    ConstantType expected_;
-    ConstantType provided_;
+    VariableType expected_;
+    VariableType provided_;
 public:
     IncompatibleTypeException() = default;
-    IncompatibleTypeException(ConstantType expected, ConstantType provided)
+    IncompatibleTypeException(VariableType expected, VariableType provided)
                 : expected_(expected), provided_(provided) {}
+    template<typename T, typename U>
+    IncompatibleTypeException(const T& first, const U& second)
+            : expected_(variableType(first)), provided_(variableType(second)) {}
     const char * what() const noexcept override {
         return "Incompatible type: ";
     }
@@ -84,7 +105,7 @@ class ReassignImmutableVariableException : public std::exception {
     std::string identifier_;
 public:
     ReassignImmutableVariableException() = default;
-    ReassignImmutableVariableException(std::string identifier)
+    explicit ReassignImmutableVariableException(std::string identifier)
             : identifier_(std::move(identifier)) {}
     const char * what() const noexcept override {
         return "Reassign immutable variable: ";
@@ -116,27 +137,16 @@ public:
 };
 
 class InvalidOperandsException : public std::exception {
-    ConstantType first_;
-    ConstantType second_;
+    VariableType first_;
+    VariableType second_;
 
-    ConstantType constantType(int) {
-        return ConstantType::INTEGER;
-    }
-
-    ConstantType constantType(double) {
-        return ConstantType::FLOAT;
-    }
-
-    ConstantType constantType(std::string) {
-        return ConstantType::STRING;
-    }
 public:
     InvalidOperandsException() = default;
-    InvalidOperandsException(ConstantType first, ConstantType second)
+    InvalidOperandsException(VariableType first, VariableType second)
             : first_(first), second_(second) {}
     template<typename T, typename U>
-    InvalidOperandsException(T first, U second)
-            : first_(constantType(first)), second_(constantType(second)) {}
+    InvalidOperandsException(const T& first, const U& second)
+            : first_(variableType(first)), second_(variableType(second)) {}
 
     const char * what() const noexcept override {
         return "Invalid operands: ";
@@ -152,24 +162,12 @@ public:
 };
 
 class InvalidUnaryOperandException : public std::exception {
-    ConstantType type_;
-
-    ConstantType constantType(int) {
-        return ConstantType::INTEGER;
-    }
-
-    ConstantType constantType(double) {
-        return ConstantType::FLOAT;
-    }
-
-    ConstantType constantType(std::string) {
-        return ConstantType::STRING;
-    }
+    VariableType type_;
 public:
     InvalidUnaryOperandException() = default;
-    InvalidUnaryOperandException(ConstantType type) : type_(type) {}
+    explicit InvalidUnaryOperandException(VariableType type) : type_(type) {}
     template<typename T>
-    InvalidUnaryOperandException(T type) : type_(constantType(type)) {}
+    explicit InvalidUnaryOperandException(T type) : type_(variableType(type)) {}
 
     const char * what() const noexcept override {
         return "Invalid unary operand: ";
@@ -181,27 +179,15 @@ public:
 };
 
 class InvalidConversionException : public std::exception {
-    ConstantType from_;
-    ConstantType to_;
-
-    ConstantType constantType(int) {
-        return ConstantType::INTEGER;
-    }
-
-    ConstantType constantType(double) {
-        return ConstantType::FLOAT;
-    }
-
-    ConstantType constantType(std::string) {
-        return ConstantType::STRING;
-    }
+    VariableType from_;
+    VariableType to_;
 public:
     InvalidConversionException() = default;
-    InvalidConversionException(ConstantType first, ConstantType second)
+    InvalidConversionException(VariableType first, VariableType second)
             : from_(first), to_(second) {}
     template<typename T, typename U>
     InvalidConversionException(T first, U second)
-            : from_(constantType(first)), to_(constantType(second)) {}
+            : from_(variableType(first)), to_(variableType(second)) {}
 
     const char * what() const noexcept override {
         return "Invalid conversion: ";

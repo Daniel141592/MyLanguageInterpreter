@@ -21,51 +21,6 @@ void Context::addVariable(const std::string& name, const Variable &variable) {
     scopes.back()->addVariable(name, variable);
 }
 
-void Context::updateVariable(const std::string &name, int value) {
-    for (auto sit = scopes.rbegin(); sit != scopes.rend(); ++sit) {
-        auto vit = (*sit)->getVariables().find(name);
-        if (vit != (*sit)->getVariables().end()) {
-            if (vit->second.getType() && vit->second.getType().value() != ConstantType::INTEGER)
-                throw IncompatibleTypeException(vit->second.getType().value(), ConstantType::INTEGER);
-            if (!vit->second.isMut())
-                throw ReassignImmutableVariableException(name);
-            vit->second.setValue(value);
-            return;
-        }
-    }
-    addVariable(name, Variable(value, false));
-}
-
-void Context::updateVariable(const std::string& name, double value) {
-    for (auto sit = scopes.rbegin(); sit != scopes.rend(); ++sit) {
-        auto vit = (*sit)->getVariables().find(name);
-        if (vit != (*sit)->getVariables().end()) {
-            if (vit->second.getType() && vit->second.getType().value() != ConstantType::FLOAT)
-                throw IncompatibleTypeException(vit->second.getType().value(), ConstantType::FLOAT);
-            if (!vit->second.isMut())
-                throw ReassignImmutableVariableException(name);
-            vit->second.setValue(value);
-            return;
-        }
-    }
-    addVariable(name, Variable(value, false));
-}
-
-void Context::updateVariable(const std::string& name, std::string value) {
-    for (auto sit = scopes.rbegin(); sit != scopes.rend(); ++sit) {
-        auto vit = (*sit)->getVariables().find(name);
-        if (vit != (*sit)->getVariables().end()) {
-            if (vit->second.getType() && vit->second.getType().value() != ConstantType::STRING)
-                throw IncompatibleTypeException(vit->second.getType().value(), ConstantType::STRING);
-            if (!vit->second.isMut())
-                throw ReassignImmutableVariableException(name);
-            vit->second.setValue(value);
-            return;
-        }
-    }
-    addVariable(name, Variable(value, false));
-}
-
 void Context::addScope() {
     scopes.emplace_back(std::make_shared<Scope>());
 }
@@ -105,4 +60,24 @@ ScopePtr& Context::getGlobalScope() {
 
 bool Context::variableDeclaredInCurrentScope(const std::string &name) {
     return scopes.back()->variableDeclared(name);
+}
+
+template<>
+VariableType Context::getExpectedType<int>() {
+    return VariableType::INTEGER;
+}
+
+template<>
+VariableType Context::getExpectedType<double>() {
+    return VariableType::FLOAT;
+}
+
+template<>
+VariableType Context::getExpectedType<std::string>() {
+    return VariableType::STRING;
+}
+
+template<>
+VariableType Context::getExpectedType<SimplePair>() {
+    return VariableType::PAIR;
 }

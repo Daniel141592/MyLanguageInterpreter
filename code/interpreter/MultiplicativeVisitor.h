@@ -32,8 +32,12 @@ public:
         throw InvalidOperandsException(a, b);
     }
 
+    void operator()(const SimplePair& a, const SimplePair& b) const {
+        throw InvalidOperandsException(a, b);
+    }
+
     template<typename T, typename U>
-    void operator()(T a, U b) {
+    void operator()(T& a, U& b) {
         throw InvalidOperandsException(a, b);
     }
 

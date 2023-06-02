@@ -44,6 +44,10 @@
 #include "Context.h"
 #include "Variable.h"
 #include "Value.h"
+#include "CastVisitor.h"
+#include "Aliases.h"
+#include "PairVisitor.h"
+#include "RelativeVisitor.h"
 
 class MyLangInterpreter : public Interpreter, public Visitor {
     std::ostream& os;

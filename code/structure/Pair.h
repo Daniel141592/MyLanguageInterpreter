@@ -1,7 +1,6 @@
 #ifndef CODE_PAIR_H
 #define CODE_PAIR_H
 
-
 #include "Expression.h"
 
 class Pair : public Expression {
@@ -15,6 +14,5 @@ public:
 
     void accept(Visitor& visitor) const override;
 };
-
 
 #endif //CODE_PAIR_H

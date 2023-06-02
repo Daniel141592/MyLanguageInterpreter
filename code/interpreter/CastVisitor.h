@@ -4,15 +4,18 @@
 #include <sstream>
 #include "../structure/ConstantType.h"
 #include "Value.h"
+#include "Aliases.h"
 
 class CastVisitor {
-    ConstantType to;
+    VariableType to;
     Value& result;
 public:
+    CastVisitor(VariableType t, Value& r);
     CastVisitor(ConstantType t, Value& r);
     void operator()(double from);
     void operator()(int from);
     void operator()(const std::string& from);
+    void operator()(const SimplePair& from);
 private:
     template<typename T>
     void convertFromString(const std::string& from) {
@@ -31,6 +34,13 @@ private:
         std::stringstream ss;
         ss << from;
         result.setValue(ss.str());
+    }
+
+    void convertToString(const SimplePair& from) {
+        std::stringstream ss;
+        std::visit([&](const auto& f, const auto& s) {
+            ss << f << ", " << s;
+        }, from.first, from.second);
     }
 };
 
