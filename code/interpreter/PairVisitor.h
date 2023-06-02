@@ -1,7 +1,6 @@
 #ifndef CODE_PAIRVISITOR_H
 #define CODE_PAIRVISITOR_H
 
-
 #include "Value.h"
 
 class PairVisitor {

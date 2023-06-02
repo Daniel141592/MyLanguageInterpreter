@@ -56,6 +56,7 @@ class MyLangInterpreter : public Interpreter, public Visitor {
     HandlerType errorHandler;
     std::deque<Context> contexts;
     Value result;
+    bool matching = false;
 public:
     MyLangInterpreter(std::ostream& o, std::istream& i, HandlerType onError);
     ~MyLangInterpreter() override = default;

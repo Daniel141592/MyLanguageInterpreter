@@ -1,7 +1,7 @@
 #include "MyLangInterpreter.h"
 
 MyLangInterpreter::MyLangInterpreter(std::ostream &o, std::istream &i, Interpreter::HandlerType onError)
-                                                                    : os(o), is(i), errorHandler(std::move(onError)) {
+                                    : os(o), is(i), errorHandler(std::move(onError)) {
 
 }
 
@@ -186,7 +186,14 @@ void MyLangInterpreter::visit(const LoopStatement &loopStatement) {
 
 void MyLangInterpreter::visit(const PatternStatement &patternStatement) {
     result.setPosition(patternStatement.getExpression()->getPosition());
-    // TODO już się nie mogę doczekać...
+    matching = true;
+    for (const auto& match : patternStatement.getMatches()) {
+        patternStatement.getExpression()->accept(*this);
+        match->accept(*this);
+        if (!matching)
+            break;
+    }
+    matching = false;
 }
 
 void MyLangInterpreter::visit(const ReturnStatement &returnStatement) {
@@ -302,7 +309,7 @@ public:
         throw InvalidUnaryOperandException(str);
     }
 
-    void operator()(const SimplePair& p) {
+    void operator()(const SimplePair&) {
         throw InvalidUnaryOperandException(VariableType::PAIR);
     }
 
@@ -329,19 +336,42 @@ void MyLangInterpreter::visit(const NegatedExpression &negatedExpression) {
 }
 
 void MyLangInterpreter::visit(const MatchExpression &matchExpression) {
-
+    // TODO match expression
 }
 
 void MyLangInterpreter::visit(const MatchPair &matchPair) {
-
+    // TODO match pair
 }
 
 void MyLangInterpreter::visit(const MatchType &matchType) {
-
+    Value value = result;
+    ValueType valueType;
+    switch (matchType.getConstantType().value()) {
+        case ConstantType::INTEGER:
+            valueType = VariableType::INTEGER;
+            break;
+        case ConstantType::FLOAT:
+            valueType = VariableType::FLOAT;
+            break;
+        case ConstantType::STRING:
+            valueType = VariableType::STRING;
+            break;
+    }
+    std::visit(RelativeVisitor(result, RelativeType::IS), result.getValue(), valueType);
+    if (std::get<int>(result.getValue()) != 0) {
+        matching = false;
+        contexts.back().addScope();
+        std::visit(AssignVisitor(contexts.back(), matchType.getIdentifier()->getName()), value.getValue());
+        matchType.getBlock()->accept(*this);
+        contexts.back().removeScope();
+    }
 }
 
 void MyLangInterpreter::visit(const MatchNone &matchNone) {
-
+    matching = false;
+    contexts.back().addScope();
+    matchNone.getBlock()->accept(*this);
+    contexts.back().removeScope();
 }
 
 void MyLangInterpreter::visit(const Pair &pair) {
