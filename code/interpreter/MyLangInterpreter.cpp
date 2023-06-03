@@ -343,12 +343,52 @@ void MyLangInterpreter::visit(const NegatedExpression &negatedExpression) {
     std::visit(NegationVisitor(result), result.getValue());
 }
 
+class MatchExpressionVisitor {
+    std::optional<std::variant<Constant, Pair>>& constantOrPair;
+    Position position;
+public:
+    MatchExpressionVisitor(Position p, std::optional<std::variant<Constant, Pair>>& c) : position(p), constantOrPair(c) {}
+
+    void operator()(const SimplePair& simplePair) {
+        std::optional<std::variant<Constant, Pair>> firstConstant;
+        std::visit(MatchExpressionVisitor(position, firstConstant), simplePair.first.value());
+        std::optional<std::variant<Constant, Pair>> secondConstant;
+        std::visit(MatchExpressionVisitor(position, secondConstant), simplePair.second.value());
+        constantOrPair = Pair(std::make_unique<Constant>(std::get<Constant>(firstConstant.value())),
+                  std::make_unique<Constant>(std::get<Constant>(secondConstant.value())));
+    }
+
+    void operator()(VariableType) {
+        throw EmptyValueException();
+    }
+
+    template<typename T>
+    void operator()(const T& value) {
+        constantOrPair = Constant(position, value);
+    }
+};
+
 void MyLangInterpreter::visit(const MatchExpression &matchExpression) {
-    // TODO function
     result.setPosition(matchExpression.getIdentifier()->getPosition());
     const Value& matchingValue = contexts.back().getMatching().value();
-    matchExpression.getExpression()->accept(*this);
-    std::visit(RelativeVisitor(result, RelativeType::IS), matchingValue.getValue(), result.getValue());
+    try {
+        matchExpression.getExpression()->accept(*this);
+        std::visit(RelativeVisitor(result, RelativeType::IS), matchingValue.getValue(), result.getValue());
+    } catch (const UnknownIdentifierException& e) {
+        std::vector<Expression::ExpressionPtr> args;
+        std::optional<std::variant<Constant, Pair>> constantOrPair;
+        std::visit(MatchExpressionVisitor(matchExpression.getExpression()->getPosition(), constantOrPair),
+                   matchingValue.getValue());
+        if (std::holds_alternative<Constant>(constantOrPair.value())) {
+            args.push_back(std::make_unique<Constant>(std::get<Constant>(constantOrPair.value())));
+        } else if (std::holds_alternative<Pair>(constantOrPair.value())) {
+            args.push_back(std::make_unique<Pair>(std::move(std::get<Pair>(constantOrPair.value()))));
+        }
+        Identifier id(matchExpression.getExpression()->getPosition(), e.getIdentifier());
+        FunctionCall functionCall(id, std::move(args));
+        visit(functionCall);
+        std::visit(BooleanVisitor(result), result.getValue());
+    }
     if (!std::holds_alternative<int>(result.getValue()) || std::get<int>(result.getValue()) == 0)
         return;
     contexts.back().addScope();

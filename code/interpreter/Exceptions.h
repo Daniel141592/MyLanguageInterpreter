@@ -7,6 +7,7 @@
 #include <unordered_map>
 #include "VariableType.h"
 #include "Aliases.h"
+#include "../structure/Identifier.h"
 
 namespace {
     std::unordered_map<VariableType, std::string> typesToString = {
