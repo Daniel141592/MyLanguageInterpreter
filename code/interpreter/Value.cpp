@@ -2,6 +2,10 @@
 
 Value::Value() : returned(false) {}
 
+Value::Value(Position p) : position(p), returned(false) {
+
+}
+
 Value::Value(Position p, int v) : position(p), value(v), returned(false) {
 
 }
@@ -53,6 +57,10 @@ void Value::setReturned(bool r) {
 
 void Value::setPosition(const Position &pos) {
     position = pos;
+}
+
+const std::optional<ValueType> Value::getOptionalValue() const {
+    return value;
 }
 
 Value &Value::operator=(const Value &other) = default;

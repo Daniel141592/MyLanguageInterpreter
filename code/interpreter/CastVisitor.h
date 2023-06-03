@@ -41,7 +41,7 @@ private:
         std::stringstream ss;
         std::visit([&](const auto& f, const auto& s) {
             ss << f << ", " << s;
-        }, from.first, from.second);
+        }, from.first.value(), from.second.value());
     }
 };
 

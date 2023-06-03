@@ -16,6 +16,7 @@ private:
     bool returned;
 public:
     Value();
+    Value(Position p);
     Value(const Value& other);
     Value(Position p, int v);
     Value(Position p, double v);
@@ -24,6 +25,7 @@ public:
     Value(Position p, VariableType v);
 
     const ValueType & getValue() const;
+    const std::optional<ValueType> getOptionalValue() const;
     void setValue(const std::optional<ValueType> &value);
     void setValue(const std::optional<ValueType> &value, Position pos);
     const Position &getPosition() const;

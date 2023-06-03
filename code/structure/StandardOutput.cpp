@@ -17,7 +17,7 @@ public:
             std::ostringstream os;
             os << f << ", " << s;
             result = os.str();
-        }, value.first, value.second);
+        }, value.first.value(), value.second.value());
     }
 
     void operator()(VariableType) {

@@ -122,8 +122,11 @@ void MyLangInterpreter::visit(const FunctionDeclaration &functionDeclaration) {
 void MyLangInterpreter::visit(const Identifier &identifier) {
     result.setPosition(identifier.getPosition());
     auto opt = contexts.back().findVariable(identifier.getName());
-    if (!opt)
-        criticalError(ErrorType::UNDEFINED_VARIABLE, identifier.getName());
+    if (!opt) {
+        contexts.back().addVariable(identifier.getName(), Variable());
+        result = Value(identifier.getPosition());
+        return;
+    }
     std::visit([&](const auto& v) {
         result = Value(identifier.getPosition(), v);
     }, opt.value().getValue());
@@ -238,7 +241,13 @@ void MyLangInterpreter::visit(const RelativeExpression &relativeExpression) {
     result.setPosition(relativeExpression.getPosition());
     relativeExpression.getLeft()->accept(*this);
     Value first = result;
-    relativeExpression.getRight()->accept(*this);
+    try {
+        relativeExpression.getRight()->accept(*this);
+    } catch (const EmptyValueException& e) {
+        if (!result.getOptionalValue() || !std::holds_alternative<SimplePair>(result.getValue())) {
+            throw;
+        }
+    }
     std::visit(RelativeVisitor(result, relativeExpression.getRelativeType()), first.getValue(), result.getValue());
     std::visit(BooleanVisitor(result), result.getValue());
 }
@@ -279,7 +288,7 @@ public:
     void operator()(const SimplePair& pair) {
         std::visit([&](const auto& v) {
             result.setValue(v);
-        }, type == FieldType::FIRST ? pair.first : pair.second);
+        }, type == FieldType::FIRST ? pair.first.value() : pair.second.value());
     }
 
     template<typename T>
@@ -337,6 +346,7 @@ void MyLangInterpreter::visit(const NegatedExpression &negatedExpression) {
 
 void MyLangInterpreter::visit(const MatchExpression &matchExpression) {
     // TODO match expression
+    result.setPosition(matchExpression.getIdentifier()->getPosition());
 }
 
 void MyLangInterpreter::visit(const MatchPair &matchPair) {
@@ -344,6 +354,7 @@ void MyLangInterpreter::visit(const MatchPair &matchPair) {
 }
 
 void MyLangInterpreter::visit(const MatchType &matchType) {
+    result.setPosition(matchType.getIdentifier()->getPosition());
     ValueType valueType;
     switch (matchType.getConstantType().value()) {
         case ConstantType::INTEGER:
@@ -374,12 +385,55 @@ void MyLangInterpreter::visit(const MatchNone &matchNone) {
     contexts.back().removeScope();
 }
 
+class IncompletePairVisitor {
+    std::optional<SimpleType>& result;
+public:
+    explicit IncompletePairVisitor(std::optional<SimpleType>& opt) : result(opt) {}
+
+    void operator()(const SimplePair&) {
+        throw InvalidUnaryOperandException(VariableType::PAIR);
+    }
+
+    void operator()(VariableType) {
+        throw EmptyValueException();
+    }
+
+    template<typename T>
+    void operator()(const T& value) {
+        result = value;
+    }
+};
+
 void MyLangInterpreter::visit(const Pair &pair) {
     result.setPosition(pair.getPosition());
-    pair.getFirst()->accept(*this);
-    Value first = result;
-    pair.getSecond()->accept(*this);
-    std::visit(PairVisitor(result), first.getValue(), result.getValue());
+    std::optional<ValueType> firstValue, secondValue;
+    try {
+        pair.getFirst()->accept(*this);
+        firstValue = result.getValue();
+    } catch (const EmptyValueException& e) {
+        firstValue = {};
+    }
+    try {
+        pair.getSecond()->accept(*this);
+        secondValue = result.getValue();
+    } catch (const EmptyValueException& e) {
+        secondValue = {};
+    }
+    if (firstValue && secondValue) {
+        std::visit(PairVisitor(result), firstValue.value(), secondValue.value());
+        return;
+    }
+    std::optional<SimpleType> firstFieldOptional;
+    std::optional<SimpleType> secondFieldOptional;
+    if (firstValue) {
+        std::visit((IncompletePairVisitor(firstFieldOptional)), firstValue.value());
+    }
+    if (secondValue) {
+        std::visit(IncompletePairVisitor(secondFieldOptional), secondValue.value());
+    }
+    SimplePair incomplete(firstFieldOptional, secondFieldOptional);
+    result.setValue(incomplete, result.getPosition());
+    throw EmptyValueException();
 }
 
 void MyLangInterpreter::visit(const Typename &type) {

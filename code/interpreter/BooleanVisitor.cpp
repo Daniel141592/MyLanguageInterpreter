@@ -12,11 +12,11 @@ void BooleanVisitor::operator()(VariableType) {
 
 void BooleanVisitor::operator()(const SimplePair& pair) {
     Value v;
-    std::visit(BooleanVisitor(v), pair.first);
+    std::visit(BooleanVisitor(v), pair.first.value());
     if (std::get<int>(v.getValue()) != 0)
         result.setValue(true);
     else {
-        std::visit(BooleanVisitor(v), pair.second);
+        std::visit(BooleanVisitor(v), pair.second.value());
         result.setValue(std::get<int>(v.getValue()) != 0);
     }
 }
