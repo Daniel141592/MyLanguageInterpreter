@@ -47,8 +47,10 @@ void MyLangInterpreter::visit(const Program &program) {
     contexts.back().addScope();
     std::vector<Instruction::InstructionPtr> instructions;
     instructions.emplace_back(std::make_unique<StandardOutput>(os));
+    std::vector<Argument> args;
+    args.emplace_back(Position(-1, -1), "output");
     FunctionDeclaration standardOutput(Position(-1, -1), "standardOutput",
-                                       std::make_unique<Block>(std::move(instructions)));
+                                       std::make_unique<Block>(std::move(instructions)), args);
     contexts.back().addFunction(standardOutput);
     for (auto &ins: program.getInstructions()) {
         ins->accept(*this);
@@ -211,29 +213,23 @@ void MyLangInterpreter::visit(const FunctionCall &functionCall) {
     const auto& functionDeclaration = contexts.back().findFunction(functionCall.getName().getName());
     const auto& args = functionCall.getArgs();
     const auto& argsNames = functionDeclaration.getArguments();
-    // TODO zastanowić się nad tym jeszcze
-    if (argsNames) {
-        if (args.size() != argsNames->size())
-            throw IncorrectArgsCountException(argsNames->size(), args.size());
-        ScopePtr scope = std::make_shared<Scope>();
-        for (int i = 0; i < args.size(); i++) {
-            args[i]->accept(*this);
-            Value argValue = result;
-            Variable var;
-            std::visit(PassFunctionArgumentVisitor(var), argValue.getValue());
-            scope->addVariable(argsNames.value()[i].getIdentifier().getName(), var);
-        }
-        contexts.emplace_back(functionCall.getName().getName(), contexts.back().getGlobalScope(), scope);
-        functionDeclaration.getFunctionBody()->accept(*this);
-        if (result.isReturned())
-            result.setReturned(false);
-        else
-            result.setValue({});
-        contexts.pop_back();
-    } else {
-        contexts.back().setFunctionArgs(&args);
-        functionDeclaration.getFunctionBody()->accept(*this);
+    if (args.size() != argsNames->size())
+        throw IncorrectArgsCountException(argsNames->size(), args.size());
+    ScopePtr scope = std::make_shared<Scope>();
+    for (int i = 0; i < args.size(); i++) {
+        args[i]->accept(*this);
+        Value argValue = result;
+        Variable var;
+        std::visit(PassFunctionArgumentVisitor(var), argValue.getValue());
+        scope->addVariable(argsNames.value()[i].getIdentifier().getName(), var);
     }
+    contexts.emplace_back(functionCall.getName().getName(), contexts.back().getGlobalScope(), scope);
+    functionDeclaration.getFunctionBody()->accept(*this);
+    if (result.isReturned())
+        result.setReturned(false);
+    else
+        result.setValue({});
+    contexts.pop_back();
 }
 
 void MyLangInterpreter::visit(const RelativeExpression &relativeExpression) {
@@ -501,9 +497,7 @@ void MyLangInterpreter::visit(const Typename &type) {
 }
 
 void MyLangInterpreter::visit(const StandardOutput &standardOutput) {
-    for (const auto& arg : *contexts.back().getFunctionArgs()) {
-        arg->accept(*this);
-        standardOutput.print(result);
-    }
+    Variable output = contexts.back().findVariable("output").value();
+    standardOutput.print(output.getValue());
     os << '\n';
 }

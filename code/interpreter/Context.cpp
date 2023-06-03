@@ -46,14 +46,6 @@ const FunctionDeclaration &Context::findFunction(const std::string &name) {
     throw UnknownIdentifierException(name);
 }
 
-const std::vector<Expression::ExpressionPtr> *Context::getFunctionArgs() const {
-    return functionArgs;
-}
-
-void Context::setFunctionArgs(const std::vector<Expression::ExpressionPtr> *args) {
-    functionArgs = args;
-}
-
 ScopePtr& Context::getGlobalScope() {
     return scopes.front();
 }

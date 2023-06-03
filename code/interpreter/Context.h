@@ -11,7 +11,6 @@
 
 class Context {
     std::string currentFunction;
-    const std::vector<Expression::ExpressionPtr>* functionArgs{};   //TODO można to usunąć jak się dobrze kod przerobi
     std::deque<ScopePtr> scopes;
 public:
     using BlockPtr = Block::BlockPtr;
@@ -21,8 +20,6 @@ public:
     void addVariable(const std::string& name, const Variable &variable);
     void addFunction(const FunctionDeclaration &functionDeclaration);
     const FunctionDeclaration& findFunction(const std::string& name);
-    const std::vector<Expression::ExpressionPtr> *getFunctionArgs() const;
-    void setFunctionArgs(const std::vector<Expression::ExpressionPtr> *args);
     ScopePtr& getGlobalScope();
     bool variableDeclaredInCurrentScope(const std::string& name);
     void addScope();

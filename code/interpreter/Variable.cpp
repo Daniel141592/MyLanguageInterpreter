@@ -20,7 +20,7 @@ Variable::Variable(const SimplePair& v, bool m) : type(VariableType::PAIR), valu
 
 }
 
-const Variable::VariableValueTypename &Variable::getValue() const {
+const VariableValueTypename &Variable::getValue() const {
     if (value)
         return value.value();
     throw EmptyValueException();

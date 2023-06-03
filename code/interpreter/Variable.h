@@ -14,7 +14,6 @@
 
 class Variable {
 public:
-    using VariableValueTypename = std::variant<int, double, std::string, SimplePair>;
     std::optional<VariableType> type;
     std::optional<VariableValueTypename> value;
     bool mut;

@@ -13,7 +13,7 @@ public:
     explicit StandardOutput(std::ostream& o);
 
     void accept(Visitor &visitor) const override;
-    void print(const Value& value) const;
+    void print(const VariableValueTypename & value) const;
 };
 
 

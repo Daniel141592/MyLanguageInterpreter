@@ -32,8 +32,8 @@ public:
     }
 };
 
-void StandardOutput::print(const Value& value) const {
+void StandardOutput::print(const VariableValueTypename& value) const {
     std::string str;
-    std::visit(PrintVisitor(str), value.getValue());
+    std::visit(PrintVisitor(str), value);
     os << str;
 }
