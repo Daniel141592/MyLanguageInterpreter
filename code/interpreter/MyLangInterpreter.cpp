@@ -344,8 +344,18 @@ void MyLangInterpreter::visit(const NegatedExpression &negatedExpression) {
 }
 
 void MyLangInterpreter::visit(const MatchExpression &matchExpression) {
-    // TODO match expression
+    // TODO function
     result.setPosition(matchExpression.getIdentifier()->getPosition());
+    const Value& matchingValue = contexts.back().getMatching().value();
+    matchExpression.getExpression()->accept(*this);
+    std::visit(RelativeVisitor(result, RelativeType::IS), matchingValue.getValue(), result.getValue());
+    if (!std::holds_alternative<int>(result.getValue()) || std::get<int>(result.getValue()) == 0)
+        return;
+    contexts.back().addScope();
+    std::visit(AssignVisitor(contexts.back(), matchExpression.getIdentifier()->getName()), matchingValue.getValue());
+    matchExpression.getBlock()->accept(*this);
+    contexts.back().removeScope();
+    contexts.back().endMatching();
 }
 
 void MyLangInterpreter::visit(const MatchPair &matchPair) {
