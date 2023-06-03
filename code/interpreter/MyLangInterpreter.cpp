@@ -123,9 +123,8 @@ void MyLangInterpreter::visit(const Identifier &identifier) {
     result.setPosition(identifier.getPosition());
     auto opt = contexts.back().findVariable(identifier.getName());
     if (!opt) {
-        contexts.back().addVariable(identifier.getName(), Variable());
         result = Value(identifier.getPosition());
-        return;
+        throw UnknownIdentifierException(identifier.getName());
     }
     std::visit([&](const auto& v) {
         result = Value(identifier.getPosition(), v);
@@ -243,7 +242,7 @@ void MyLangInterpreter::visit(const RelativeExpression &relativeExpression) {
     Value first = result;
     try {
         relativeExpression.getRight()->accept(*this);
-    } catch (const EmptyValueException& e) {
+    } catch (const UnknownIdentifierException& e) {
         if (!result.getOptionalValue() || !std::holds_alternative<SimplePair>(result.getValue())) {
             throw;
         }
@@ -350,7 +349,34 @@ void MyLangInterpreter::visit(const MatchExpression &matchExpression) {
 }
 
 void MyLangInterpreter::visit(const MatchPair &matchPair) {
-    // TODO match pair
+    result.setPosition(matchPair.getFirst()->getPosition());
+    const Value& matchingValue = contexts.back().getMatching().value();
+    if (!std::holds_alternative<SimplePair>(matchingValue.getValue()))
+        return;
+    SimplePair matchingPair = std::get<SimplePair>(matchingValue.getValue());
+    std::optional<SimpleType> firstFieldOptional, secondFieldOptional;
+    contexts.back().addScope();
+    try {
+        matchPair.getFirst()->accept(*this);
+        std::visit((IncompletePairVisitor(firstFieldOptional)), result.getValue());
+    } catch (const UnknownIdentifierException& e) {
+        std::visit(AssignVisitor(contexts.back(), e.getIdentifier()), matchingPair.first.value());
+    }
+    try {
+        matchPair.getSecond()->accept(*this);
+        std::visit((IncompletePairVisitor(secondFieldOptional)), result.getValue());
+    } catch (const UnknownIdentifierException& e) {
+        std::visit(AssignVisitor(contexts.back(), e.getIdentifier()), matchingPair.second.value());
+    }
+    SimplePair matchedPair(firstFieldOptional, secondFieldOptional);
+    std::visit(RelativeVisitor(result, RelativeType::IS), matchingValue.getValue(), ValueType(matchedPair));
+    if (!std::holds_alternative<int>(result.getValue()) || std::get<int>(result.getValue()) == 0) {
+        contexts.back().removeScope();
+        return;
+    }
+    matchPair.getBlock()->accept(*this);
+    contexts.back().removeScope();
+    contexts.back().endMatching();
 }
 
 void MyLangInterpreter::visit(const MatchType &matchType) {
@@ -369,13 +395,13 @@ void MyLangInterpreter::visit(const MatchType &matchType) {
     }
     const Value& value = contexts.back().getMatching().value();
     std::visit(RelativeVisitor(result, RelativeType::IS), value.getValue(), valueType);
-    if (std::get<int>(result.getValue()) != 0) {
-        contexts.back().addScope();
-        std::visit(AssignVisitor(contexts.back(), matchType.getIdentifier()->getName()), value.getValue());
-        matchType.getBlock()->accept(*this);
-        contexts.back().removeScope();
-        contexts.back().endMatching();
-    }
+    if (std::get<int>(result.getValue()) == 0)
+        return;
+    contexts.back().addScope();
+    std::visit(AssignVisitor(contexts.back(), matchType.getIdentifier()->getName()), value.getValue());
+    matchType.getBlock()->accept(*this);
+    contexts.back().removeScope();
+    contexts.back().endMatching();
 }
 
 void MyLangInterpreter::visit(const MatchNone &matchNone) {
@@ -385,55 +411,28 @@ void MyLangInterpreter::visit(const MatchNone &matchNone) {
     contexts.back().removeScope();
 }
 
-class IncompletePairVisitor {
-    std::optional<SimpleType>& result;
-public:
-    explicit IncompletePairVisitor(std::optional<SimpleType>& opt) : result(opt) {}
-
-    void operator()(const SimplePair&) {
-        throw InvalidUnaryOperandException(VariableType::PAIR);
-    }
-
-    void operator()(VariableType) {
-        throw EmptyValueException();
-    }
-
-    template<typename T>
-    void operator()(const T& value) {
-        result = value;
-    }
-};
-
 void MyLangInterpreter::visit(const Pair &pair) {
     result.setPosition(pair.getPosition());
-    std::optional<ValueType> firstValue, secondValue;
+    std::optional<SimpleType> firstFieldOptional, secondFieldOptional;
+    std::string unknownIdentifier;
     try {
         pair.getFirst()->accept(*this);
-        firstValue = result.getValue();
-    } catch (const EmptyValueException& e) {
-        firstValue = {};
+        std::visit((IncompletePairVisitor(firstFieldOptional)), result.getValue());
+    } catch (const UnknownIdentifierException& e) {
+        unknownIdentifier = e.getIdentifier();
     }
     try {
         pair.getSecond()->accept(*this);
-        secondValue = result.getValue();
-    } catch (const EmptyValueException& e) {
-        secondValue = {};
+        std::visit((IncompletePairVisitor(secondFieldOptional)), result.getValue());
+    } catch (const UnknownIdentifierException& e) {
+        unknownIdentifier = unknownIdentifier.empty() ? e.getIdentifier() : unknownIdentifier;
     }
-    if (firstValue && secondValue) {
-        std::visit(PairVisitor(result), firstValue.value(), secondValue.value());
+    if (firstFieldOptional && secondFieldOptional) {
+        std::visit(PairVisitor(result), firstFieldOptional.value(), secondFieldOptional.value());
         return;
     }
-    std::optional<SimpleType> firstFieldOptional;
-    std::optional<SimpleType> secondFieldOptional;
-    if (firstValue) {
-        std::visit((IncompletePairVisitor(firstFieldOptional)), firstValue.value());
-    }
-    if (secondValue) {
-        std::visit(IncompletePairVisitor(secondFieldOptional), secondValue.value());
-    }
-    SimplePair incomplete(firstFieldOptional, secondFieldOptional);
-    result.setValue(incomplete, result.getPosition());
-    throw EmptyValueException();
+    result.setValue(SimplePair(firstFieldOptional, secondFieldOptional), result.getPosition());
+    throw UnknownIdentifierException(unknownIdentifier);
 }
 
 void MyLangInterpreter::visit(const Typename &type) {

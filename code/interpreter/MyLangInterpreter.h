@@ -49,6 +49,7 @@
 #include "PairVisitor.h"
 #include "RelativeVisitor.h"
 #include "PassFunctionArgumentVisitor.h"
+#include "IncompletePairVisitor.h"
 
 class MyLangInterpreter : public Interpreter, public Visitor {
     std::ostream& os;

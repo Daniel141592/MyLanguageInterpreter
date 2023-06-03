@@ -1,6 +1,10 @@
 #ifndef CODE_ALIASES_H
 #define CODE_ALIASES_H
 
+#include <optional>
+#include <variant>
+#include <string>
+
 #include "VariableType.h"
 
 using SimpleType = std::variant<int, double, std::string>;
