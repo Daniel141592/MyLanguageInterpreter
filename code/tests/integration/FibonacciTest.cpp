@@ -4,7 +4,7 @@
 #include "../../parser/MyLangParser.h"
 #include "../../lexer/LexerWithoutComments.h"
 
-TEST(LogicalTests, OrderTest) {
+TEST(FibonacciTests, FibonacciTest) {
     std::ostringstream oss;
     bool errorOccurred = false;
     bool interpreterErrorOccurred = false;
@@ -16,8 +16,19 @@ TEST(LogicalTests, OrderTest) {
         interpreterErrorOccurred = true;
     };
     const std::string code =
-            "test = 0 && 0 || 1;\n"
-            "standardOutput(test);";
+            "func fibonacci(num) {\n"
+            "    if num <= 0 {\n"
+            "        return \"Wprowadź poprawną wartość num > 0\";\n"
+            "    }\n"
+            "    if num == 1 {\n"
+            "        return 0;\n"
+            "    }\n"
+            "    if num == 2 {\n"
+            "        return 1;\n"
+            "    }\n"
+            "    return fibonacci(num - 1) + fibonacci(num - 2);\n"
+            "}\n"
+            "standardOutput(fibonacci(5));";
     std::istringstream iss(code);
 
     LexerWithoutComments lexerWithoutComments(iss, errorHandler);
@@ -27,10 +38,10 @@ TEST(LogicalTests, OrderTest) {
     interpreter.execute(program);
     ASSERT_FALSE(errorOccurred);
     ASSERT_FALSE(interpreterErrorOccurred);
-    ASSERT_EQ(oss.str(), "1\n");
+    ASSERT_EQ(oss.str(), "3\n");
 }
 
-TEST(LogicalTests, OrderTest2) {
+TEST(FibonacciTests, FibonacciTest2) {
     std::ostringstream oss;
     bool errorOccurred = false;
     bool interpreterErrorOccurred = false;
@@ -42,8 +53,19 @@ TEST(LogicalTests, OrderTest2) {
         interpreterErrorOccurred = true;
     };
     const std::string code =
-            "test = 0 && (0 || 1);\n"
-            "standardOutput(test);";
+            "func fibonacci(num) {\n"
+            "    if num <= 0 {\n"
+            "        return \"Wprowadź poprawną wartość num > 0\";\n"
+            "    }\n"
+            "    if num == 1 {\n"
+            "        return 0;\n"
+            "    }\n"
+            "    if num == 2 {\n"
+            "        return 1;\n"
+            "    }\n"
+            "    return fibonacci(num - 1) + fibonacci(num - 2);\n"
+            "}\n"
+            "standardOutput(fibonacci(6));";
     std::istringstream iss(code);
 
     LexerWithoutComments lexerWithoutComments(iss, errorHandler);
@@ -53,10 +75,10 @@ TEST(LogicalTests, OrderTest2) {
     interpreter.execute(program);
     ASSERT_FALSE(errorOccurred);
     ASSERT_FALSE(interpreterErrorOccurred);
-    ASSERT_EQ(oss.str(), "0\n");
+    ASSERT_EQ(oss.str(), "5\n");
 }
 
-TEST(LogicalTests, OrderTest3) {
+TEST(FibonacciTests, FibonacciTest3) {
     std::ostringstream oss;
     bool errorOccurred = false;
     bool interpreterErrorOccurred = false;
@@ -68,8 +90,19 @@ TEST(LogicalTests, OrderTest3) {
         interpreterErrorOccurred = true;
     };
     const std::string code =
-            "test = !(1 && 0) || 0;\n"
-            "standardOutput(test);";
+            "func fibonacci(num) {\n"
+            "    if num <= 0 {\n"
+            "        return \"Wprowadź poprawną wartość num > 0\";\n"
+            "    }\n"
+            "    if num == 1 {\n"
+            "        return 0;\n"
+            "    }\n"
+            "    if num == 2 {\n"
+            "        return 1;\n"
+            "    }\n"
+            "    return fibonacci(num - 1) + fibonacci(num - 2);\n"
+            "}\n"
+            "standardOutput(fibonacci(7));";
     std::istringstream iss(code);
 
     LexerWithoutComments lexerWithoutComments(iss, errorHandler);
@@ -79,57 +112,5 @@ TEST(LogicalTests, OrderTest3) {
     interpreter.execute(program);
     ASSERT_FALSE(errorOccurred);
     ASSERT_FALSE(interpreterErrorOccurred);
-    ASSERT_EQ(oss.str(), "1\n");
-}
-
-TEST(LogicalTests, OrderTest4) {
-    std::ostringstream oss;
-    bool errorOccurred = false;
-    bool interpreterErrorOccurred = false;
-    auto errorHandler = [&](Position position, ErrorType error) {
-        errorOccurred = true;
-    };
-
-    auto interpreterErrorHandler = [&](Position position, ErrorType error, const std::string& msg) {
-        interpreterErrorOccurred = true;
-    };
-    const std::string code =
-            "test = 0 || 0 || 0 || 0 || 0;\n"
-            "standardOutput(test);";
-    std::istringstream iss(code);
-
-    LexerWithoutComments lexerWithoutComments(iss, errorHandler);
-    MyLangParser parser(std::make_unique<LexerWithoutComments>(lexerWithoutComments), errorHandler);
-    Program program = parser.parse();
-    MyLangInterpreter interpreter(oss, iss, interpreterErrorHandler);
-    interpreter.execute(program);
-    ASSERT_FALSE(errorOccurred);
-    ASSERT_FALSE(interpreterErrorOccurred);
-    ASSERT_EQ(oss.str(), "0\n");
-}
-
-TEST(LogicalTests, OrderTest5) {
-    std::ostringstream oss;
-    bool errorOccurred = false;
-    bool interpreterErrorOccurred = false;
-    auto errorHandler = [&](Position position, ErrorType error) {
-        errorOccurred = true;
-    };
-
-    auto interpreterErrorHandler = [&](Position position, ErrorType error, const std::string& msg) {
-        interpreterErrorOccurred = true;
-    };
-    const std::string code =
-            "test = 0 || 0 || 0 || 0 || !0;\n"
-            "standardOutput(test);";
-    std::istringstream iss(code);
-
-    LexerWithoutComments lexerWithoutComments(iss, errorHandler);
-    MyLangParser parser(std::make_unique<LexerWithoutComments>(lexerWithoutComments), errorHandler);
-    Program program = parser.parse();
-    MyLangInterpreter interpreter(oss, iss, interpreterErrorHandler);
-    interpreter.execute(program);
-    ASSERT_FALSE(errorOccurred);
-    ASSERT_FALSE(interpreterErrorOccurred);
-    ASSERT_EQ(oss.str(), "1\n");
+    ASSERT_EQ(oss.str(), "8\n");
 }

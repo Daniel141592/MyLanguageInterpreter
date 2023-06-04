@@ -45,7 +45,9 @@ public:
 
     template<typename T, typename U>
     void operator()(const T& first, const U& second) {
-        throw InvalidOperandsException(first, second);
+        if (type != RelativeType::IS)
+            throw InvalidOperandsException(first, second);
+        result.setValue(0);
     }
 
     void operator()(const SimplePair& f, const SimplePair& s);

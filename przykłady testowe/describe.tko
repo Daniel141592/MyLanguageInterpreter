@@ -1,0 +1,53 @@
+func even(x) {
+    if !(x is Int) {
+        return 0;
+    }
+    return x % 2 == 0;
+}
+
+
+func describe(zmienna) {
+    pattern zmienna {
+        match (32) (x) {
+            standardOutput("match expression: 32, wartość x: "+String(x));
+        }
+        match (3 * 10 + 3) (x) {
+            standardOutput("match expression: 3 * 10 + 3, wartość x: "+String(x));
+        }
+        match (even) (x) {
+            standardOutput("zmienna jest parzysta, x = "+String(x));
+        }
+        match 21, 35 {
+            standardOutput("pierwszy element stały 21, drugi element stały 35");
+        }
+        match x, 35 {
+            standardOutput("pierwszy element: "+String(x)+", drugi stały 35");
+        }
+        match x, y {
+            standardOutput("pierwszy element: "+String(x)+", drugi element: "+String(35));
+        }
+        match x, 3 {
+            standardOutput("pierwszy element: "+String(x)+", drugi stały 3");
+        }
+        match Int (x) {
+            standardOutput("zmienna jest intem i wynosi: "+String(x));
+        }
+        match String (x) {
+            standardOutput("zmienna jest stringiem i wynosi: "+String(x));
+        }
+        match Float (x) {
+            standardOutput("zmienna jest floatem i wynosi: "+String(x));
+        }
+        match none {
+            standardOutput("zmienna jest czymś innym");
+        }
+    }
+}
+describe(32);
+describe(22.38);
+mut para = 22, 38;
+describe(para);
+para = 21, 35;
+describe(para);
+describe("para");
+

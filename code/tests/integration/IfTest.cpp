@@ -4,7 +4,7 @@
 #include "../../parser/MyLangParser.h"
 #include "../../lexer/LexerWithoutComments.h"
 
-TEST(LogicalTests, OrderTest) {
+TEST(IfTests, BasicIfTest) {
     std::ostringstream oss;
     bool errorOccurred = false;
     bool interpreterErrorOccurred = false;
@@ -16,8 +16,10 @@ TEST(LogicalTests, OrderTest) {
         interpreterErrorOccurred = true;
     };
     const std::string code =
-            "test = 0 && 0 || 1;\n"
-            "standardOutput(test);";
+            "zmienna = 20;\n"
+            "if zmienna > 19 {\n"
+            "    standardOutput(\"IF\");\n"
+            "}";
     std::istringstream iss(code);
 
     LexerWithoutComments lexerWithoutComments(iss, errorHandler);
@@ -27,36 +29,46 @@ TEST(LogicalTests, OrderTest) {
     interpreter.execute(program);
     ASSERT_FALSE(errorOccurred);
     ASSERT_FALSE(interpreterErrorOccurred);
-    ASSERT_EQ(oss.str(), "1\n");
+    ASSERT_EQ(oss.str(), "IF\n");
 }
 
-TEST(LogicalTests, OrderTest2) {
+TEST(IfTests, IfWithoutParenthesis) {
     std::ostringstream oss;
     bool errorOccurred = false;
     bool interpreterErrorOccurred = false;
+    bool exceptionThrown = false;
     auto errorHandler = [&](Position position, ErrorType error) {
         errorOccurred = true;
+        ASSERT_EQ(error, ErrorType::BLOCK_EXPECTED);
+        ASSERT_EQ(position, Position(5, 3));
     };
 
     auto interpreterErrorHandler = [&](Position position, ErrorType error, const std::string& msg) {
         interpreterErrorOccurred = true;
     };
     const std::string code =
-            "test = 0 && (0 || 1);\n"
-            "standardOutput(test);";
+            "zmienna = 20;\n"
+            "if zmienna > 19\n"
+            "    standardOutput(\"IF\");\n"
+            "}";
     std::istringstream iss(code);
+    try {
+        LexerWithoutComments lexerWithoutComments(iss, errorHandler);
+        MyLangParser parser(std::make_unique<LexerWithoutComments>(lexerWithoutComments), errorHandler);
+        Program program = parser.parse();
+        MyLangInterpreter interpreter(oss, iss, interpreterErrorHandler);
+        interpreter.execute(program);
+    } catch (...) {
+        exceptionThrown = true;
+    }
 
-    LexerWithoutComments lexerWithoutComments(iss, errorHandler);
-    MyLangParser parser(std::make_unique<LexerWithoutComments>(lexerWithoutComments), errorHandler);
-    Program program = parser.parse();
-    MyLangInterpreter interpreter(oss, iss, interpreterErrorHandler);
-    interpreter.execute(program);
-    ASSERT_FALSE(errorOccurred);
+    ASSERT_TRUE(errorOccurred);
+    ASSERT_TRUE(exceptionThrown);
     ASSERT_FALSE(interpreterErrorOccurred);
-    ASSERT_EQ(oss.str(), "0\n");
+    ASSERT_EQ(oss.str(), "");
 }
 
-TEST(LogicalTests, OrderTest3) {
+TEST(IfTests, BasicIfElseTest) {
     std::ostringstream oss;
     bool errorOccurred = false;
     bool interpreterErrorOccurred = false;
@@ -68,8 +80,12 @@ TEST(LogicalTests, OrderTest3) {
         interpreterErrorOccurred = true;
     };
     const std::string code =
-            "test = !(1 && 0) || 0;\n"
-            "standardOutput(test);";
+            "zmienna = 20;\n"
+            "if zmienna > 19 {\n"
+            "    standardOutput(\"IF\");\n"
+            "} else {\n"
+            "    standardOutput(\"ELSE\");\n"
+            "}";
     std::istringstream iss(code);
 
     LexerWithoutComments lexerWithoutComments(iss, errorHandler);
@@ -79,10 +95,10 @@ TEST(LogicalTests, OrderTest3) {
     interpreter.execute(program);
     ASSERT_FALSE(errorOccurred);
     ASSERT_FALSE(interpreterErrorOccurred);
-    ASSERT_EQ(oss.str(), "1\n");
+    ASSERT_EQ(oss.str(), "IF\n");
 }
 
-TEST(LogicalTests, OrderTest4) {
+TEST(IfTests, BasicIfElseTest2) {
     std::ostringstream oss;
     bool errorOccurred = false;
     bool interpreterErrorOccurred = false;
@@ -94,8 +110,12 @@ TEST(LogicalTests, OrderTest4) {
         interpreterErrorOccurred = true;
     };
     const std::string code =
-            "test = 0 || 0 || 0 || 0 || 0;\n"
-            "standardOutput(test);";
+            "zmienna = 2;\n"
+            "if zmienna > 19 {\n"
+            "    standardOutput(\"IF\");\n"
+            "} else {\n"
+            "    standardOutput(\"ELSE\");\n"
+            "}";
     std::istringstream iss(code);
 
     LexerWithoutComments lexerWithoutComments(iss, errorHandler);
@@ -105,10 +125,10 @@ TEST(LogicalTests, OrderTest4) {
     interpreter.execute(program);
     ASSERT_FALSE(errorOccurred);
     ASSERT_FALSE(interpreterErrorOccurred);
-    ASSERT_EQ(oss.str(), "0\n");
+    ASSERT_EQ(oss.str(), "ELSE\n");
 }
 
-TEST(LogicalTests, OrderTest5) {
+TEST(IfTests, IfVariableShadowingTest) {
     std::ostringstream oss;
     bool errorOccurred = false;
     bool interpreterErrorOccurred = false;
@@ -120,8 +140,14 @@ TEST(LogicalTests, OrderTest5) {
         interpreterErrorOccurred = true;
     };
     const std::string code =
-            "test = 0 || 0 || 0 || 0 || !0;\n"
-            "standardOutput(test);";
+            "zmienna = 20;\n"
+            "inna = 35;\n"
+            "standardOutput(\"inna: \"+String(inna));\n"
+            "if zmienna > 19 {\n"
+            "    mut inna = 15;\n"
+            "    standardOutput(\"inna: \"+String(inna));\n"
+            "}\n"
+            "standardOutput(\"inna: \"+String(inna));";
     std::istringstream iss(code);
 
     LexerWithoutComments lexerWithoutComments(iss, errorHandler);
@@ -131,5 +157,5 @@ TEST(LogicalTests, OrderTest5) {
     interpreter.execute(program);
     ASSERT_FALSE(errorOccurred);
     ASSERT_FALSE(interpreterErrorOccurred);
-    ASSERT_EQ(oss.str(), "1\n");
+    ASSERT_EQ(oss.str(), "inna: 35\ninna: 15\ninna: 35\n");
 }
