@@ -60,7 +60,7 @@ private:
     SingleInstructionPtr parseFunctionDeclaration();
     std::optional<std::vector<Argument>> parseArgumentsList();
     std::optional<Argument> parseArgument();
-    FunctionCallPtr parseFunctionCall(const std::string& identifier);
+    FunctionCallPtr parseFunctionCall(const std::string& identifier, const Position& position);
     StatementPtr parseIfStatement();
     BlockPtr parseElseStatement();
     StatementPtr parseLoopStatement();
@@ -82,7 +82,7 @@ private:
     ExpressionPtr parseFactor();
     ExpressionPtr parseConstant();
     ExpressionPtr parseIdentifierOrFunctionCall();
-    ExpressionPtr parseField(ExpressionPtr& expression);
+    ExpressionPtr parseField(ExpressionPtr& expression, const Position& position);
     ExpressionPtr parseTypenameOrCastOrNestedExpression();
     IdentifierPtr parseIdentifier();
 

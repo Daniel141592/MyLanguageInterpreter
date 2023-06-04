@@ -134,6 +134,7 @@ MyLangParser::StatementPtr MyLangParser::parseStatement() {
  */
 MyLangParser::SingleInstructionPtr MyLangParser::parseVariableDeclarationOrAssignOrFunctionCall() {
     bool mut = false;
+    Position position = currentToken->getPosition();
     if (consumeIf(TokenType::MUT_KEYWORD))
         mut = true;
     IdentifierPtr identifier = parseIdentifier();
@@ -142,7 +143,7 @@ MyLangParser::SingleInstructionPtr MyLangParser::parseVariableDeclarationOrAssig
             return {};
         criticalError(ErrorType::MUT_OUTSIDE_DECLARATION);
     }
-    SingleInstructionPtr functionCall = parseFunctionCall(identifier->getName());
+    SingleInstructionPtr functionCall = parseFunctionCall(identifier->getName(), position);
     if (functionCall) {
         if (!consumeIf(TokenType::SEMICOLON))
             errorHandler(currentToken->getPosition(), ErrorType::MISSING_SEMICOLON);
@@ -232,6 +233,7 @@ std::optional<std::vector<Argument>> MyLangParser::parseArgumentsList() {
  */
 std::optional<Argument> MyLangParser::parseArgument() {
     bool ref = false;
+    Position position = currentToken->getPosition();
     if (consumeIf(TokenType::REF_KEYWORD))
         ref = true;
     IdentifierPtr identifier = parseIdentifier();
@@ -240,13 +242,13 @@ std::optional<Argument> MyLangParser::parseArgument() {
             criticalError(ErrorType::IDENTIFIER_EXPECTED);
         return {};
     }
-    return Argument(currentToken->getPosition(), identifier->getName(), ref);
+    return Argument(position, identifier->getName(), ref);
 }
 
 /*
  * function_call = "(", [expression, {",", expression}], ”)”
  */
-MyLangParser::FunctionCallPtr MyLangParser::parseFunctionCall(const std::string& identifier) {
+MyLangParser::FunctionCallPtr MyLangParser::parseFunctionCall(const std::string& identifier, const Position& position) {
     if (!consumeIf(TokenType::LEFT_BRACKET))
         return {};
     ExpressionPtr firstArgument = parseExpression();
@@ -254,7 +256,7 @@ MyLangParser::FunctionCallPtr MyLangParser::parseFunctionCall(const std::string&
         if (!consumeIf(TokenType::RIGHT_BRACKET))
             criticalError(ErrorType::BRACKET_EXPECTED);
         return std::make_unique<FunctionCall>(
-                Identifier(currentToken->getPosition(), identifier), std::vector<ExpressionPtr>());
+                Identifier(position, identifier), std::vector<ExpressionPtr>());
     }
     std::vector<ExpressionPtr> args;
     args.emplace_back(std::move(firstArgument));
@@ -267,7 +269,7 @@ MyLangParser::FunctionCallPtr MyLangParser::parseFunctionCall(const std::string&
     if (!consumeIf(TokenType::RIGHT_BRACKET))
         criticalError(ErrorType::BRACKET_EXPECTED);
     return std::make_unique<FunctionCall>(
-            Identifier(currentToken->getPosition(), identifier),
+            Identifier(position, identifier),
             std::move(args)
     );
 }
@@ -612,16 +614,17 @@ MyLangParser::ExpressionPtr MyLangParser::parseConstant() {
  * field = id_or_function_call, ”.”, ”first” | ”second”
  */
 MyLangParser::ExpressionPtr MyLangParser::parseIdentifierOrFunctionCall() {
+    Position position = currentToken->getPosition();
     ExpressionPtr expression;
     IdentifierPtr identifier = parseIdentifier();
     if (!identifier)
         return {};
-    ExpressionPtr functionCall = std::move(parseFunctionCall(identifier->getName()));
+    ExpressionPtr functionCall = std::move(parseFunctionCall(identifier->getName(), position));
     if (!functionCall)
         expression = std::move(identifier);
     else
         expression = std::move(functionCall);
-    ExpressionPtr field = parseField(expression);
+    ExpressionPtr field = parseField(expression, position);
     if (!field)
         return expression;
     return field;
@@ -630,8 +633,7 @@ MyLangParser::ExpressionPtr MyLangParser::parseIdentifierOrFunctionCall() {
 /*
  * field = id_or_function_call, ”.”, ”first” | ”second”
  */
-MyLangParser::ExpressionPtr MyLangParser::parseField(ExpressionPtr& expression) {
-    Position position = currentToken->getPosition();
+MyLangParser::ExpressionPtr MyLangParser::parseField(ExpressionPtr& expression, const Position& position) {
     if (!consumeIf(TokenType::DOT))
         return {};
     if (currentToken->getType() == TokenType::IDENTIFIER
