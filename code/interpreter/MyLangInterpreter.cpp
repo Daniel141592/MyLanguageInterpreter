@@ -2,7 +2,8 @@
 
 MyLangInterpreter::MyLangInterpreter(std::ostream &o, std::istream &i, Interpreter::HandlerType onError)
                                     : os(o), is(i), errorHandler(std::move(onError)) {
-
+    contexts.emplace_back();
+    contexts.back().addScope();
 }
 
 void MyLangInterpreter::criticalError(ErrorType type, const std::string& message) {
@@ -11,6 +12,13 @@ void MyLangInterpreter::criticalError(ErrorType type, const std::string& message
 }
 
 void MyLangInterpreter::execute(const Program &program) {
+    std::vector<Instruction::InstructionPtr> instructions;
+    instructions.emplace_back(std::make_unique<StandardOutput>(os));
+    std::vector<Argument> args;
+    args.emplace_back(Position(-1, -1), "output");
+    FunctionDeclaration standardOutput(Position(-1, -1), "standardOutput",
+                                       std::make_unique<Block>(std::move(instructions)), args);
+    contexts.back().addFunction(standardOutput);
     try {
         visit(program);
     } catch (const DivisionByZeroException& e) {
@@ -43,15 +51,6 @@ void MyLangInterpreter::execute(const Program &program) {
 }
 
 void MyLangInterpreter::visit(const Program &program) {
-    contexts.emplace_back();
-    contexts.back().addScope();
-    std::vector<Instruction::InstructionPtr> instructions;
-    instructions.emplace_back(std::make_unique<StandardOutput>(os));
-    std::vector<Argument> args;
-    args.emplace_back(Position(-1, -1), "output");
-    FunctionDeclaration standardOutput(Position(-1, -1), "standardOutput",
-                                       std::make_unique<Block>(std::move(instructions)), args);
-    contexts.back().addFunction(standardOutput);
     for (auto &ins: program.getInstructions()) {
         ins->accept(*this);
     }
