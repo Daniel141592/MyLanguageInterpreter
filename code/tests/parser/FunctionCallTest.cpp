@@ -22,7 +22,7 @@ TEST(FunctionCallTest, ParseFunctionCallWithoutArgs) {
         Program program = parser.parse();
         std::ostringstream oss;
         PrintVisitor visitor(oss);
-        program.accept(&visitor);
+        program.accept(visitor);
         std::string expected = "program {\n"
                                "  function call {\n"
                                "    name {\n"
@@ -61,7 +61,7 @@ TEST(FunctionCallTest, ParseFunctionCallWithOneArg) {
         Program program = parser.parse();
         std::ostringstream oss;
         PrintVisitor visitor(oss);
-        program.accept(&visitor);
+        program.accept(visitor);
         std::string expected = "program {\n"
                                "  function call {\n"
                                "    name {\n"
@@ -105,7 +105,7 @@ TEST(FunctionCallTest, ParseFunctionCallWithTwoArgs) {
         Program program = parser.parse();
         std::ostringstream oss;
         PrintVisitor visitor(oss);
-        program.accept(&visitor);
+        program.accept(visitor);
         std::string expected = "program {\n"
                                "  function call {\n"
                                "    name {\n"

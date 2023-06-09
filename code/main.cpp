@@ -1,5 +1,4 @@
 #include <iostream>
-#include <sstream>
 #include <fstream>
 #include <cstring>
 #include <memory>
@@ -8,6 +7,7 @@
 #include "print_utils.h"
 #include "parser/PrintVisitor.h"
 #include "parser/MyLangParser.h"
+#include "interpreter/MyLangInterpreter.h"
 
 void onError(Position position, ErrorType error) {
     std::cout << "Error: ";
@@ -15,6 +15,12 @@ void onError(Position position, ErrorType error) {
     std::cout << toString(error) <<"\n\t";
     std::cout << "line: " << position.getLine() << ' ';
     std::cout << "column: " << position.getColumn() << '\n';
+}
+
+void onInterpreterError(Position position, ErrorType error, const std::string& msg) {
+    onError(position, error);
+    if (!msg.empty())
+        std::cout << msg << '\n';
 }
 
 void printTokens(Lexer* lexer, int maxTokenCount = 4096) {
@@ -56,30 +62,36 @@ void printTokens(Lexer* lexer, int maxTokenCount = 4096) {
 }
 
 int main(int argc, char** argv) {
-    bool dontIgnoreComments = false;
-    if (argc > 2) {
-        dontIgnoreComments = !strcmp(argv[2], "--dont-ignore-comments");
-    }
     if (argc > 1) {
         std::ifstream fin(argv[1]);
-        if (dontIgnoreComments) {
-            MyLangLexer myLangLexer(fin, onError);
-            printTokens(&myLangLexer);
+        LexerWithoutComments lexerWithoutComments(fin, onError);
+        MyLangParser parser(std::make_unique<LexerWithoutComments>(lexerWithoutComments), onError);
+        if (argc > 2) {
+            if (!strcmp(argv[2], "--print-tokens")) {
+                MyLangLexer myLangLexer(fin, onError);
+                printTokens(&myLangLexer);
+            } else if (!strcmp(argv[2], "--print-object-tree")) {
+                try {
+                    Program program = parser.parse();
+                PrintVisitor printVisitor;
+                printVisitor.visit(program);
+                } catch (...) {
+                    std::cout << "Parsing failed!\n";
+                }
+            }
         } else {
-            LexerWithoutComments lexerWithoutComments(fin, onError);
-            MyLangParser parser(std::make_unique<LexerWithoutComments>(lexerWithoutComments), onError);
             try {
                 Program program = parser.parse();
-                PrintVisitor printVisitor;
-                printVisitor.visit(&program);
+                MyLangInterpreter interpreter(std::cout, std::cin, onInterpreterError);
+                interpreter.execute(program);
             } catch (...) {
-                std::cout << "Parsing failed!\n";
+                std::cout << "Run failed!\n";
             }
         }
         fin.close();
     } else {
         std::cout << "USAGE: " << argv[0] << " <input file> [--dont-ignore-comments]\n";
     }
-
     return 0;
 }
+

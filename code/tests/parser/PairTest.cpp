@@ -24,7 +24,7 @@ TEST(PairTest, ParseSimplePair) {
         Program program = parser.parse();
         std::ostringstream oss;
         PrintVisitor visitor(oss);
-        program.accept(&visitor);
+        program.accept(visitor);
         std::string expected = "program {\n"
                                "  assign {\n"
                                "    name {\n"
@@ -80,7 +80,7 @@ TEST(PairTest, ParsePairWithNumericExpressions) {
         Program program = parser.parse();
         std::ostringstream oss;
         PrintVisitor visitor(oss);
-        program.accept(&visitor);
+        program.accept(visitor);
         std::string expected = "program {\n"
                                "  assign {\n"
                                "    name {\n"
@@ -179,7 +179,7 @@ TEST(PairTest, ParsePairFieldAccess) {
         Program program = parser.parse();
         std::ostringstream oss;
         PrintVisitor visitor(oss);
-        program.accept(&visitor);
+        program.accept(visitor);
         std::string expected = "program {\n"
                                "  assign {\n"
                                "    name {\n"
@@ -227,7 +227,7 @@ TEST(PairTest, ParsePairFieldAccess2) {
         Program program = parser.parse();
         std::ostringstream oss;
         PrintVisitor visitor(oss);
-        program.accept(&visitor);
+        program.accept(visitor);
         std::string expected = "program {\n"
                                "  assign {\n"
                                "    name {\n"

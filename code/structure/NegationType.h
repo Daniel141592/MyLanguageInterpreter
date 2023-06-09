@@ -1,0 +1,8 @@
+#ifndef CODE_NEGATIONTYPE_H
+#define CODE_NEGATIONTYPE_H
+
+enum class NegationType {
+    ARITHMETIC, LOGICAL, NONE
+};
+
+#endif //CODE_NEGATIONTYPE_H

@@ -1,5 +1,41 @@
 #include "MyLangParser.h"
 
+namespace {
+    const std::unordered_map<TokenType, RelativeType> relativeTypes = {
+            {TokenType::GREATER_OR_EQUAL, RelativeType::GREATER_EQUAL},
+            {TokenType::GREATER_THAN, RelativeType::GREATER},
+            {TokenType::EQUAL, RelativeType::EQUAL},
+            {TokenType::LESS_OR_EQUAL, RelativeType::LESS_EQUAL},
+            {TokenType::LESS_THAN, RelativeType::LESS},
+            {TokenType::NOT_EQUAL, RelativeType::NOT_EQUAL},
+            {TokenType::IS_KEYWORD, RelativeType::IS}
+    };
+
+    const std::unordered_map<TokenType, AdditiveType> additiveTypes = {
+            {TokenType::PLUS, AdditiveType::ADD},
+            {TokenType::MINUS, AdditiveType::SUBTRACT}
+    };
+
+    const std::unordered_map<TokenType, MultiplicativeType> multiplicativeTypes = {
+            {TokenType::ASTERISK, MultiplicativeType::MULTIPLY},
+            {TokenType::DIVISION, MultiplicativeType::DIVIDE},
+            {TokenType::INT_DIVISION, MultiplicativeType::INT_DIVIDE},
+            {TokenType::MODULO, MultiplicativeType::MODULO}
+    };
+
+    const std::unordered_map<TokenType, ConstantType> typeNames = {
+            {TokenType::INT_KEYWORD, ConstantType::INTEGER},
+            {TokenType::FLOAT_KEYWORD, ConstantType::FLOAT},
+            {TokenType::STRING_KEYWORD, ConstantType::STRING}
+    };
+
+    const std::unordered_map<TokenType, ConstantType> constantTypes = {
+            {TokenType::INTEGER_VALUE, ConstantType::INTEGER},
+            {TokenType::FLOAT_VALUE, ConstantType::FLOAT},
+            {TokenType::STRING_LITERAL, ConstantType::STRING}
+    };
+}
+
 MyLangParser::MyLangParser(std::unique_ptr<Lexer> l, Parser::HandlerType onError) : lexer(std::move(l)), errorHandler(std::move(onError)) {
     currentToken = lexer->nextToken();
 }
@@ -26,8 +62,7 @@ void MyLangParser::criticalError(ErrorType type) {
  */
 Program MyLangParser::parse() {
     std::vector<InstructionPtr> instructions;
-    std::unordered_map<std::string, FunctionDeclaration> functions;
-    while (parseInstruction(instructions, functions));
+    while (parseInstruction(instructions));
 
     Program program(std::move(instructions));
     return program;
@@ -36,15 +71,14 @@ Program MyLangParser::parse() {
 /*
  * instruction = block | single_instruction | statement
  */
-bool MyLangParser::parseInstruction(std::vector<InstructionPtr>& instructions, std::unordered_map<std::string,
-                                    FunctionDeclaration>& functions) {
-    std::optional<InstructionPtr> instruction = parseBlock();
+bool MyLangParser::parseInstruction(std::vector<InstructionPtr>& instructions) {
+    InstructionPtr instruction = parseBlock();
     if (!instruction)
-        instruction = parseSingleInstruction(functions);
+        instruction = parseSingleInstruction();
     if (!instruction)
         instruction = parseStatement();
     if (instruction) {
-        instructions.emplace_back(std::move(instruction.value()));
+        instructions.emplace_back(std::move(instruction));
         return true;
     }
     return false;
@@ -53,11 +87,10 @@ bool MyLangParser::parseInstruction(std::vector<InstructionPtr>& instructions, s
 /*
  * block = ”{”, {instruction}, ”}”
  */
-std::optional<MyLangParser::BlockPtr> MyLangParser::parseBlock() {
+MyLangParser::BlockPtr MyLangParser::parseBlock() {
     std::vector<InstructionPtr> instructions;
-    std::unordered_map<std::string, FunctionDeclaration> functions;
     if (consumeIf(TokenType::LEFT_PARENTHESIS)) {
-        while (parseInstruction(instructions, functions));
+        while (parseInstruction(instructions));
         if (!consumeIf(TokenType::RIGHT_PARENTHESIS))
             criticalError(ErrorType::MISSING_PARENTHESIS);
         return std::make_unique<Block>(std::move(instructions));
@@ -68,9 +101,8 @@ std::optional<MyLangParser::BlockPtr> MyLangParser::parseBlock() {
 /*
  * single_instruction = (function_declaration | variable_declaration | assign_or_function_call)
  */
-std::optional<MyLangParser::SingleInstructionPtr> MyLangParser::parseSingleInstruction(std::unordered_map<std::string,
-                                                                                       FunctionDeclaration>& functions) {
-    std::optional<SingleInstructionPtr> instruction = parseFunctionDeclaration(functions);
+MyLangParser::SingleInstructionPtr MyLangParser::parseSingleInstruction() {
+    SingleInstructionPtr instruction = parseFunctionDeclaration();
     if (!instruction)
         instruction = parseVariableDeclarationOrAssignOrFunctionCall();
     if (instruction) {
@@ -82,8 +114,8 @@ std::optional<MyLangParser::SingleInstructionPtr> MyLangParser::parseSingleInstr
 /*
  * statement = if_statement | loop_statement | pattern_statement | return_statement
  */
-std::optional<MyLangParser::StatementPtr> MyLangParser::parseStatement() {
-    std::optional<StatementPtr> instruction = parseIfStatement();
+MyLangParser::StatementPtr MyLangParser::parseStatement() {
+    StatementPtr instruction = parseIfStatement();
     if (!instruction)
         instruction = parseLoopStatement();
     if (!instruction)
@@ -100,17 +132,18 @@ std::optional<MyLangParser::StatementPtr> MyLangParser::parseStatement() {
  * assign_or_function_call	= identifier, (assign | function_call), ";"
  * assign                   = "=", (expression | pair)
  */
-std::optional<MyLangParser::SingleInstructionPtr> MyLangParser::parseVariableDeclarationOrAssignOrFunctionCall() {
+MyLangParser::SingleInstructionPtr MyLangParser::parseVariableDeclarationOrAssignOrFunctionCall() {
     bool mut = false;
+    Position position = currentToken->getPosition();
     if (consumeIf(TokenType::MUT_KEYWORD))
         mut = true;
-    std::optional<IdentifierPtr> identifier = parseIdentifier();
+    IdentifierPtr identifier = parseIdentifier();
     if (!identifier) {
         if (!mut)
             return {};
         criticalError(ErrorType::MUT_OUTSIDE_DECLARATION);
     }
-    std::optional<SingleInstructionPtr> functionCall = parseFunctionCall(identifier.value()->getName());
+    SingleInstructionPtr functionCall = parseFunctionCall(identifier->getName(), position);
     if (functionCall) {
         if (!consumeIf(TokenType::SEMICOLON))
             errorHandler(currentToken->getPosition(), ErrorType::MISSING_SEMICOLON);
@@ -119,59 +152,55 @@ std::optional<MyLangParser::SingleInstructionPtr> MyLangParser::parseVariableDec
     if (!consumeIf(TokenType::ASSIGN)) {
         if (!consumeIf(TokenType::SEMICOLON))
             errorHandler(currentToken->getPosition(), ErrorType::MISSING_SEMICOLON);
-        return std::make_unique<VariableDeclaration>(std::move(identifier.value()), mut);
+        return std::make_unique<VariableDeclaration>(std::move(identifier), mut);
     }
-    std::optional<ExpressionPtr> expression;
-    expression = parseExpressionOrPair();
+    ExpressionPtr expression = parseExpressionOrPair();
     if (!expression) {
         criticalError(ErrorType::EXPRESSION_EXPECTED);
     }
     if (!consumeIf(TokenType::SEMICOLON))
         errorHandler(currentToken->getPosition(), ErrorType::MISSING_SEMICOLON);
     if (mut)
-        return std::make_unique<VariableDeclaration>(VariableDeclaration(std::move(identifier.value()),
-                                                                         std::move(expression.value()), mut));
-    return std::make_unique<Assign>(std::move(identifier.value()), std::move(expression.value()));
+        return std::make_unique<VariableDeclaration>(VariableDeclaration(std::move(identifier),
+                                                                         std::move(expression), mut));
+    return std::make_unique<Assign>(std::move(identifier),std::move(expression));
 }
 
 /*
+ * expression = and_expression, {"||”, and_expression}
  * pair = expression, expression
  */
-std::optional<MyLangParser::ExpressionPtr> MyLangParser::parseExpressionOrPair() {
-    std::optional<ExpressionPtr> first = parseExpression();
+MyLangParser::ExpressionPtr MyLangParser::parseExpressionOrPair() {
+    ExpressionPtr first = parseExpression();
     if (!first)
         return {};
     if (!consumeIf(TokenType::COMMA))
         return first;
-    std::optional<ExpressionPtr> second = parseExpression();
+    ExpressionPtr second = parseExpression();
     if (!second)
         criticalError(ErrorType::EXPRESSION_EXPECTED);
-    return std::make_unique<Pair>(std::move(first.value()), std::move(second.value()));
+    return std::make_unique<Pair>(std::move(first), std::move(second));
 }
 
 /*
  * function_declaration	= ”func”, identifier, arguments_list, block
  */
-std::optional<MyLangParser::SingleInstructionPtr>
-MyLangParser::parseFunctionDeclaration(std::unordered_map<std::string, FunctionDeclaration> &functions) {
+MyLangParser::SingleInstructionPtr
+MyLangParser::parseFunctionDeclaration() {
     if (!consumeIf(TokenType::FUNC_KEYWORD))
         return {};
     Position position = currentToken->getPosition();
-    std::optional<IdentifierPtr> identifier = parseIdentifier();
+    IdentifierPtr identifier = parseIdentifier();
     if (!identifier)
         criticalError(ErrorType::IDENTIFIER_EXPECTED);
-    auto it = functions.find(identifier.value()->getName());
-    if (it != functions.end())
-        criticalError(ErrorType::FUNCTION_REDEFINITION);
     std::optional<std::vector<Argument>> args = parseArgumentsList();
     if (!args)
         criticalError(ErrorType::ARGUMENTS_LIST_EXPECTED);
-    std::optional<BlockPtr> block = parseBlock();
+    BlockPtr block = parseBlock();
     if (!block)
         criticalError(ErrorType::BLOCK_EXPECTED);
-    FunctionDeclaration functionDeclaration(position, identifier.value()->getName(),
-                                            std::move(block.value()), std::move(args.value()));
-    return std::make_unique<FunctionDeclaration>(std::move(functionDeclaration));
+    return std::make_unique<FunctionDeclaration>(position, identifier->getName(),
+            std::move(block), std::move(args.value()));
 }
 
 /*
@@ -204,42 +233,43 @@ std::optional<std::vector<Argument>> MyLangParser::parseArgumentsList() {
  */
 std::optional<Argument> MyLangParser::parseArgument() {
     bool ref = false;
+    Position position = currentToken->getPosition();
     if (consumeIf(TokenType::REF_KEYWORD))
         ref = true;
-    std::optional<IdentifierPtr> identifier = parseIdentifier();
+    IdentifierPtr identifier = parseIdentifier();
     if (!identifier) {
         if (ref)
             criticalError(ErrorType::IDENTIFIER_EXPECTED);
         return {};
     }
-    return Argument(currentToken->getPosition(), identifier.value()->getName(), ref);
+    return Argument(position, identifier->getName(), ref);
 }
 
 /*
  * function_call = "(", [expression, {",", expression}], ”)”
  */
-std::optional<MyLangParser::FunctionCallPtr> MyLangParser::parseFunctionCall(const std::string& identifier) {
+MyLangParser::FunctionCallPtr MyLangParser::parseFunctionCall(const std::string& identifier, const Position& position) {
     if (!consumeIf(TokenType::LEFT_BRACKET))
         return {};
-    std::optional<ExpressionPtr> firstArgument = parseExpression();
+    ExpressionPtr firstArgument = parseExpression();
     if (!firstArgument) {
         if (!consumeIf(TokenType::RIGHT_BRACKET))
             criticalError(ErrorType::BRACKET_EXPECTED);
         return std::make_unique<FunctionCall>(
-                Identifier(currentToken->getPosition(), identifier), std::vector<ExpressionPtr>());
+                Identifier(position, identifier), std::vector<ExpressionPtr>());
     }
     std::vector<ExpressionPtr> args;
-    args.emplace_back(std::move(firstArgument.value()));
+    args.emplace_back(std::move(firstArgument));
     while (consumeIf(TokenType::COMMA)) {
-        std::optional<ExpressionPtr> arg = parseExpression();
+        ExpressionPtr arg = parseExpression();
         if (!arg)
             criticalError(ErrorType::EXPRESSION_EXPECTED);
-        args.emplace_back(std::move(arg.value()));
+        args.emplace_back(std::move(arg));
     }
     if (!consumeIf(TokenType::RIGHT_BRACKET))
         criticalError(ErrorType::BRACKET_EXPECTED);
     return std::make_unique<FunctionCall>(
-            Identifier(currentToken->getPosition(), identifier),
+            Identifier(position, identifier),
             std::move(args)
     );
 }
@@ -247,29 +277,27 @@ std::optional<MyLangParser::FunctionCallPtr> MyLangParser::parseFunctionCall(con
 /*
  * if_statement	= "if”, expression, block, [else_statement]
  */
-std::optional<MyLangParser::StatementPtr> MyLangParser::parseIfStatement() {
+MyLangParser::StatementPtr MyLangParser::parseIfStatement() {
     if (!consumeIf(TokenType::IF_KEYWORD))
         return {};
-    std::optional<ExpressionPtr> expression = parseExpression();
+    ExpressionPtr expression = parseExpression();
     if (!expression)
         criticalError(ErrorType::EXPRESSION_EXPECTED);
-    std::optional<BlockPtr> ifBlock = parseBlock();
+    BlockPtr ifBlock = parseBlock();
     if (!ifBlock)
         criticalError(ErrorType::BLOCK_EXPECTED);
-    std::optional<BlockPtr> elseBlock = parseElseStatement();
-    if (!elseBlock)
-        return std::make_unique<IfStatement>(std::move(expression.value()), std::move(ifBlock.value()));
-    return std::make_unique<IfStatement>(std::move(expression.value()),
-                                         std::move(ifBlock.value()), std::move(elseBlock.value()));
+    BlockPtr elseBlock = parseElseStatement();
+    return std::make_unique<IfStatement>(std::move(expression),
+                                         std::move(ifBlock), std::move(elseBlock));
 }
 
 /*
  * else_statement = "else”, block
  */
-std::optional<MyLangParser::BlockPtr> MyLangParser::parseElseStatement() {
+MyLangParser::BlockPtr MyLangParser::parseElseStatement() {
     if (!consumeIf(TokenType::ELSE_KEYWORD))
         return {};
-    std::optional<BlockPtr> block = parseBlock();
+    BlockPtr block = parseBlock();
     if (!block)
         criticalError(ErrorType::BLOCK_EXPECTED);
     return block;
@@ -278,25 +306,25 @@ std::optional<MyLangParser::BlockPtr> MyLangParser::parseElseStatement() {
 /*
  * loop_statement = "loop”, expression, block
  */
-std::optional<MyLangParser::StatementPtr> MyLangParser::parseLoopStatement() {
+MyLangParser::StatementPtr MyLangParser::parseLoopStatement() {
     if (!consumeIf(TokenType::LOOP_KEYWORD))
         return {};
-    std::optional<ExpressionPtr> expression = parseExpression();
+    ExpressionPtr expression = parseExpression();
     if (!expression)
         criticalError(ErrorType::EXPRESSION_EXPECTED);
-    std::optional<BlockPtr> block = parseBlock();
+    BlockPtr block = parseBlock();
     if (!block)
         criticalError(ErrorType::BLOCK_EXPECTED);
-    return std::make_unique<LoopStatement>(std::move(expression.value()), std::move(block.value()));
+    return std::make_unique<LoopStatement>(std::move(expression), std::move(block));
 }
 
 /*
  * pattern_statement = "pattern”, expression, "{", {match_statement}, ”}”
  */
-std::optional<MyLangParser::StatementPtr> MyLangParser::parsePatternStatement() {
+MyLangParser::StatementPtr MyLangParser::parsePatternStatement() {
     if (!consumeIf(TokenType::PATTERN_KEYWORD))
         return {};
-    std::optional<ExpressionPtr> expression = parseExpression();
+    ExpressionPtr expression = parseExpression();
     if (!expression)
         criticalError(ErrorType::EXPRESSION_EXPECTED);
     if (!consumeIf(TokenType::LEFT_PARENTHESIS))
@@ -305,7 +333,7 @@ std::optional<MyLangParser::StatementPtr> MyLangParser::parsePatternStatement() 
     while (parseMatchStatement(matches));
     if (!consumeIf(TokenType::RIGHT_PARENTHESIS))
         criticalError(ErrorType::MISSING_PARENTHESIS);
-    return std::make_unique<PatternStatement>(std::move(expression.value()), std::move(matches));
+    return std::make_unique<PatternStatement>(std::move(expression), std::move(matches));
 }
 
 /*
@@ -314,14 +342,14 @@ std::optional<MyLangParser::StatementPtr> MyLangParser::parsePatternStatement() 
 bool MyLangParser::parseMatchStatement(std::vector<MatchStatement::MatchStatementPtr>& matches) {
     if (!consumeIf(TokenType::MATCH_KEYWORD))
         return false;
-    std::optional<MatchStatementPtr> statement = parseMatchType();
+    MatchStatementPtr statement = parseMatchType();
     if (!statement)
         statement = parseMatchNone();
     if (!statement)
         statement = parseMatchPairOrExpression();
     if (!statement)
         criticalError(ErrorType::INVALID_MATCH_SYNTAX);
-    matches.emplace_back(std::move(statement.value()));
+    matches.emplace_back(std::move(statement));
     return true;
 }
 
@@ -330,7 +358,7 @@ bool MyLangParser::parseMatchStatement(std::vector<MatchStatement::MatchStatemen
  * match_float  = "Float”, ”(”, identifier, ”)”, block
  * match_int	= "Int”, ”(”, identifier, ”)”, block
  */
-std::optional<MyLangParser::MatchStatementPtr> MyLangParser::parseMatchType() {
+MyLangParser::MatchStatementPtr MyLangParser::parseMatchType() {
     ConstantType type;
     if (consumeIf(TokenType::STRING_KEYWORD))
         type = ConstantType::STRING;
@@ -342,100 +370,100 @@ std::optional<MyLangParser::MatchStatementPtr> MyLangParser::parseMatchType() {
         return {};
     if (!consumeIf(TokenType::LEFT_BRACKET))
         criticalError(ErrorType::BRACKET_EXPECTED);
-    std::optional<IdentifierPtr> identifier = parseIdentifier();
+    IdentifierPtr identifier = parseIdentifier();
     if (!identifier)
         criticalError(ErrorType::IDENTIFIER_EXPECTED);
     if (!consumeIf(TokenType::RIGHT_BRACKET))
         criticalError(ErrorType::BRACKET_EXPECTED);
-    std::optional<BlockPtr> block = parseBlock();
+    BlockPtr block = parseBlock();
     if (!block)
         criticalError(ErrorType::BLOCK_EXPECTED);
-    return std::make_unique<MatchType>(std::move(block.value()), std::move(identifier.value()), type);
+    return std::make_unique<MatchType>(std::move(block), std::move(identifier), type);
 }
 
 /*
  * match_none = "none", block
  */
-std::optional<MyLangParser::MatchStatementPtr> MyLangParser::parseMatchNone() {
+MyLangParser::MatchStatementPtr MyLangParser::parseMatchNone() {
     if (!consumeIf(TokenType::NONE_KEYWORD))
         return {};
-    std::optional<BlockPtr> block = parseBlock();
+    BlockPtr block = parseBlock();
     if (!block)
         criticalError(ErrorType::BLOCK_EXPECTED);
-    return std::make_unique<MatchNone>(std::move(block.value()));
+    return std::make_unique<MatchNone>(std::move(block));
 }
 
 /*
  * match_expression		= expression, ”(”, identifier, ”)”, block
  * match_pair			= pair, block
  */
-std::optional<MyLangParser::MatchStatementPtr> MyLangParser::parseMatchPairOrExpression() {
-    std::optional<ExpressionPtr> expression = parseExpression();
+MyLangParser::MatchStatementPtr MyLangParser::parseMatchPairOrExpression() {
+    ExpressionPtr expression = parseExpression();
     if (!expression)
         return {};
     if (consumeIf(TokenType::COMMA))
-        return parseMatchPair(std::move(expression.value()));
-    return parseMatchExpression(std::move(expression.value()));
+        return parseMatchPair(std::move(expression));
+    return parseMatchExpression(std::move(expression));
 }
 
 /*
  * match_pair = expression, ",”, expression, block
  */
-std::optional<MyLangParser::MatchStatementPtr> MyLangParser::parseMatchPair(MyLangParser::ExpressionPtr first) {
-    std::optional<ExpressionPtr> second = parseExpression();
+MyLangParser::MatchStatementPtr MyLangParser::parseMatchPair(MyLangParser::ExpressionPtr first) {
+    ExpressionPtr second = parseExpression();
     if (!second)
         criticalError(ErrorType::EXPRESSION_EXPECTED);
-    std::optional<BlockPtr> block = parseBlock();
+    BlockPtr block = parseBlock();
     if (!block)
         criticalError(ErrorType::BLOCK_EXPECTED);
-    return std::make_unique<MatchPair>(std::move(block.value()), std::move(first),std::move(second.value()));
+    return std::make_unique<MatchPair>(std::move(block), std::move(first),std::move(second));
 }
 
 /*
  * match_expression	= expression, ”(”, identifier, ”)”, block
  */
-std::optional<MyLangParser::MatchStatementPtr> MyLangParser::parseMatchExpression(MyLangParser::ExpressionPtr expression) {
+MyLangParser::MatchStatementPtr MyLangParser::parseMatchExpression(MyLangParser::ExpressionPtr expression) {
     if (!consumeIf(TokenType::LEFT_BRACKET))
         criticalError(ErrorType::BRACKET_EXPECTED);
-    std::optional<IdentifierPtr> identifier = parseIdentifier();
+    IdentifierPtr identifier = parseIdentifier();
     if (!identifier)
         criticalError(ErrorType::IDENTIFIER_EXPECTED);
     if (!consumeIf(TokenType::RIGHT_BRACKET))
         criticalError(ErrorType::BRACKET_EXPECTED);
-    std::optional<BlockPtr> block = parseBlock();
+    BlockPtr block = parseBlock();
     if (!block)
         criticalError(ErrorType::BLOCK_EXPECTED);
-    return std::make_unique<MatchExpression>(std::move(expression), std::move(identifier.value()),
-                                             std::move(block.value()));
+    return std::make_unique<MatchExpression>(std::move(expression), std::move(identifier),
+                                             std::move(block));
 }
 
 /*
  * return_statement	= ”return”, [expression], ”;”
  */
-std::optional<MyLangParser::StatementPtr> MyLangParser::parseReturnStatement() {
+MyLangParser::StatementPtr MyLangParser::parseReturnStatement() {
     if (!consumeIf(TokenType::RETURN_KEYWORD))
         return {};
-    std::optional<ExpressionPtr> expression = parseExpression();
+    ExpressionPtr expression = parseExpression();
     if (!consumeIf(TokenType::SEMICOLON))
         criticalError(ErrorType::MISSING_SEMICOLON);
     if (expression)
-        return std::make_unique<ReturnStatement>(std::move(expression.value()));
+        return std::make_unique<ReturnStatement>(std::move(expression));
     return std::make_unique<ReturnStatement>();
 }
 
 /*
  * expression = and_expression, {"||”, and_expression}
  */
-std::optional<MyLangParser::ExpressionPtr> MyLangParser::parseExpression() {
-    std::optional<ExpressionPtr> left = parseAndExpression();
+MyLangParser::ExpressionPtr MyLangParser::parseExpression() {
+    ExpressionPtr left = parseAndExpression();
     if (!left)
         return {};
     while (consumeIf(TokenType::OR)) {
-        std::optional<ExpressionPtr> right = parseAndExpression();
+        ExpressionPtr right = parseAndExpression();
         if (!right)
             criticalError(ErrorType::EXPRESSION_EXPECTED);
-        left = std::make_unique<OrExpression>(currentToken->getPosition(), std::move(left.value()),
-                                              std::move(right.value()));
+        left = std::make_unique<OrExpression>(currentToken->getPosition(), std::move(left),
+                                              std::move(right));
     }
     return left;
 }
@@ -443,16 +471,16 @@ std::optional<MyLangParser::ExpressionPtr> MyLangParser::parseExpression() {
 /*
  * and_expression = relative_expression, {"&&”, relative_expression}
  */
-std::optional<MyLangParser::ExpressionPtr> MyLangParser::parseAndExpression() {
-    std::optional<ExpressionPtr> left = parseRelativeExpression();
+MyLangParser::ExpressionPtr MyLangParser::parseAndExpression() {
+    ExpressionPtr left = parseRelativeExpression();
     if (!left)
         return {};
     while (consumeIf(TokenType::AND)) {
-        std::optional<ExpressionPtr> right = parseRelativeExpression();
+        ExpressionPtr right = parseRelativeExpression();
         if (!right)
             criticalError(ErrorType::EXPRESSION_EXPECTED);
-        left = std::make_unique<AndExpression>(currentToken->getPosition(), std::move(left.value()),
-                                              std::move(right.value()));
+        left = std::make_unique<AndExpression>(currentToken->getPosition(), std::move(left),
+                                              std::move(right));
     }
     return left;
 }
@@ -461,19 +489,20 @@ std::optional<MyLangParser::ExpressionPtr> MyLangParser::parseAndExpression() {
  * relative_expression = (numeric_expression, {operator, numeric_expression}) | is_expression
  * is_expression       = numeric_expression, {”is”, numeric_expression}
  */
-std::optional<MyLangParser::ExpressionPtr> MyLangParser::parseRelativeExpression() {
-    std::optional<ExpressionPtr> left = parseNumericExpression();
+MyLangParser::ExpressionPtr MyLangParser::parseRelativeExpression() {
+    ExpressionPtr left = parseNumericExpression();
     if (!left)
         return {};
-    std::optional<RelativeType> relativeType;
-    while ((relativeType = checkRelativeType())) {
+    auto it = relativeTypes.find(currentToken->getType());
+    while (it != relativeTypes.end()) {
         nextToken();
-        std::optional<ExpressionPtr> right = relativeType == RelativeType::IS
+        ExpressionPtr right = it->second == RelativeType::IS
                                       ? parseNumericPair() : parseNumericExpression();
         if (!right)
             criticalError(ErrorType::EXPRESSION_EXPECTED);
-        left = std::make_unique<RelativeExpression>(currentToken->getPosition(), std::move(left.value()),
-                                                    std::move(right.value()), relativeType.value());
+        left = std::make_unique<RelativeExpression>(currentToken->getPosition(), std::move(left),
+                                                    std::move(right), it->second);
+        it = relativeTypes.find(currentToken->getType());
     }
     return left;
 }
@@ -481,18 +510,19 @@ std::optional<MyLangParser::ExpressionPtr> MyLangParser::parseRelativeExpression
 /*
  * numeric_expression = term, {("+” | "-”), term }
  */
-std::optional<MyLangParser::ExpressionPtr> MyLangParser::parseNumericExpression() {
-    std::optional<ExpressionPtr> left = parseTerm();
+MyLangParser::ExpressionPtr MyLangParser::parseNumericExpression() {
+    ExpressionPtr left = parseTerm();
     if (!left)
         return {};
-    std::optional<AdditiveType> additiveType;
-    while ((additiveType = checkAdditiveType())) {
+    auto it = additiveTypes.find(currentToken->getType());
+    while (it != additiveTypes.end()) {
         nextToken();
-        std::optional<ExpressionPtr> right = parseTerm();
+        ExpressionPtr right = parseTerm();
         if (!right)
             criticalError(ErrorType::EXPRESSION_EXPECTED);
-        left = std::make_unique<AdditiveExpression>(currentToken->getPosition(), std::move(left.value()),
-                                                    std::move(right.value()), additiveType.value());
+        left = std::make_unique<AdditiveExpression>(currentToken->getPosition(), std::move(left),
+                                                    std::move(right), it->second);
+        it = additiveTypes.find(currentToken->getType());
     }
     return left;
 }
@@ -500,33 +530,34 @@ std::optional<MyLangParser::ExpressionPtr> MyLangParser::parseNumericExpression(
 /*
  * numeric_pair	= numeric_expression, ",", numeric_expression
  */
-std::optional<MyLangParser::ExpressionPtr> MyLangParser::parseNumericPair() {
-    std::optional<ExpressionPtr> first = parseNumericExpression();
+MyLangParser::ExpressionPtr MyLangParser::parseNumericPair() {
+    ExpressionPtr first = parseNumericExpression();
     if (!first)
         return {};
     if (!consumeIf(TokenType::COMMA))
         return first;
-    std::optional<ExpressionPtr> second = parseExpression();
+    ExpressionPtr second = parseExpression();
     if (!second)
         criticalError(ErrorType::EXPRESSION_EXPECTED);
-    return std::make_unique<Pair>(std::move(first.value()), std::move(second.value()));
+    return std::make_unique<Pair>(std::move(first), std::move(second));
 }
 
 /*
  * term	= factor, {("*” | "/” | "//” | "%”), factor};
  */
-std::optional<MyLangParser::ExpressionPtr> MyLangParser::parseTerm() {
-    std::optional<ExpressionPtr> left = parseFactor();
+MyLangParser::ExpressionPtr MyLangParser::parseTerm() {
+    ExpressionPtr left = parseFactor();
     if (!left)
         return {};
-    std::optional<MultiplicativeType> multiplicativeType;
-    while ((multiplicativeType = checkMultiplicationType())) {
+    auto it = multiplicativeTypes.find(currentToken->getType());
+    while (it != multiplicativeTypes.end()) {
         nextToken();
-        std::optional<ExpressionPtr> right = parseFactor();
+        ExpressionPtr right = parseFactor();
         if (!right)
             criticalError(ErrorType::EXPRESSION_EXPECTED);
-        left = std::make_unique<MultiplicationExpression>(currentToken->getPosition(), std::move(left.value()),
-                                                    std::move(right.value()), multiplicativeType.value());
+        left = std::make_unique<MultiplicationExpression>(currentToken->getPosition(), std::move(left),
+                                                    std::move(right), it->second);
+        it = multiplicativeTypes.find(currentToken->getType());
     }
     return left;
 }
@@ -534,19 +565,21 @@ std::optional<MyLangParser::ExpressionPtr> MyLangParser::parseTerm() {
 /*
  * factor = ["!" |"-"], constant | typename | id_or_function_call | field | cast_or_nested
  */
-std::optional<MyLangParser::ExpressionPtr> MyLangParser::parseFactor() {
-    bool negated = false;
-    if (consumeIf(TokenType::NEGATION) || consumeIf(TokenType::MINUS))
-        negated = true;
-    std::optional<ExpressionPtr> expression = parseConstant();
+MyLangParser::ExpressionPtr MyLangParser::parseFactor() {
+    NegationType negationType = NegationType::NONE;
+    if (consumeIf(TokenType::NEGATION))
+        negationType = NegationType::LOGICAL;
+    else if (consumeIf(TokenType::MINUS))
+        negationType = NegationType::ARITHMETIC;
+    ExpressionPtr expression = parseConstant();
     if (!expression)
         expression = parseIdentifierOrFunctionCall();
     if (!expression)
         expression = parseTypenameOrCastOrNestedExpression();
-    if (!expression && negated)
+    if (!expression && negationType != NegationType::NONE)
         criticalError(ErrorType::EXPRESSION_EXPECTED);
-    if (negated)
-        return std::make_unique<NegatedExpression>(std::move(expression.value()));
+    if (negationType != NegationType::NONE)
+        return std::make_unique<NegatedExpression>(std::move(expression), negationType);
     return expression;
 }
 
@@ -554,21 +587,21 @@ std::optional<MyLangParser::ExpressionPtr> MyLangParser::parseFactor() {
  * constant	= number | string
  * number	= int | float
  */
-std::optional<MyLangParser::ExpressionPtr> MyLangParser::parseConstant() {
-    std::optional<ConstantType> constantType = checkConstantType();
-    if (!constantType)
+MyLangParser::ExpressionPtr MyLangParser::parseConstant() {
+    auto it = constantTypes.find(currentToken->getType());
+    if (it == constantTypes.end())
         return {};
-    if (constantType == ConstantType::INTEGER) {
+    if (it->second == ConstantType::INTEGER) {
         int value = std::get<int>(currentToken->getValue());
         nextToken();
         return std::make_unique<Constant>(currentToken->getPosition(), value);
     }
-    if (constantType == ConstantType::FLOAT) {
+    if (it->second == ConstantType::FLOAT) {
         double value = std::get<double>(currentToken->getValue());
         nextToken();
         return std::make_unique<Constant>(currentToken->getPosition(), value);
     }
-    if (constantType == ConstantType::STRING) {
+    if (it->second == ConstantType::STRING) {
         std::string value = std::get<std::string>(currentToken->getValue());
         nextToken();
         return std::make_unique<Constant>(currentToken->getPosition(), value);
@@ -580,17 +613,18 @@ std::optional<MyLangParser::ExpressionPtr> MyLangParser::parseConstant() {
  * id_or_function_call = identifier, [function_call]
  * field = id_or_function_call, ”.”, ”first” | ”second”
  */
-std::optional<MyLangParser::ExpressionPtr> MyLangParser::parseIdentifierOrFunctionCall() {
-    std::optional<ExpressionPtr> expression;
-    std::optional<IdentifierPtr> identifier = parseIdentifier();
+MyLangParser::ExpressionPtr MyLangParser::parseIdentifierOrFunctionCall() {
+    Position position = currentToken->getPosition();
+    ExpressionPtr expression;
+    IdentifierPtr identifier = parseIdentifier();
     if (!identifier)
         return {};
-    std::optional<ExpressionPtr> functionCall = std::move(parseFunctionCall(identifier.value()->getName()));
+    ExpressionPtr functionCall = std::move(parseFunctionCall(identifier->getName(), position));
     if (!functionCall)
         expression = std::move(identifier);
     else
         expression = std::move(functionCall);
-    std::optional<ExpressionPtr> field = parseField(expression.value());
+    ExpressionPtr field = parseField(expression, position);
     if (!field)
         return expression;
     return field;
@@ -599,8 +633,7 @@ std::optional<MyLangParser::ExpressionPtr> MyLangParser::parseIdentifierOrFuncti
 /*
  * field = id_or_function_call, ”.”, ”first” | ”second”
  */
-std::optional<MyLangParser::ExpressionPtr> MyLangParser::parseField(ExpressionPtr& expression) {
-    Position position = currentToken->getPosition();
+MyLangParser::ExpressionPtr MyLangParser::parseField(ExpressionPtr& expression, const Position& position) {
     if (!consumeIf(TokenType::DOT))
         return {};
     if (currentToken->getType() == TokenType::IDENTIFIER
@@ -620,7 +653,7 @@ std::optional<MyLangParser::ExpressionPtr> MyLangParser::parseField(ExpressionPt
 /*
  * identifier = (letter | ”_”), {letter | digit | ”_”}
  */
-std::optional<MyLangParser::IdentifierPtr> MyLangParser::parseIdentifier() {
+MyLangParser::IdentifierPtr MyLangParser::parseIdentifier() {
     if (currentToken->getType() != TokenType::IDENTIFIER)
         return {};
     Position position = currentToken->getPosition();
@@ -633,95 +666,21 @@ std::optional<MyLangParser::IdentifierPtr> MyLangParser::parseIdentifier() {
  * cast_or_nested = [cast], "(", expression, ")”
  * cast			  = ”String” | ”Float” | ”Int” )
  */
-std::optional<MyLangParser::ExpressionPtr> MyLangParser::parseTypenameOrCastOrNestedExpression() {
+MyLangParser::ExpressionPtr MyLangParser::parseTypenameOrCastOrNestedExpression() {
     Position position = currentToken->getPosition();
-    std::optional<ConstantType> castType = checkTypeName();
-    if (castType)
+    auto it = typeNames.find(currentToken->getType());
+    if (it != typeNames.end())
         nextToken();
     if (!consumeIf(TokenType::LEFT_BRACKET)) {
-        if (castType)
-            return std::make_unique<Typename>(position, castType.value());
+        if (it != typeNames.end())
+            return std::make_unique<Typename>(position, it->second);
         else
             return {};
     }
-    std::optional<ExpressionPtr> expression = parseExpression();
+    ExpressionPtr expression = parseExpression();
     if (!consumeIf(TokenType::RIGHT_BRACKET))
         criticalError(ErrorType::BRACKET_EXPECTED);
-    if (castType)
-        return std::make_unique<CastExpression>(position, std::move(expression.value()), castType.value());
+    if (it != typeNames.end())
+        return std::make_unique<CastExpression>(position, std::move(expression), it->second);
     return expression;
 }
-
-std::optional<RelativeType> MyLangParser::checkRelativeType() {
-    switch (currentToken->getType()) {
-        case TokenType::GREATER_OR_EQUAL:
-            return RelativeType::GREATER_EQUAL;
-        case TokenType::GREATER_THAN:
-            return RelativeType::GREATER;
-        case TokenType::EQUAL:
-            return RelativeType::EQUAL;
-        case TokenType::LESS_OR_EQUAL:
-            return RelativeType::LESS_EQUAL;
-        case TokenType::LESS_THAN:
-            return RelativeType::LESS;
-        case TokenType::NOT_EQUAL:
-            return RelativeType::NOT_EQUAL;
-        case TokenType::IS_KEYWORD:
-            return RelativeType::IS;
-        default:
-            return {};
-    }
-}
-
-std::optional<AdditiveType> MyLangParser::checkAdditiveType() {
-    switch (currentToken->getType()) {
-        case TokenType::PLUS:
-            return AdditiveType::ADD;
-        case TokenType::MINUS:
-            return AdditiveType::SUBTRACT;
-        default:
-            return {};
-    }
-}
-
-std::optional<MultiplicativeType> MyLangParser::checkMultiplicationType() {
-    switch (currentToken->getType()) {
-        case TokenType::ASTERISK:
-            return MultiplicativeType::MULTIPLY;
-        case TokenType::DIVISION:
-            return MultiplicativeType::DIVIDE;
-        case TokenType::INT_DIVISION:
-            return MultiplicativeType::INT_DIVIDE;
-        case TokenType::MODULO:
-            return MultiplicativeType::MODULO;
-        default:
-            return {};
-    }
-}
-
-std::optional<ConstantType> MyLangParser::checkTypeName() {
-    switch (currentToken->getType()) {
-        case TokenType::INT_KEYWORD:
-            return ConstantType::INTEGER;
-        case TokenType::FLOAT_KEYWORD:
-            return ConstantType::FLOAT;
-        case TokenType::STRING_KEYWORD:
-            return ConstantType::STRING;
-        default:
-            return {};
-    }
-}
-
-std::optional<ConstantType> MyLangParser::checkConstantType() {
-    switch (currentToken->getType()) {
-        case TokenType::INTEGER_VALUE:
-            return ConstantType::INTEGER;
-        case TokenType::FLOAT_VALUE:
-            return ConstantType::FLOAT;
-        case TokenType::STRING_LITERAL:
-            return ConstantType::STRING;
-        default:
-            return {};
-    }
-}
-

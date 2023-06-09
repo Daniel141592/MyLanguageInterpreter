@@ -1,0 +1,8 @@
+#ifndef CODE_VARIABLETYPE_H
+#define CODE_VARIABLETYPE_H
+
+enum class VariableType {
+    INTEGER, FLOAT, STRING, PAIR, NONE
+};
+
+#endif //CODE_VARIABLETYPE_H

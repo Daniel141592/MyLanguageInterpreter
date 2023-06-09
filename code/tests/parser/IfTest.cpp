@@ -22,7 +22,7 @@ TEST(IfTest, ParseEmptyIf) {
         Program program = parser.parse();
         std::ostringstream oss;
         PrintVisitor visitor(oss);
-        program.accept(&visitor);
+        program.accept(visitor);
         std::string expected = "program {\n"
                                "  if {\n"
                                "    condition {\n"
@@ -64,7 +64,7 @@ TEST(IfTest, ParseSimpleIf) {
         Program program = parser.parse();
         std::ostringstream oss;
         PrintVisitor visitor(oss);
-        program.accept(&visitor);
+        program.accept(visitor);
         std::string expected = "program {\n"
                                "  if {\n"
                                "    condition {\n"
@@ -114,7 +114,7 @@ TEST(IfTest, ParseIfElse) {
         Program program = parser.parse();
         std::ostringstream oss;
         PrintVisitor visitor(oss);
-        program.accept(&visitor);
+        program.accept(visitor);
         std::string expected = "program {\n"
                                "  if {\n"
                                "    condition {\n"
@@ -161,7 +161,7 @@ TEST(IfTest, ParseIfWithoutExpression) {
         Program program = parser.parse();
         std::ostringstream oss;
         PrintVisitor visitor(oss);
-        program.accept(&visitor);
+        program.accept(visitor);
     } catch (...) {
         exceptionThrown = true;
     }
@@ -190,7 +190,7 @@ TEST(IfTest, ParseIfWithoutBlock) {
         Program program = parser.parse();
         std::ostringstream oss;
         PrintVisitor visitor(oss);
-        program.accept(&visitor);
+        program.accept(visitor);
     } catch (...) {
         exceptionThrown = true;
     }

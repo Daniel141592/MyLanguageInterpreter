@@ -23,7 +23,7 @@ TEST(PatternTest, EmptyPatternTest) {
         Program program = parser.parse();
         std::ostringstream oss;
         PrintVisitor visitor(oss);
-        program.accept(&visitor);
+        program.accept(visitor);
         std::string expected = "program {\n"
                                "  pattern {\n"
                                "    expression {\n"
@@ -71,7 +71,7 @@ TEST(PatternTest, SimplePatternMatchTest) {
         Program program = parser.parse();
         std::ostringstream oss;
         PrintVisitor visitor(oss);
-        program.accept(&visitor);
+        program.accept(visitor);
         std::string expected = "program {\n"
                                "  pattern {\n"
                                "    expression {\n"
@@ -135,7 +135,7 @@ TEST(PatternTest, PatternMatchExpressionTest) {
         Program program = parser.parse();
         std::ostringstream oss;
         PrintVisitor visitor(oss);
-        program.accept(&visitor);
+        program.accept(visitor);
         std::string expected = "program {\n"
                                "  pattern {\n"
                                "    expression {\n"
@@ -206,7 +206,7 @@ TEST(PatternTest, PatternMatchPairTest) {
         Program program = parser.parse();
         std::ostringstream oss;
         PrintVisitor visitor(oss);
-        program.accept(&visitor);
+        program.accept(visitor);
         std::string expected = "program {\n"
                                "  pattern {\n"
                                "    expression {\n"
@@ -263,7 +263,7 @@ TEST(PatternTest, PatternMatchNoneTest) {
         Program program = parser.parse();
         std::ostringstream oss;
         PrintVisitor visitor(oss);
-        program.accept(&visitor);
+        program.accept(visitor);
         std::string expected = "program {\n"
                                "  pattern {\n"
                                "    expression {\n"

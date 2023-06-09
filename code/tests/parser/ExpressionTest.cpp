@@ -24,7 +24,7 @@ TEST(ExpressionTest, ParseOrExpression) {
         Program program = parser.parse();
         std::ostringstream oss;
         PrintVisitor visitor(oss);
-        program.accept(&visitor);
+        program.accept(visitor);
         std::string expected = "program {\n"
                                "  assign {\n"
                                "    name {\n"
@@ -76,7 +76,7 @@ TEST(ExpressionTest, ParseAndExpression) {
         Program program = parser.parse();
         std::ostringstream oss;
         PrintVisitor visitor(oss);
-        program.accept(&visitor);
+        program.accept(visitor);
         std::string expected = "program {\n"
                                "  assign {\n"
                                "    name {\n"
@@ -132,7 +132,7 @@ TEST(ExpressionTest, ParseAndExpressionOrAndExpression) {
         Program program = parser.parse();
         std::ostringstream oss;
         PrintVisitor visitor(oss);
-        program.accept(&visitor);
+        program.accept(visitor);
         std::string expected = "program {\n"
                                "  assign {\n"
                                "    name {\n"
@@ -208,7 +208,7 @@ TEST(ExpressionTest, ParseAndExpressionWithBrackets) {
         Program program = parser.parse();
         std::ostringstream oss;
         PrintVisitor visitor(oss);
-        program.accept(&visitor);
+        program.accept(visitor);
         std::string expected = "program {\n"
                                "  assign {\n"
                                "    name {\n"
@@ -277,7 +277,7 @@ TEST(ExpressionTest, NegatedExpressionTest) {
         Program program = parser.parse();
         std::ostringstream oss;
         PrintVisitor visitor(oss);
-        program.accept(&visitor);
+        program.accept(visitor);
         std::string expected = "program {\n"
                                "  assign {\n"
                                "    name {\n"
@@ -324,7 +324,7 @@ TEST(ExpressionTest, ParseArithmeticExpresion) {
         Program program = parser.parse();
         std::ostringstream oss;
         PrintVisitor visitor(oss);
-        program.accept(&visitor);
+        program.accept(visitor);
         std::string expected = "program {\n"
                                "  assign {\n"
                                "    name {\n"
@@ -387,7 +387,7 @@ TEST(ExpressionTest, ParseArithmeticExpresionWithBrackets) {
         Program program = parser.parse();
         std::ostringstream oss;
         PrintVisitor visitor(oss);
-        program.accept(&visitor);
+        program.accept(visitor);
         std::string expected = "program {\n"
                                "  assign {\n"
                                "    name {\n"
@@ -454,7 +454,7 @@ TEST(ExpressionTest, ParseExpressionWithArithmeticAndLogicalParts) {
         Program program = parser.parse();
         std::ostringstream oss;
         PrintVisitor visitor(oss);
-        program.accept(&visitor);
+        program.accept(visitor);
         std::string expected = "program {\n"
                                "  assign {\n"
                                "    name {\n"
@@ -532,7 +532,7 @@ TEST(ExpressionTest, ParseCastExpression) {
         Program program = parser.parse();
         std::ostringstream oss;
         PrintVisitor visitor(oss);
-        program.accept(&visitor);
+        program.accept(visitor);
         std::string expected = "program {\n"
                                "  assign {\n"
                                "    name {\n"
@@ -584,7 +584,7 @@ TEST(ExpressionTest, ParseMutualAndExpressions) {
         Program program = parser.parse();
         std::ostringstream oss;
         PrintVisitor visitor(oss);
-        program.accept(&visitor);
+        program.accept(visitor);
         std::string expected = "program {\n"
                                "  assign {\n"
                                "    name {\n"
