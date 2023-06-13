@@ -39,7 +39,7 @@ private:
                 result.setValue(a / b);
                 break;
             case MultiplicativeType::INT_DIVIDE:
-                if (b == 0)
+                if ((int)b == 0)
                     throw DivisionByZeroException();
                 result.setValue((int) a / (int) b);
                 break;

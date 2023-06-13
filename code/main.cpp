@@ -90,7 +90,7 @@ int main(int argc, char** argv) {
         }
         fin.close();
     } else {
-        std::cout << "USAGE: " << argv[0] << " <input file> [--dont-ignore-comments]\n";
+        std::cout << "USAGE: " << argv[0] << " <input file> [--print-tokens | --print-object-tree]\n";
     }
     return 0;
 }
