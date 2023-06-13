@@ -178,7 +178,7 @@ void MyLangInterpreter::visit(const LoopStatement &loopStatement) {
     result.setPosition(loopStatement.getCondition()->getPosition());
     loopStatement.getCondition()->accept(*this);
     std::visit(BooleanVisitor(result), result.getValue());
-    while (std::holds_alternative<int>(result.getValue()) && std::get<int>(result.getValue()) != 0) {
+    while (std::holds_alternative<int>(result.getValue()) && std::get<int>(result.getValue()) != 0 && !result.isReturned()) {
         contexts.back().addScope();
         loopStatement.getBlock()->accept(*this);
         contexts.back().removeScope();
